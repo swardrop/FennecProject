@@ -1,3 +1,6 @@
+#ifndef READ_H
+#define READ_H
+
 /* Read
  *
  * This module obtains a value representing the strain in the beam from the
@@ -14,3 +17,5 @@
  */
 
 char readSignal(int*);
+
+#endif // READ_H
