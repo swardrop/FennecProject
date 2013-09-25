@@ -1,0 +1,33 @@
+Presentation notes (sorry for ugly formatting, ipad is bad for writing, but at least I figured out how to post now
+
+Make sure you can hardware power down from software command
+Make factory mode inaccessible to regular users (eg have a password)
+Check max pin current and port current for LED shift register
+If needed, you can use 1 pin for LED (not recommended though)
+Use verbs in function names eg getSerial setValue etc
+
+
+Put LED's as an output on hardware outputs
+Have consistency between box and diagrams
+Make the diagrams more clear
+Put the hinge on long edge of box, not short edge
+Probably better to just buy a box
+Don't need 2 chip selects for LED's
+17 buttons seems excessive
+Be consistent with buttons (the g/oz is only button used on keypad, but is similar to on/off, tare buttons etc)
+LCD instructions need an extra step to tell user to put more/less objects in to count after mass was calculated
+Have a small delay/stabilisation time to make measurements more accurate in count mode
+Use TTS for buttons like on/off instead of a beep
+Possibly try use tones through TTS for simplicity
+Make buttons in GUI similar to arrangement of hardware eg horizontal across the bottom instead of vertical
+Don't have a button to go factory mode (make it secret)
+Clarify the transition from factory mode to user local mode
+Make the state diagram more accurate even though it will be messy as shit
+Can we put it in sleep mode?
+Group arrows together in state diagram that go in the same direction (eg set g and set oz)
+Make clap extension more feasible or ditch it
+Make the warning green as it is pretty much essential
+DECIDE ON WHAT EXTENSIONS WE WILL DO AND DO THAT ONLY
+Do a quick calibration early on and use that. Make it more accurate later on 
+Redo gant chart?
+Look at the scrum design technique 
