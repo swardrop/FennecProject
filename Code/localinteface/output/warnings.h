@@ -18,8 +18,5 @@
  *  @args warning code
  *  @return status (0 for success)
  */
-char showWarning(char warningCode)
-{
-    return 0;
-}
+char showWarning(char warningCode);
 #endif //WARNINGS_H
