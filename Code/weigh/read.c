@@ -1,8 +1,7 @@
 #include "read.h"
 
-char readSignal(int* valPtr)
+int readSignal(void)
 {
-    *valPtr = 512;
-    return 1;
+    return 512;
 }
 
