@@ -2,6 +2,5 @@
 
 int smoothWeight(int* Ptr)
 {
-
     return 500;
 }
