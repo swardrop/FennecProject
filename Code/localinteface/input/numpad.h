@@ -10,6 +10,15 @@
 
 char getNextNum();
 
-// Interrupt subroutine for capturing numpad press
+/* Interrupt subroutine for capturing numpad press
+ * 
+ * Gets Data nibble from IOpins, converts to appropriate value, stores in next 
+ * available spot in circular buffer. 
+ * 
+ * Inputs:  None
+ * 
+ * Outputs: Value in circular buffer (global)
+ *
+ */
 void numpadISR();
-#endif
+#endif //NUMPAD_H

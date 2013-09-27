@@ -7,7 +7,7 @@ static char num_buffer[BUFSIZE];
 
 char getNextNum()
 {
-    return 0;
+    return 3;
 }
 
 void numpadISR()
