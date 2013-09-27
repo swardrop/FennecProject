@@ -1,6 +1,9 @@
 #ifndef NUMPAD_H
 #define NUMPAD_H
 
+
+#define NP_BUFSIZE     16
+
 /* Numpad
  *
  * This module provides access to the data captured from the numpad.
@@ -21,4 +24,7 @@ char getNextNum();
  *
  */
 void numpadISR();
+
+char np_buffer[NP_BUFSIZE];
+
 #endif //NUMPAD_H
