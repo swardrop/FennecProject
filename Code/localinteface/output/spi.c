@@ -2,6 +2,10 @@
 
 #define SPI_BUFSIZE     32
 
+#define EEPROM_READ_STRING  10
+#define EEPROM_READ_BYTE    11
+#define EEPROM_WRITE        12
+
 typedef struct spiData {
     char CSpattern;
     char *data;
