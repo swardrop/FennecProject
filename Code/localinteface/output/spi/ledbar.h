@@ -12,6 +12,6 @@
  *
  * Outputs: 2 Byte bar graph output in SPI circular buffer.
  */
-void writeLEDbar(int, int = 1000);
+void writeLEDbar(int weight, int max_weight);
 
 #endif /*LED_BAR_H*/

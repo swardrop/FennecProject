@@ -14,7 +14,7 @@
  */
 
 char TTScompleteFlag;
-void stringToTTS(char*);
+void stringToTTS(char* string);
 void TTS_ISR(void);
 void initiateTTS(void);
 

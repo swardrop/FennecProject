@@ -1,6 +1,6 @@
 #include "spi.h"
 
-void writeLEDbar(int, int = 1000)
+void writeLEDbar(int weight, int max_weight)
 {
     
 

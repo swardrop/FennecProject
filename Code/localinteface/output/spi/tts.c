@@ -1,7 +1,7 @@
 #include "spi.h"
 #include "tts.h"
 
-void stringToTTS(char*)
+void stringToTTS(char* string)
 {
     TTScompleteFlag = 0;
 
