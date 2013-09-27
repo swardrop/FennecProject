@@ -11,9 +11,16 @@
  *          Signal from strain gauge/A-D Converter
  *
  * Outputs: info on LCD
+ * 
  */
-
+ 
+/* This is the function that runs the standard weigh module. It gets the value
+ * and outputs it the LCD or serial*/
 void weigh(void);
+
+
+/* This one only returns a smoothed weight value between 0 and 1023. This is 
+ * required by some other modules and so will be publicly available. */
 int getWeight(void);
 
 #endif  // WEIGH_H

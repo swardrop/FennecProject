@@ -3,15 +3,13 @@
 
 /* Tare
  *
- * Calculates a new zero point on the calibration curve based on current
- * measured mass.
+ * Sets the current weight to display as zero. 
  *
- * Inputs:  Raw signal data
- *          Calibration curve
+ * Inputs:  Smoothed signal data 
  *
  * Outputs: Zero point offset
  */
 
-int tare(int* rawData, int* calCurve);
+int tare(int* signalData);
 
 #endif // TARE_H
