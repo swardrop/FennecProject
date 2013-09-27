@@ -11,4 +11,7 @@
  *
  */
 void pushBtnISR();
+
+static char req_state;
+
 #endif //PUSHBTN_H
