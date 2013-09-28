@@ -1,6 +1,7 @@
-#include "./localinteface/input/pushbuttons.h"
+#include "state.h"
 #include "weigh.h"
-
+#include "./remoteinterface/calibrate.h"
+#include "./remoteinterface/factory.h"
 
 /**
  * FennecScales main function, this is the highest level control flow.
@@ -13,9 +14,6 @@ void setup();
 void powerDown();
 void highISR();
 void lowISR();
-
-// Main-scope global variables
-char cur_state; // current state of system
 
 // Interrupt vectors
 #pragma code highint=0x0008
@@ -43,7 +41,8 @@ void main(void)
             case WEIGH: weigh();
             case COUNT: count();
             case CALIBRATE: calibrate();
-            case SHOW_WEIGH_READINGS: showWeighReadings();
+            case SET_NUM_SAMPLES: setNumSamples();
+            case SHOW_WEIGHT_READINGS: showWeightReadings();
             case SHOW_STATISTICS: showStats();
         }
 

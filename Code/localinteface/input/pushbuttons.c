@@ -1,9 +1,7 @@
 #include "pushbuttons.h"
-
-char req_state;
+#include "../../state.h"
 
 void pushBtnISR()
 {
-
 
 }
