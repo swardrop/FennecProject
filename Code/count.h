@@ -1,6 +1,7 @@
 #ifndef COUNT_H
 #define COUNT_H
-/* Count
+/**
+ * Count
  *
  * This module measures the weight of a known number of items, then counts the
  * number of items on the scale, and outputs this value to the LCD.

@@ -13,6 +13,7 @@
  * Outputs: info on LCD
  * 
  */
+extern int variance;
  
 /* This is the function that runs the standard weigh module. It gets the value
  * and outputs it the LCD or serial*/

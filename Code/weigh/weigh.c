@@ -1,3 +1,7 @@
+#include "../weigh.h"
+
+int variance;
+
 void weigh (void)
 /*Gets the weight, converts it to g/oz, writes to LCD/serial*/
 {

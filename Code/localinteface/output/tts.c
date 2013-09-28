@@ -3,7 +3,7 @@
 
 char TTScompleteFlag;
 
-void stringToTTS(char* string)
+void strToTTS(char* str)
 {
     TTScompleteFlag = 0;
 

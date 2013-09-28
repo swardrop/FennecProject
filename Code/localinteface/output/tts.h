@@ -14,8 +14,25 @@
  */
 
 extern char TTScompleteFlag;
-void stringToTTS(char* string);
+
+/**
+ * strToTTS
+ * Places the string (null terminated) into the SPI send buffer, to TTS
+ * @param str       Pointer to start of string to send.
+ */
+void strToTTS(char* str);
+
+/**
+ * TTS_ISR
+ * TTS finished saying string interrupt. Set complete flag, indicate ready to
+ * move on or be sent another string.
+ */
 void TTS_ISR(void);
+
+/**
+ * initiateTTS
+ * Wakes up TTS, and sends required bytes over SPI to put TTS in a ready state.
+ */
 void initiateTTS(void);
 
 #endif /*TTS_H*/
