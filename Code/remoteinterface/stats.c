@@ -1,5 +1,5 @@
 #include "stats.h"
-Stats readSignal(int* dsPtr, char dsLength)
+Stats readStats(int* dsPtr, char dsLength)
 {
     int mean = 512;
     int variance = 16;

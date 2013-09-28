@@ -20,6 +20,6 @@
 	int variance;
 } Stats;
 
-Stats readSignal(int* dsPtr, char dsLength);
+Stats readStats(int* dsPtr, char dsLength);
 
 #endif //STATS_H

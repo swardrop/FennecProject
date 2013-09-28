@@ -13,7 +13,7 @@ typedef struct spiData {
 
 static SPIdata SPI_buffer[SPI_BUFSIZE];
 static char lead_idx, trail_idx;
-
+char readStatus;
 
 void setupSPI()
 {

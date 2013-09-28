@@ -25,6 +25,6 @@ char getNextNum();
  */
 void numpadISR();
 
-char np_buffer[NP_BUFSIZE];
+extern char np_buffer[NP_BUFSIZE];
 
 #endif //NUMPAD_H

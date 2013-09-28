@@ -16,7 +16,7 @@
 
 #define READ_COMPLETE   0x8
 #define READ_ONGOING    0x4
-char readStatus;
+extern char readStatus;
 
 /**
  * setupSPI(void)

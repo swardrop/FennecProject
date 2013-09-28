@@ -13,7 +13,7 @@
  * Outputs: Struct in SPI circular buffer
  */
 
-char TTScompleteFlag;
+extern char TTScompleteFlag;
 void stringToTTS(char* string);
 void TTS_ISR(void);
 void initiateTTS(void);
