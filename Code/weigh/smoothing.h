@@ -2,7 +2,8 @@
 #define SMOOTHING_H
 
 
-/* Smoothing
+/**
+ * Smoothing
  *
  * This module takes the raw data (provided by the signal acquisition module) 
  * and smooths it using the selected algorithm to get a stable, usable value 
@@ -18,6 +19,11 @@
  * Outputs: Smoothed value
  */
 
-int smoothWeight(int*);
+/**
+ * smoothWeight
+ * Performs moving average smoothing to get a current smoothed weight
+ * @return      smoothed current weight
+ */
+int smoothWeight();
 
 #endif // SMOOTHING_H
