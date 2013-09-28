@@ -6,5 +6,20 @@
  * Contains the ADC interrupt and the initialise
  */
 
+extern int raw_weight[];
+extern int* ADC_lead_Ptr;
+
+/**
+ * ADC_ISR
+ * When ADC conversion is complete take the value it gives and put it into a
+ * circular buffer of raw values.
+ */
+void ADCisr(void);
+
+/**
+ * initialiseADC
+ * Confige ADC channel etc..
+ */
+void initialiseADC(void);
 
 #endif // READ_H

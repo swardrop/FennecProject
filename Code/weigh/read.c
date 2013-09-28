@@ -1,7 +1,14 @@
 #include "read.h"
 
-int readSignal(void)
+int raw_weight[];
+int* ADC_lead_Ptr;
+
+void ADCisr(void)
 {
-    return 512;
+
 }
 
+void initialiseADC(void)
+{
+
+}
