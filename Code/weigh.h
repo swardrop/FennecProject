@@ -25,7 +25,7 @@ void weigh(void);
  * This is the high-level counting function mandated by the specification.
  * It will call getWeight, which will updtate the variance global.
  */
-void count();
+void count(void);
 
 /* This one only returns a smoothed weight value between 0 and 1023. This is 
  * required by some other modules and so will be publicly available. */

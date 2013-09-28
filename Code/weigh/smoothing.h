@@ -24,6 +24,6 @@
  * Performs moving average smoothing to get a current smoothed weight
  * @return      smoothed current weight
  */
-int smoothWeight();
+int smoothWeight(void);
 
 #endif // SMOOTHING_H

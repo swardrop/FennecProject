@@ -42,12 +42,12 @@ extern char num_samples;
  * affect the saved variables; i.e. a subsequent retrieve will read the same
  * variables.
  */
-void retrieveState();
+void retrieveState(void);
 
 /**
  * saveState
  * Places the current state variables into EEPROM for later retrieval.
  */
-void saveState();
+void saveState(void);
 
 #endif // STATE_H

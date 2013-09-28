@@ -22,7 +22,7 @@ extern char readStatus;
  * setupSPI(void)
  * Sets the register values for the SPI bus to function as it should.
  */
-void setupSPI();
+void setupSPI(void);
 
 /**
  * sendDataSPI
@@ -58,7 +58,7 @@ void sendEEPROMbyte(int address, char *data);
  * SPIisr
  * Manages sending and receiving bytes over SPI.
  */
-void SPIisr();
+void SPIisr(void);
 
 
 #endif // SPI_H

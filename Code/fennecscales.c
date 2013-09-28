@@ -10,10 +10,10 @@
  */
 
 // Function declarations
-void setup();
-void powerDown();
-void highISR();
-void lowISR();
+void setup(void);
+void powerDown(void);
+void highISR(void);
+void lowISR(void);
 
 // Interrupt vectors
 #pragma code highint=0x0008

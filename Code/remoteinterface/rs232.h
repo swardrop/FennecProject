@@ -35,7 +35,7 @@ char writeString(char* str);
  * return -1.
  * @return          Next byte in read buffer (-1 if empty)
  */
-char readByte();
+char readByte(void);
 /**
  * readString
  * Places a null-terminated string received from serial into a location
@@ -51,11 +51,11 @@ void readString(char* dest);
  * tx232isr
  * Interrupt service routine for dealing with transmits over RS232
  */
-void tx232isr();
+void tx232isr(void);
 /**
  * rx232isr
  * Interupt service routine for dealing with reception over RS232.
  */
-void rx232isr();
+void rx232isr(void);
 
 #endif // RS232_H
