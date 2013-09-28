@@ -1,13 +1,11 @@
 #include "numpad.h"
 
-#define BUFSIZE     16
-
-static char *lead_ptr, *trail_ptr;
-static char num_buffer[BUFSIZE];
+char np_buffer[NP_BUFSIZE];
+static char *np_lead_ptr, *np_trail_ptr;
 
 char getNextNum()
 {
-    return 0;
+    return 3;
 }
 
 void numpadISR()

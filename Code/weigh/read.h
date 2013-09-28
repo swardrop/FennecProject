@@ -1,21 +1,25 @@
 #ifndef READ_H
 #define READ_H
 
-/* Read
- *
- * This module obtains a value representing the strain in the beam from the
- * A/D converter and places it in a circular buffer.
- * It receives a pointer to the location where the value should be placed, and
- * returns a success or fail flag. On a successful return, the weigh module will
- * increment the buffer appropriately.
- *
- * Inputs:  Pointer to next value in circular buffer
- *          Signal from beam
- *
- * Outputs: Integer (0-1023) representing the weight into buffer
- *          Success flag
+/**
+ * Read Module
+ * Contains the ADC interrupt and the initialise
  */
 
-char readSignal(int*);
+extern int raw_weight[];
+extern int* ADC_lead_Ptr;
+
+/**
+ * ADC_ISR
+ * When ADC conversion is complete take the value it gives and put it into a
+ * circular buffer of raw values.
+ */
+void ADCisr(void);
+
+/**
+ * initialiseADC
+ * Confige ADC channel etc..
+ */
+void initialiseADC(void);
 
 #endif // READ_H
