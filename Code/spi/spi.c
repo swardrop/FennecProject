@@ -25,21 +25,6 @@ void sendDataSPI(char destination, char* data)
 
 }
 
-void getEEPROMstring(char *data)
-{
-
-}
-
-void getEEPROMbyte(char *data)
-{
-
-}
-
-void sendEEPROMbyte(int address, char *data)
-{
-
-}
-
 void SPIisr()
 {
     

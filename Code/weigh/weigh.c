@@ -55,11 +55,13 @@ void weigh (void)
         else
         {
             //output to LCD
+            char weight_str[4];
+            sprintf(weight_str, "%d", weight);
                 // Get string from EEPROM
                 // Substitute weight value
                 // Print to LCD
-            dispString(OUTF_LCD_L1 & OUTF_NO_UNITS & STR_WEIGH, 0);
-            dispString(OUTF_LCD_L2 & OUTF_GRAMS & STR_EMPTY, weight);
+            dispString(OUTF_LCD_L1 & OUTF_NO_UNITS & STR_WEIGH, weight_str);
+            dispString(OUTF_LCD_L2 & OUTF_GRAMS & STR_EMPTY, weight_str);
         }
     }
 }

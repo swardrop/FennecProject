@@ -1,12 +1,12 @@
 #include "../spi.h"
 #include "eeprom.h"
 
-void getEEPROMstring(char *data)
+void getEEPROMstring(int address, char *data)
 {
 
 }
 
-void getEEPROMbyte(char *data)
+void getEEPROMbyte(int address, char *data)
 {
 
 }
