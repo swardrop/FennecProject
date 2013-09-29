@@ -2,6 +2,7 @@
 #include "../remoteinterface/calibrate.h"
 #include "../state.h"
 #include "../weigh/read.h"
+#include "../spi/outf.h"
 #include "smoothing.h"
 #include <math.h>
 #include <string.h>
@@ -57,6 +58,8 @@ void weigh (void)
                 // Get string from EEPROM
                 // Substitute weight value
                 // Print to LCD
+            dispString(OUTF_LCD_L1 & OUTF_NO_UNITS & STR_WEIGH, 0);
+            dispString(OUTF_LCD_L2 & OUTF_GRAMS & STR_EMPTY, weight);
         }
     }
 }

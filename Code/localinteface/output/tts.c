@@ -1,4 +1,4 @@
-#include "spi.h"
+#include "../../spi.h"
 #include "tts.h"
 
 char TTScompleteFlag;
