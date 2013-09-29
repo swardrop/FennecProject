@@ -1,6 +1,6 @@
 #include "read.h"
 
-int raw_weight[];
+int raw_weight[ADC_BUFSIZE];
 char ADC_lead_idx;
 
 void ADCisr(void)

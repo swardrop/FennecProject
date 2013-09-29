@@ -3,11 +3,16 @@
 #include "../state.h"
 #include "../weigh/read.h"
 #include "smoothing.h"
+#include <math.h>
+#include <string.h>
+#include <stdio.h>
 
 int variance;
 
 int convertGramsToOz(int grams);
 int convertVoltageToGrams(int voltage);
+int mod (int a, int b);
+int square (int a);
 
 void weigh (void)
 /*Gets the weight, converts it to g/oz, writes to LCD/serial*/
@@ -61,27 +66,40 @@ int getWeight(void)
 {
     int mean;
     char temp_idx;
+    char temp_lead_idx = ADC_lead_idx;
+    long total;
     int temp_variance;
+    int weight;
 
     // Calculate mean and variance from raw data buffer
-    mean = smoothWeight();
+    weight = smoothWeight();
+
+        // Loop through raw data, to calculate mean.
+    total = 0;
+    for(temp_idx = 1; temp_idx <= num_samples; temp_idx++)
+    {
+        total += raw_weight[mod((temp_lead_idx - temp_idx), ADC_BUFSIZE)];
+    }
+    mean = total/num_samples;
     
     // Loop through again, this time calculate variance.
     temp_variance = 0;
-    for(temp_idx = 0; temp_idx < num_samples; temp_idx++)
+    for(temp_idx = num_samples+1; temp_idx > 1; temp_idx--)
     {
-        temp_variance = temp_variance + (raw_weight[temp_idx] - mean)^2;
+        temp_variance +=
+            square((raw_weight[mod((temp_lead_idx - temp_idx), ADC_BUFSIZE)]
+                - mean));
     }
     variance = temp_variance;
 
-    return mean;
+    return weight;
 }
 
 int convertVoltageToGrams(int voltage)
 {
     int grams;
     // Using output from calibrate, convert voltage counts to grams.
-    grams = (voltage*1000)/1024;
+    grams = voltage;
     
     return grams;
 }
@@ -89,6 +107,24 @@ int convertVoltageToGrams(int voltage)
 int convertGramsToOz(int grams)
 {
     int ounces;
-    ounces = (grams*3527)/100000;
+    ounces = (int)((((short long)grams)*352)/10000);
     return ounces;
 }
+
+int mod (int a, int b)
+{
+    int ret = a % b;
+    if(ret < 0)
+    {
+        ret+=b;
+    }
+    return ret;
+}
+
+int square (int a)
+{
+    long ret = a * a;
+    return ret;
+}
+
+
