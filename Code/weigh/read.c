@@ -1,7 +1,7 @@
 #include "read.h"
 
 int raw_weight[];
-int* ADC_lead_Ptr;
+char ADC_lead_idx;
 
 void ADCisr(void)
 {

@@ -7,7 +7,7 @@
  */
 
 extern int raw_weight[];
-extern int* ADC_lead_Ptr;
+extern char ADC_lead_idx;
 
 /**
  * ADC_ISR
