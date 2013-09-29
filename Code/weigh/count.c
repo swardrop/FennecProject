@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-char* waitForInput(char* str);
-int str2num(char* input, char start_idx, char end_idx);
+void waitForInput(char* str, char* input);
+int str2num(char* input);
 
 void count(void)
 {
@@ -22,7 +22,7 @@ void count(void)
         while (!getWeight()) ; // Wait for weight to be placed on scale
         
         // Wait for # key press
-        waitForInput("Press #\n when finished");
+        waitForInput("Press #\n when finished", input);
         weight = getWeight();
         
         if (weight == 0)
@@ -34,10 +34,9 @@ void count(void)
         while (count == 0)
         {
             // Get number of items in pan (formatted as string)
-            input = waitForInput("Enter no. items.\nPress #");
+            waitForInput("Enter no. items.\nPress #", input);
             // Convert string to integer
-            sscanf(input, "%d#", &count);
-            count = str2num(input, 0, i-1);
+            count = str2num(input);
         }
         // Produce conversion factor
         weightPerItem = weight/count; // Maybe make float or *10/100/1000...?
@@ -64,28 +63,24 @@ void count(void)
     }
 }
 
-char* waitForInput(char* str)
+void waitForInput(char* str, char* input)
 {
-    char input;
-
     if (disp_type & REMOTE)
     {
         // Output str to serial
         // Check serial recieve for a new char.
-        input = '#';
+        input[0] = '#';
 
     }
     else
     {
         // Output str to LCD
         // Check numpad input for new char.
-        input = '#';
+        input[0] = '#';
     }
-
-    return input;
 }
 
-int str2num(char* input, char start_idx, char end_idx)
+int str2num(char* input)
 {
     return 10;
 }
