@@ -1,5 +1,6 @@
 #include "state.h"
 #include "weigh.h"
+#include "./weigh/count.h"
 #include "./remoteinterface/calibrate.h"
 #include "./remoteinterface/factory.h"
 
