@@ -14,6 +14,6 @@
  *          Instructions to LCD
  */
 
-int count(char opMode);
+void count(void);
 
 #endif // COUNT_H

@@ -2,6 +2,7 @@
 #include "../remoteinterface/calibrate.h"
 #include "../state.h"
 #include "../weigh/read.h"
+#include "smoothing.h"
 
 int variance;
 
@@ -13,19 +14,45 @@ void weigh (void)
 {
     int weight;
 
-    weight = getWeight();
+    weight = getWeight(); // Get smoothed voltage in strain Gauges.
+
     weight = convertVoltageToGrams(weight);
+
+    // If user has selected Ounces, convert to ounces and display.
     if (disp_type & OZ)
     {
         weight = convertGramsToOz(weight);
-    }
-    if (disp_type & REMOTE)
-    {
-        //output to serial
+        if (disp_type & REMOTE)
+        {
+            //output to serial
+                // Get string from EEPROM
+                // Substitute weight value
+                // Send over serial
+        }
+        else
+        {
+            //output to LCD
+                // Get string from EEPROM
+                // Substitute weight value
+                // Print to LCD
+        }
     }
     else
     {
-        //output to LCD
+        if (disp_type & REMOTE)
+        {
+            //output to serial
+                // Get string from EEPROM
+                // Substitute weight value
+                // Send over serial
+        }
+        else
+        {
+            //output to LCD
+                // Get string from EEPROM
+                // Substitute weight value
+                // Print to LCD
+        }
     }
 }
 
@@ -34,17 +61,10 @@ int getWeight(void)
 {
     int mean;
     char temp_idx;
-    long total;
     int temp_variance;
 
     // Calculate mean and variance from raw data buffer
-    // Loop through raw data, to calculate mean.
-    total = 0;
-    for(temp_idx = 0; temp_idx < num_samples; temp_idx++)
-    {
-        total = total + raw_weight[temp_idx];
-    }
-    mean = total/num_samples;
+    mean = smoothWeight();
     
     // Loop through again, this time calculate variance.
     temp_variance = 0;
@@ -53,6 +73,7 @@ int getWeight(void)
         temp_variance = temp_variance + (raw_weight[temp_idx] - mean)^2;
     }
     variance = temp_variance;
+
     return mean;
 }
 

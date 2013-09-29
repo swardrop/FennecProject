@@ -46,7 +46,12 @@ void main(void)
             case SHOW_STATISTICS: showStats();
         }
 
-        if (req_state != NONE)
+        if (req_state == COUNT)
+        {
+            cur_state = COUNT;
+            req_state = COUNT;
+        }
+        else if (req_state != NONE)
         {
             cur_state = req_state;
             req_state = NONE;
