@@ -1,6 +1,6 @@
 #include "rs232.h"
 #include "../fmath.h"
-#include <p18f453.h>
+#include <p18f452.h>
 
 #define RS232_BUFSIZE       64
 
@@ -43,7 +43,7 @@ char writeByte(char data)
         if (txComplete)
         {
             TXSTAbits.TXEN = 0;
-            PIR1bits.TXIE = 1;
+            PIE1bits.TXIE = 1;
             TXSTAbits.TXEN = 1;
             txComplete = 0;
         }
