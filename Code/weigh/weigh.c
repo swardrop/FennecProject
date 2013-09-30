@@ -1,4 +1,4 @@
-//#include "../weigh.h"
+#include "../weigh.h"
 #include "../localinterface/output/warnings.h"
 #include "../remoteinterface/calibrate.h"
 #include "../state.h"
