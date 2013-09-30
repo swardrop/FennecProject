@@ -24,4 +24,6 @@ typedef struct poly_coeff
  */
 Coefficients calibrate(void);
 
+int convertVoltageToGrams(int voltage);
+
 #endif //CALIBRATE_H

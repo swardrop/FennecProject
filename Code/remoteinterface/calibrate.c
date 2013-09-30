@@ -8,3 +8,10 @@ Coefficients calibrate(void)
     Coefficients c = {coeff0, coeff1};
     return c;
 }
+
+int convertVoltageToGrams(int voltage)
+{
+    int grams = voltage;
+
+    return grams;
+}

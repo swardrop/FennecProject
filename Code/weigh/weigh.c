@@ -118,15 +118,6 @@ int getWeight(void)
     return weight;
 }
 
-int convertVoltageToGrams(int voltage)
-{
-    int grams;
-    // Using output from calibrate, convert voltage counts to grams.
-    grams = voltage;
-    
-    return grams;
-}
-
 void convertGramsToOz(int grams, char* output)
 {
     short long ouncesX100 = ((((short long) grams) * 352) / 100);
