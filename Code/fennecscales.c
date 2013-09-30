@@ -50,7 +50,7 @@ void main(void)
         if (req_state == COUNT)
         {
             cur_state = COUNT;
-            req_state = COUNT;
+            //req_state = COUNT;
         }
         else if (req_state != NONE)
         {

@@ -14,6 +14,8 @@
 #define WARNING_VARIANCE    1
 #define WARNING_LARGEERROR  2
 
+#define MAX_VARIANCE        100
+
 /** showWarning
  *  @args warning code
  *  @return status (0 for success)

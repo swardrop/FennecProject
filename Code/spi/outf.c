@@ -1,6 +1,6 @@
 #include "outf.h"
 
-void dispString(int code, char* data)
+char dispString(int code, const char* data)
 {
-    
+    return 0;
 }

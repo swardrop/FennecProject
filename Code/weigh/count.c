@@ -1,5 +1,6 @@
 #include "../state.h"
 #include "../weigh.h"
+#include "../spi/outf.h"
 
 #include <stdio.h>
 
@@ -8,15 +9,15 @@ int str2num(char* input);
 
 void count(void)
 {
-    int weightPerItem;
+    char input[10];
+    char count_str[5];
+    static long weightPerItem;           // Persists between function calls
     int weight = 0;
     int count = 0;
 
+    // Ask the user to supply a mass of known count if they haven't already.
     while (req_state ==  COUNT)
     {
-        char input[10];
-        char i;
-
         // Print to LCD/Terminal "Place weight\n on scale"
 
         while (!getWeight()) ; // Wait for weight to be placed on scale
@@ -24,13 +25,15 @@ void count(void)
         // Wait for # key press
         waitForInput("Press #\n when finished", input);
         weight = getWeight();
-        
+
+        // Ensure sensible value (i.e. weight non-zero)
         if (weight == 0)
         {
             // Print to LCD/Terminal "Weight must be != 0"
             continue;
         }
 
+        // Wait until given usable input
         while (count == 0)
         {
             // Get number of items in pan (formatted as string)
@@ -39,14 +42,19 @@ void count(void)
             count = str2num(input);
         }
         // Produce conversion factor
-        weightPerItem = weight/count; // Maybe make float or *10/100/1000...?
+        weightPerItem = ( (long)weight * 1000) / count;
 
         req_state = NONE;
     }
 
+    // Get new weight value
     weight = getWeight();
-    count = weight/weightPerItem;
-            
+    // Calculate new count
+    count = (int) ( (long)weight / weightPerItem) / 1000;
+    // Produce a string representation of the count
+    sprintf(count_str, "%d", count);
+
+    // Display over serial or LCD
     if (disp_type & REMOTE)
     {
         //output to serial
@@ -60,7 +68,12 @@ void count(void)
             // Get string from EEPROM
             // Substitute count value
             // Print to LCD
+        dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_COUNT, "\0");
+        dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
+                   count_str);
     }
+
+    // Speak over TTS
 }
 
 void waitForInput(char* str, char* input)

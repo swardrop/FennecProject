@@ -1,4 +1,5 @@
-#include "../weigh.h"
+//#include "../weigh.h"
+#include "../localinterface/output/warnings.h"
 #include "../remoteinterface/calibrate.h"
 #include "../state.h"
 #include "../weigh/read.h"
@@ -8,9 +9,10 @@
 #include <string.h>
 #include <stdio.h>
 
+// Global (accessible for statistics module)
 int variance;
 
-int convertGramsToOz(int grams);
+void convertGramsToOz(int grams, char *output);
 int convertVoltageToGrams(int voltage);
 int mod (int a, int b);
 int square (int a);
@@ -19,15 +21,17 @@ void weigh (void)
 /*Gets the weight, converts it to g/oz, writes to LCD/serial*/
 {
     int weight;
+    char weight_str[6];
 
     weight = getWeight(); // Get smoothed voltage in strain Gauges.
 
     weight = convertVoltageToGrams(weight);
 
+
     // If user has selected Ounces, convert to ounces and display.
     if (disp_type & OZ)
     {
-        weight = convertGramsToOz(weight);
+        convertGramsToOz(weight, weight_str);
         if (disp_type & REMOTE)
         {
             //output to serial
@@ -41,10 +45,17 @@ void weigh (void)
                 // Get string from EEPROM
                 // Substitute weight value
                 // Print to LCD
+            dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_WEIGH, "\0");
+            dispString(OUTF_LCD_L2 | OUTF_OZ | STR_EMPTY | OUTF_APPEND,
+                    weight_str);
         }
+        // Speak value over TTS
+        dispString(OUTF_TTS | OUTF_OZ | STR_WEIGH | OUTF_APPEND, weight_str);
     }
     else
     {
+        sprintf(weight_str, "%d", weight);
+        
         if (disp_type & REMOTE)
         {
             //output to serial
@@ -55,14 +66,15 @@ void weigh (void)
         else
         {
             //output to LCD
-            char weight_str[4];
-            sprintf(weight_str, "%d", weight);
                 // Get string from EEPROM
                 // Substitute weight value
                 // Print to LCD
-            dispString(OUTF_LCD_L1 & OUTF_NO_UNITS & STR_WEIGH, weight_str);
-            dispString(OUTF_LCD_L2 & OUTF_GRAMS & STR_EMPTY, weight_str);
+            dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_WEIGH, "\0");
+            dispString(OUTF_LCD_L2 | OUTF_GRAMS | STR_EMPTY | OUTF_APPEND,
+                    weight_str);
         }
+        // Speak value over TTS
+        dispString(OUTF_TTS | OUTF_GRAMS | STR_WEIGH | OUTF_APPEND, weight_str);
     }
 }
 
@@ -97,6 +109,11 @@ int getWeight(void)
     }
     variance = temp_variance;
 
+    if (variance > MAX_VARIANCE)
+    {
+        showWarning(WARNING_VARIANCE);
+    }
+
     return weight;
 }
 
@@ -109,11 +126,14 @@ int convertVoltageToGrams(int voltage)
     return grams;
 }
 
-int convertGramsToOz(int grams)
+void convertGramsToOz(int grams, char* output)
 {
-    int ounces;
-    ounces = (int)((((short long)grams)*352)/10000);
-    return ounces;
+    short long ouncesX100 = ((((short long) grams) * 352) / 100);
+
+    char whole = ouncesX100 / 100;
+    char decimal = ouncesX100 - ((short long)whole * 100);
+
+    sprintf(output, "%d.%d", whole, decimal);
 }
 
 int mod (int a, int b)
@@ -121,7 +141,7 @@ int mod (int a, int b)
     int ret = a % b;
     if(ret < 0)
     {
-        ret+=b;
+        ret += b;
     }
     return ret;
 }
