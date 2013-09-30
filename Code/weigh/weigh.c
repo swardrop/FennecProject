@@ -5,6 +5,7 @@
 #include "../weigh/read.h"
 #include "../spi/outf.h"
 #include "smoothing.h"
+#include "../fmath.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -135,21 +136,3 @@ void convertGramsToOz(int grams, char* output)
 
     sprintf(output, "%d.%d", whole, decimal);
 }
-
-int mod (int a, int b)
-{
-    int ret = a % b;
-    if(ret < 0)
-    {
-        ret += b;
-    }
-    return ret;
-}
-
-int square (int a)
-{
-    long ret = a * a;
-    return ret;
-}
-
-

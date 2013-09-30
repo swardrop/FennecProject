@@ -44,8 +44,11 @@ char readByte(void);
  * received will terminate at the end of the string, or when the buffer has been
  * emptied.
  * @param dest      Pointer to memory location to store string
+ * @return          0 if a null-terminated string placed in dest, otherwise -1
  */
-void readString(char* dest);
+char readString(char* dest);
+
+void initialiseRS232(void);
 
 /**
  * tx232isr
