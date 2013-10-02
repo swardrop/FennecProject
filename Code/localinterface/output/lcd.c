@@ -19,7 +19,7 @@
 void init_lcd() ;
 void write_in() ;
 
-char stringToLCD(char* Str)
+char stringToLCD(char* str, char line)
 {
     return 1;
 }
