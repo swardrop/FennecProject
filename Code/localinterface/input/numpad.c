@@ -12,3 +12,8 @@ void numpadISR()
 {
     // Capture number
 }
+
+void initialiseNumPad(void)
+{
+    
+}

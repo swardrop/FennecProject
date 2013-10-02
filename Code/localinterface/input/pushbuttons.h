@@ -16,6 +16,8 @@
  * Determines which push button was pressed and changes required state global
  * variable appropriately.
  */
-void pushBtnISR();
+void pushBtnISR(void);
+
+void initialisePushBtn(void);
 
 #endif //PUSHBTN_H
