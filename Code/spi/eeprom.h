@@ -7,7 +7,7 @@
  * data over the SPI bus.
  * 
  */
-
+void initialiseEEPROM(void);
 /**
  * getEEPROMstring
  * @param address       Memory address in EEPROM

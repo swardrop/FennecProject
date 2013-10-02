@@ -12,6 +12,8 @@
  */
 extern int sleepTimerCounts;
 
+void initialiseSleepTimer(void);
+
 /**
  * resetSleepTimer
  * Upon user input reset counts value to 2 minutes.

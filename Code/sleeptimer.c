@@ -2,6 +2,11 @@
 
 int sleepTimerCounts;
 
+void initialiseSleepTimer(void)
+{
+    
+}
+
 void resetSleepTimer(void)
 {
 
