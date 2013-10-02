@@ -20,6 +20,12 @@
  * @param weight        Current weight to display on LEDbar
  * @param max_weight    Weight that is represented by 16 LEDs on.
  * @return              Success(1), SPI fail(0), weight>max(-1)
+ *
+ * Issues (James, 2/10/13):
+ * 1. "Suspicious pointer conversion" warning line 26 - sendDataSPI asks for a
+ * char*, but I've given it an int* - this may cause problems, I'm not sure.
+ * 2. I don't know how to check if SPI succeeded or failed, so my return value
+ * is always 1 if weight < max_weight.
  */
 char writeLEDbar(int weight, int max_weight);
 
