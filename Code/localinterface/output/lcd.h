@@ -20,8 +20,15 @@
  * the top line, and the
  *
  * @param str       Beginning of string to be written
+ * @param line      Line to write string (1 or 2)
  * @return          Success(1), fail (0)
  */
-char stringToLCD(char* str);
+char stringToLCD(char* str, char line);
+
+/**
+ * initLCD
+ * Initialise all connfiguration bits to make LCD work.
+ */
+void initLCD(void);
 
 #endif /*LCD_H*/
