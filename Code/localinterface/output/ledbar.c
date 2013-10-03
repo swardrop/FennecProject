@@ -3,11 +3,6 @@
 
 int weightFrac2lightPattern(unsigned char weightFraction);
 
-void main(void)
-{
-    writeLEDbar(900,1000);
-}
-
 char writeLEDbar(int weight, int max_weight)
 {
     unsigned char weightFraction;
@@ -23,8 +18,8 @@ char writeLEDbar(int weight, int max_weight)
     outVal = weightFrac2lightPattern(weightFraction);
     /*Converts the weight fraction to a light-bar pattern for the LEDs*/
 
-    sendDataSPI(LED_BAR, &outVal);
-    /*Note this gives a "suspicious pointer conversion" warning, as sendDataSPI takes a char* */
+    sendDataSPI(LED_BAR, (char*)&outVal);
+    sendDataSPI(LED_BAR, ((char*)&outVal)+1);
     
     return 1;
 }
