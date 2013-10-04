@@ -23,7 +23,10 @@
  *
  * Issues (James, 4/10/13):
  * 1. I don't know how to check if SPI succeeded or failed, so my return value
- * is always 1 if weight < max_weight.
+ *    is always 1 if weight < max_weight.
+ * 2. If ChipSelect is removed in between writes, then it will latch the wrong
+ *    byte - this is an SPI issue. It needs to be possible to write more than
+ *    one byte to SPI at a time. 
  */
 char writeLEDbar(int weight, int max_weight);
 
