@@ -10,12 +10,19 @@
  * place a read request in the queue, then poll readComplete.
  */
 
-#define LED_BAR         1
-#define LED_STATUS      2
-#define TTS             3
+// Code Definitions
+#define LED_BAR             0x01
+#define LED_STATUS          0x02
+#define TTS                 0x03
+#define EEPROM              0x10
+#define EEPROM_READ_STRING  0x11
+#define EEPROM_READ_BYTE    0x12
+#define EEPROM_WRITE_BYTE   0x13
 
+// Read Flag
 #define READ_COMPLETE   0x8
 #define READ_ONGOING    0x4
+#define READ_FAILURE    0x2
 extern char readStatus;
 
 /**
@@ -29,7 +36,7 @@ void setupSPI(void);
  * @param destination   The code for the destination, i.e. LED_BAR
  * @param data          A pointer to the first byte of data to be written
  */
-void sendDataSPI(char destination, char* data);
+void sendDataSPI(char destinationCode, char* data);
 
 /**
  * SPIisr
