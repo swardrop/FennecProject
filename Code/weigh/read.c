@@ -21,7 +21,7 @@ void ADCisr(void)
 void initialiseADC(void)
 {
     PIE1bits.ADIE = 1;
-    IPR1bits.ADIP = 0;
+    IPR1bits.ADIP = 1;
 
     ADCON0 = 0b10000001;    /* AD Conversion Clock = Fosc/64, Channel = 0,
                              * AD Go = 0,  ADON = 1 */
@@ -40,7 +40,7 @@ void initialiseADC(void)
     TMR3L = 0;
 
     PIE2bits.CCP2IE = 1;
-    IPR2bits.CCP2IP = 0;
+    IPR2bits.CCP2IP = 1;
     PIE2bits.TMR3IE = 0;
 
     /* CCP2 use TMR3, Fosc prescaled by 2MSB of period, Enabled. */
