@@ -1,7 +1,7 @@
 #include "../spi.h"
 #include <p18f452.h>
 
-#define SPI_BUFSIZE     32
+#define SPI_BUFSIZE     16
 
 // Chip Select defines
 #define CS_NONE         0xCF
@@ -56,7 +56,6 @@ void sendDataSPI(char destinationCode, char* data)
         PIE1bits.SSPIE = 1;
         SPIisr();
     }
-
 }
 
 void SPIisr()

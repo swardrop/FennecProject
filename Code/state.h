@@ -25,8 +25,9 @@
 #define GRAMS                   0x00
 #define OZ                      0x01
 // Display destination
-#define LOCAL                   0x00
-#define REMOTE                  0x10
+#define DISP_LCD                0x10
+#define DISP_RS232              0x20
+#define DISP_TTS                0x40
 
 // State variables
 extern char req_state;
