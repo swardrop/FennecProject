@@ -6,6 +6,9 @@
 using namespace FennecScalesGUI;
 
 State cur_state;
+int cur_warnings;
+bool closing = false;
+bool closeAll = false;
 
 [STAThreadAttribute]
 int main(array<System::String ^> ^args)

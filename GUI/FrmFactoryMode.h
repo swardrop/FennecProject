@@ -1,7 +1,6 @@
 #pragma once
 
 #include "states.h"
-#include "FrmUsrRemote.h"
 
 namespace FennecScalesGUI {
 

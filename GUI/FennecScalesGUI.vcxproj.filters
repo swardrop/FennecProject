@@ -36,6 +36,12 @@
     <ClCompile Include="FrmUsrRemote.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FrmExitConf.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrmHelp.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Form1.h">
@@ -56,6 +62,12 @@
     <ClInclude Include="FrmUsrRemote.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrmExitConf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrmHelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -66,13 +78,10 @@
     <EmbeddedResource Include="Form1.resX">
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
-    <EmbeddedResource Include="FrmCountMode.resx">
-      <Filter>Resource Files</Filter>
-    </EmbeddedResource>
     <EmbeddedResource Include="FrmFactoryMode.resx">
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
-    <EmbeddedResource Include="FrmWeighMode.resx">
+    <EmbeddedResource Include="FrmUsrRemote.resx">
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
   </ItemGroup>

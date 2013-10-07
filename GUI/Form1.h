@@ -57,6 +57,9 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::RadioButton^  radioCount;
 	private: System::Windows::Forms::RadioButton^  radioWeigh;
 	private: System::Windows::Forms::CheckBox^  checkFactory;
+	private: System::Windows::Forms::GroupBox^  warningsBox;
+	private: System::Windows::Forms::CheckBox^  overWarningCB;
+	private: System::Windows::Forms::CheckBox^  evWarningCB;
 
 
 
@@ -80,11 +83,15 @@ namespace FennecScalesGUI {
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->State = (gcnew System::Windows::Forms::GroupBox());
+			this->checkFactory = (gcnew System::Windows::Forms::CheckBox());
 			this->radioCount = (gcnew System::Windows::Forms::RadioButton());
 			this->radioWeigh = (gcnew System::Windows::Forms::RadioButton());
-			this->checkFactory = (gcnew System::Windows::Forms::CheckBox());
+			this->warningsBox = (gcnew System::Windows::Forms::GroupBox());
+			this->overWarningCB = (gcnew System::Windows::Forms::CheckBox());
+			this->evWarningCB = (gcnew System::Windows::Forms::CheckBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->State->SuspendLayout();
+			this->warningsBox->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// pictureBox1
@@ -132,6 +139,17 @@ namespace FennecScalesGUI {
 			this->State->TabStop = false;
 			this->State->Text = L"State";
 			// 
+			// checkFactory
+			// 
+			this->checkFactory->AutoSize = true;
+			this->checkFactory->Location = System::Drawing::Point(12, 72);
+			this->checkFactory->Name = L"checkFactory";
+			this->checkFactory->Size = System::Drawing::Size(32, 17);
+			this->checkFactory->TabIndex = 2;
+			this->checkFactory->Text = L"F";
+			this->checkFactory->UseVisualStyleBackColor = true;
+			this->checkFactory->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkFactory_CheckedChanged);
+			// 
 			// radioCount
 			// 
 			this->radioCount->AutoSize = true;
@@ -156,16 +174,38 @@ namespace FennecScalesGUI {
 			this->radioWeigh->UseVisualStyleBackColor = true;
 			this->radioWeigh->CheckedChanged += gcnew System::EventHandler(this, &Form1::radioWeigh_CheckedChanged);
 			// 
-			// checkFactory
+			// warningsBox
 			// 
-			this->checkFactory->AutoSize = true;
-			this->checkFactory->Location = System::Drawing::Point(12, 72);
-			this->checkFactory->Name = L"checkFactory";
-			this->checkFactory->Size = System::Drawing::Size(32, 17);
-			this->checkFactory->TabIndex = 2;
-			this->checkFactory->Text = L"F";
-			this->checkFactory->UseVisualStyleBackColor = true;
-			this->checkFactory->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkFactory_CheckedChanged);
+			this->warningsBox->Controls->Add(this->overWarningCB);
+			this->warningsBox->Controls->Add(this->evWarningCB);
+			this->warningsBox->Location = System::Drawing::Point(5, 207);
+			this->warningsBox->Name = L"warningsBox";
+			this->warningsBox->Size = System::Drawing::Size(59, 100);
+			this->warningsBox->TabIndex = 7;
+			this->warningsBox->TabStop = false;
+			this->warningsBox->Text = L"Warnings";
+			// 
+			// overWarningCB
+			// 
+			this->overWarningCB->AutoSize = true;
+			this->overWarningCB->Location = System::Drawing::Point(11, 62);
+			this->overWarningCB->Name = L"overWarningCB";
+			this->overWarningCB->Size = System::Drawing::Size(34, 17);
+			this->overWarningCB->TabIndex = 3;
+			this->overWarningCB->Text = L"O";
+			this->overWarningCB->UseVisualStyleBackColor = true;
+			this->overWarningCB->CheckedChanged += gcnew System::EventHandler(this, &Form1::overWarningCB_CheckedChanged);
+			// 
+			// evWarningCB
+			// 
+			this->evWarningCB->AutoSize = true;
+			this->evWarningCB->Location = System::Drawing::Point(12, 39);
+			this->evWarningCB->Name = L"evWarningCB";
+			this->evWarningCB->Size = System::Drawing::Size(33, 17);
+			this->evWarningCB->TabIndex = 2;
+			this->evWarningCB->Text = L"V";
+			this->evWarningCB->UseVisualStyleBackColor = true;
+			this->evWarningCB->CheckedChanged += gcnew System::EventHandler(this, &Form1::evWarningCB_CheckedChanged);
 			// 
 			// Form1
 			// 
@@ -173,15 +213,19 @@ namespace FennecScalesGUI {
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(453, 319);
+			this->Controls->Add(this->warningsBox);
 			this->Controls->Add(this->State);
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->label1);
 			this->Name = L"Form1";
+			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Fennec Scales";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
 			this->State->ResumeLayout(false);
 			this->State->PerformLayout();
+			this->warningsBox->ResumeLayout(false);
+			this->warningsBox->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -191,10 +235,15 @@ namespace FennecScalesGUI {
 
 
 private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+			 
+			 // Send code over serial for USER_REMOTE launch
+			 // Wait for ack and then system state
+			 
 			 this->Hide();
 
 			 usrRemoteForm = gcnew FrmUsrRemote();
 
+			 // Move this to a serial handler?
 			 if (cur_state.isFactory)
 			 {
 				 factoryForm = gcnew FrmFactoryMode();
@@ -226,6 +275,26 @@ private: System::Void checkFactory_CheckedChanged(System::Object^  sender, Syste
 			 else
 			 {
 				 cur_state.isFactory = false;
+			 }
+		 }
+private: System::Void evWarningCB_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 if (evWarningCB->Checked)
+			 {
+				 cur_warnings |= EXCESSIVE_VARIANCE;
+			 }
+			 else
+			 {
+				 cur_warnings &= ~EXCESSIVE_VARIANCE;
+			 }
+		 }
+private: System::Void overWarningCB_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 if (overWarningCB->Checked)
+			 {
+				 cur_warnings |= OVERLOAD;
+			 }
+			 else
+			 {
+				 cur_warnings &= ~OVERLOAD;
 			 }
 		 }
 };
