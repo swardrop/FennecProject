@@ -33,4 +33,12 @@ void getEEPROMbyte(int address, char *data);
  */
 void sendEEPROMbyte(int address, char *data);
 
+/**
+ * sendEEPROMstring
+ * @param address       Memory address in EEPROM
+ * @param data          Array of chars (string)
+ * @param len           Length of string to be transmitted        
+ */
+void sendEEPROMstring(int address, char *data, int len);
+
 #endif // EEPROM_H
