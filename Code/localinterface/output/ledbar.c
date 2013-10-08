@@ -18,8 +18,8 @@ char writeLEDbar(int weight, int max_weight)
     outVal = weightFrac2lightPattern(weightFraction);
     /*Converts the weight fraction to a light-bar pattern for the LEDs*/
 
-    sendDataSPI(LED_BAR, (char*)&outVal);
-    sendDataSPI(LED_BAR, ((char*)&outVal)+1);
+    sendDataSPI(SPI_LED_BAR, (char*)&outVal);
+    sendDataSPI(SPI_LED_BAR, ((char*)&outVal)+1);
     
     return 1;
 }
