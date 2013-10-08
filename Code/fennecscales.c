@@ -39,17 +39,17 @@ void main(void)
     {
         switch (cur_state)
         {
-            case WEIGH: weigh();
-            case COUNT: count();
-            case CALIBRATE: calibrate();
-            case SET_NUM_SAMPLES: setNumSamples();
-            case SHOW_WEIGHT_READINGS: showWeightReadings();
-            case SHOW_STATISTICS: showStats();
+            case ST_WEIGH: weigh();
+            case ST_COUNT_I: count();
+            case ST_CALIBRATE: calibrate();
+            case ST_SET_NUM_SAMPLES: setNumSamples();
+            case ST_SHOW_WEIGHT_READINGS: showWeightReadings();
+            case ST_SHOW_STATISTICS: showStats();
         }
 
-        if (req_state == COUNT)
+        if (req_state == ST_COUNT_I)
         {
-            cur_state = COUNT;
+            cur_state = ST_COUNT_I;
             //req_state = COUNT;
         }
         else if (req_state != NONE)

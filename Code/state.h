@@ -12,12 +12,13 @@
 #define POWER_ON                0x80
 
 // System state (includes power state as MSB)
-#define WEIGH                   0x81
-#define COUNT                   0x82
-#define CALIBRATE               0x83
-#define SET_NUM_SAMPLES         0x84
-#define SHOW_WEIGHT_READINGS    0x85
-#define SHOW_STATISTICS         0x86
+#define ST_WEIGH                0x81
+#define ST_COUNT_I              0x82
+#define ST_COUNT_F              0x83
+#define ST_CALIBRATE            0x84
+#define ST_SET_NUM_SAMPLES      0x85
+#define ST_SHOW_WEIGHT_READINGS 0x86
+#define ST_SHOW_STATISTICS      0x87
 
 #define NONE                    0xFF
 
