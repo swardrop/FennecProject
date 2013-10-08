@@ -3,6 +3,11 @@
 #include "FrmUsrRemote.h"
 #include "FrmFactoryMode.h"
 #include "states.h"
+#include "commscodes.h"
+
+char numReady = 0;
+char ackNumReceived = 0;
+char ackRemReceived = 0;
 
 namespace FennecScalesGUI {
 
@@ -12,6 +17,7 @@ namespace FennecScalesGUI {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::IO::Ports;
 
 	/// <summary>
 	/// Summary for Form1
@@ -22,10 +28,13 @@ namespace FennecScalesGUI {
 		Form1(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
-			cur_state.state = WEIGH; // TODO: replace with proper init.
+
+			port = gcnew SerialPort("COM1", 9600, Parity::None, 8, StopBits::One);
+			port->Open();
+			port->Encoding = System::Text::Encoding::UTF8;
+			port->DataReceived += gcnew SerialDataReceivedEventHandler(this, &Form1::port_DataReceived);
+
+			cur_state.state = WEIGH; // TODO: replace with proper init?
 			cur_state.units = GRAMS;
 			cur_state.outputs = LCD_TTS;
 			cur_state.isFactory = false;
@@ -61,7 +70,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::CheckBox^  overWarningCB;
 	private: System::Windows::Forms::CheckBox^  evWarningCB;
 
-
+			 SerialPort^ port;
 
 	protected: 
 
@@ -232,16 +241,107 @@ namespace FennecScalesGUI {
 		}
 #pragma endregion
 
+private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEventArgs^ e)
+		 {
+			 static unsigned char inProgress = 0;
+			 static unsigned int numData = 0;
+			 unsigned char data;
 
+			 while ((data = (unsigned char) port->ReadByte()) != -1)
+			 {
+				 // Check for ongoing reception
+				 if (inProgress == INPGRSS_STATUS0)
+				 {
+					 switch (data)
+					 {
+					 case ST_WEIGH: cur_state.state = WEIGH; break;
+					 case ST_COUNT_INITIAL: cur_state.state = COUNT; break;
+					 case ST_COUNT_FINAL: cur_state.state = COUNT_FINAL; break;
+					 }
+					 inProgress = INPGRSS_STATUS1;
+				 }
+				 else if (inProgress == INPGRSS_STATUS1)
+				 {
+					 if (data & DISP_OZ)
+						 cur_state.units = OUNCES;
+					 else
+						 cur_state.units = GRAMS;
+
+					 if (data & (DISP_LCD | DISP_TTS) )
+						 cur_state.outputs = LCD_TTS;
+					 else if (data & DISP_LCD)
+						 cur_state.outputs = LCD;
+					 else if (data & DISP_TTS)
+						 cur_state.outputs = TTS;
+					 else cur_state.outputs = NONE;
+				 
+					 inProgress = 0;
+					 ackRemReceived = 1;
+				 }
+
+				 else if (inProgress == INPGRSS_NUM0)
+				 {
+					 numData = data;
+					 inProgress = INPGRSS_NUM1;
+				 }
+				 else if (inProgress == INPGRSS_NUM1)
+				 {
+					 numData |= (unsigned int) data << 8;
+					 numReady = 1;
+					 inProgress = 0;
+				 }
+
+				 // Check for reception of codes from the PIC
+				 else switch (data)
+				 {
+				 case COMM_BEGIN_NUM:
+					 numReady = 0;
+					 numData = 0;
+					 inProgress = INPGRSS_NUM0;
+					 break;
+				 case COMM_NUM_RXD:
+					 ackNumReceived = 1;
+					 break;
+				 case COMM_ACK_REM:
+					 inProgress = INPGRSS_STATUS0;
+					 break;
+				 }
+			 }
+		 }
+
+		 int sendStartUsrRem()
+		 {
+			 unsigned char remoteCode = COMM_START_REM;
+			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+			 sendArray[0] = remoteCode;
+			 // Send code over serial for USER_REMOTE launch
+			 port->Write(sendArray, 0, 1);
+
+			 // Wait for state sent back
+			 unsigned int timeoutCounter = 0x0FFFFFFF;
+			 while (!ackRemReceived)
+			 {
+				 if (!(--timeoutCounter))
+				 {
+					 MessageBox::Show("Serial connection timed out. Unable to connect.");
+					 return -1;
+				 }
+				 // do nothing, wait for timeout or completion
+			 }
+			 ackRemReceived = 1;
+			 return 0;
+		 }
 
 private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 			 
-			 // Send code over serial for USER_REMOTE launch
-			 // Wait for ack and then system state
+			 // Send User Remote begin and wait for state
+			 int check = sendStartUsrRem();
+			 if (check == -1)
+				 return;
 			 
 			 this->Hide();
 
-			 usrRemoteForm = gcnew FrmUsrRemote();
+			 usrRemoteForm = gcnew FrmUsrRemote(port);
 
 			 // Move this to a serial handler?
 			 if (cur_state.isFactory)

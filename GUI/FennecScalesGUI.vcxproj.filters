@@ -68,6 +68,9 @@
     <ClInclude Include="FrmHelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="commscodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -82,6 +85,12 @@
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmUsrRemote.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmExitConf.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmHelp.resx">
       <Filter>Resource Files</Filter>
     </EmbeddedResource>
   </ItemGroup>

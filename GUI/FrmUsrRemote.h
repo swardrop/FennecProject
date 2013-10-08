@@ -3,6 +3,7 @@
 #include "states.h"
 #include "FrmExitConf.h"
 #include "FrmHelp.h"
+#include "commscodes.h"
 
 namespace FennecScalesGUI {
 
@@ -12,6 +13,7 @@ namespace FennecScalesGUI {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::IO::Ports;
 
 	/// <summary>
 	/// Summary for FrmUsrRemote
@@ -19,15 +21,15 @@ namespace FennecScalesGUI {
 	public ref class FrmUsrRemote : public System::Windows::Forms::Form
 	{
 	public:
-		FrmUsrRemote()
+		FrmUsrRemote(SerialPort^ sp)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
+
 			setButtons(cur_state);
 			showPanel(cur_state.state);
 			showWarnings(); // Need to find some way to show as soon as a warning appears (event-driven)
+			setUnitsLabel();
+			port = sp;
 		}
 
 	protected:
@@ -101,7 +103,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Label^  label1;
 
 
-
+			 SerialPort^ port;
 
 
 
@@ -744,17 +746,28 @@ private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::Ev
 			}
 		}
 
+		System::Void setUnitsLabel()
+		{
+			if (cur_state.units == GRAMS)
+			{
+				unitsLabel->Text = "grams";
+			}
+			else
+			{
+				unitsLabel->Text = "ounces";
+			}
+		}
+
 private: System::Void rbGrams_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			 if (rbGrams->Checked)
 			 {
 				 cur_state.units = GRAMS;
-				 unitsLabel->Text = "grams";
 			 }
 			 else
 			 {
 				 cur_state.units = OUNCES;
-				 unitsLabel->Text = "ounces";
 			 }
+			 setUnitsLabel();
 			 // TODO: Add handler for changing numerical value based on units
 		 }
 

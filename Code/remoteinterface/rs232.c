@@ -1,16 +1,16 @@
 #include "rs232.h"
-#include "../fmath.h"
+#include "fmath.h"
 #include <p18f452.h>
 
 #define RS232_BUFSIZE       64
 
 // Buffers
-static char writeBuf[RS232_BUFSIZE];
-static char readBuf[RS232_BUFSIZE];
+char writeBuf[RS232_BUFSIZE];
+char readBuf[RS232_BUFSIZE];
 
 // Read and write indexes
-static unsigned char write_lead_idx, write_trail_idx;
-static unsigned char read_lead_idx, read_trail_idx;
+unsigned char write_lead_idx, write_trail_idx;
+unsigned char read_lead_idx, read_trail_idx;
 
 // Flags
 char writeLock;
@@ -25,7 +25,8 @@ char writeByte(char data)
     }
     
     // Add data byte to write buffer
-    writeBuf[write_lead_idx++] = data;
+    writeBuf[write_lead_idx] = data;
+    ++write_lead_idx;
     if (write_lead_idx == RS232_BUFSIZE)
     {
         write_lead_idx = 0;
@@ -34,19 +35,19 @@ char writeByte(char data)
     // Check for full buffer
     if (write_lead_idx == write_trail_idx)
     {
-        writeLock = 1;
-        return 0;
+        //writeLock = 1;
+        //return 0;
     }
     else
     {
         // If first byte sent on new transmit, re-enable transmit
-        if (txComplete)
+        if (txComplete && TXSTAbits.TRMT)
         {
             TXSTAbits.TXEN = 0;
-            PIE1bits.TXIE = 1;
             TXSTAbits.TXEN = 1;
             txComplete = 0;
         }
+        PIE1bits.TXIE = 1;
         return 0;
     }
 }
@@ -54,7 +55,7 @@ char writeByte(char data)
 char writeString(char* str)
 {
     char *temp = str;
-    char count = 0;
+    char count = 0, spaces;
 
     // Count number of bytes in string before null-terminator
     while (*temp != '\0' && count < RS232_BUFSIZE)
@@ -64,7 +65,15 @@ char writeString(char* str)
     }
 
     // If too many bytes to fit in buffer, return failure
-    if ( mod(write_lead_idx - write_trail_idx, RS232_BUFSIZE) < count )
+    if (write_trail_idx > write_lead_idx)
+    {
+        spaces = write_trail_idx - write_lead_idx;
+    }
+    else
+    {
+        spaces = RS232_BUFSIZE - write_trail_idx + write_lead_idx;
+    }
+    if ( spaces < count )
     {
         return -1;
     }
@@ -76,6 +85,7 @@ char writeString(char* str)
         writeByte(*temp);
         ++temp;
     }
+    return 0;
 }
 
 char readByte()
@@ -124,6 +134,11 @@ char readString(char* dest)
 
 void initialiseRS232()
 {
+    /* Configure interrupts */
+    INTCONbits.GIE = 1;              // Enable global interrupts and priority
+    INTCONbits.PEIE = 1;
+    RCONbits.IPEN = 1;
+    
     // Initialise Register values
     PIE1bits.TXIE = 1;                  // Enable TX interrupt
     IPR1bits.TXIP = 1;                  // TX priority high
@@ -135,7 +150,7 @@ void initialiseRS232()
     TRISCbits.RC7 = 1;                  // Set PORTC<7> to input
 
     /* Configure serial port */
-    SPBRG = 25;
+    SPBRG = 64;
     TXSTAbits.BRGH = 1;                 // Set baud rate to 9600
     TXSTAbits.SYNC = 0;                 // Assert async mode
     RCSTAbits.SPEN = 1;                 // Enable serial port
@@ -145,6 +160,7 @@ void initialiseRS232()
     write_lead_idx = write_trail_idx = 0;
     read_lead_idx = read_trail_idx = 0;
     writeLock = 0;
+    txComplete = 1;
 }
 
 void tx232isr()
@@ -160,6 +176,7 @@ void tx232isr()
         // Disable interrupt
         PIE1bits.TXIE = 0;
         txComplete = 1;
+        return;
     }
 
     TXREG = writeBuf[write_trail_idx++];
