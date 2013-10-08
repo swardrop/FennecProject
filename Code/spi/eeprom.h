@@ -16,7 +16,7 @@ void initialiseEEPROM(void);
  * This function queues a read from EEPROM. The byte(s) at data are only valid
  * once the READ_COMPLETE flag is raised in readStatus.
  */
-void getEEPROMstring(int address, char *data);
+void getEEPROMstring(int address);
 
 /**
  * getEEPROMbyte
@@ -24,7 +24,7 @@ void getEEPROMstring(int address, char *data);
  * @param data          A pointer to where the string shall be read
  * As getEEPROMstring, except it is guaranteed that only one byte will be read.
  */
-void getEEPROMbyte(int address, char *data);
+void getEEPROMbyte(int address);
 
 /**
  * sendEEPROMbyte
@@ -33,12 +33,5 @@ void getEEPROMbyte(int address, char *data);
  */
 void sendEEPROMbyte(int address, char *data);
 
-/**
- * sendEEPROMstring
- * @param address       Memory address in EEPROM
- * @param data          Array of chars (string)
- * @param len           Length of string to be transmitted        
- */
-void sendEEPROMstring(int address, char *data, int len);
 
 #endif // EEPROM_H
