@@ -42,7 +42,7 @@ void setupSPI()
 
 }
 
-void ExchangeDataSPI(char destinationCode, char* data)
+void exchangeDataSPI(char destinationCode, char* data)
 {
     SPI_buffer[lead_idx].CScode = destinationCode;
     SPI_buffer[lead_idx].data = data;

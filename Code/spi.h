@@ -5,9 +5,9 @@
  * SPI Module
  * This module defines the interface between the PIC microcontroller and the
  * various SPI chips. It coordinates reading and writing data on the SPI bus.
- * To write a byte over SPI, use sendDataSPI.
+ * To write a byte over SPI, use exchangedDataSPI.
  * To read a byte from EEPROM, use the drivers supplied in this header to
- * place a read request in the queue, then poll readComplete.
+ * place a read request in the queue, then poll readStatus.
  */
 
 // Code Definitions
@@ -36,7 +36,7 @@ void setupSPI(void);
  * @param destination   The code for the destination, i.e. LED_BAR
  * @param data          A pointer to the first byte of data to be written
  */
-void ExchangeDataSPI(char destinationCode, char* data);
+void exchangeDataSPI(char destinationCode, char* data);
 
 /**
  * SPIisr
