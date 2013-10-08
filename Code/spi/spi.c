@@ -69,7 +69,7 @@ void SPIisr()
     }
 
     /* If reading a string from EEPROM */
-    if (SPI_buffer[trail_idx].CScode == EEPROM_READ_STRING)
+    if (SPI_buffer[trail_idx].CScode == SPI_EEPROM_READ_STRING)
     {
         char temp = 0;
 
@@ -101,18 +101,18 @@ void SPIisr()
     /* Set physical chip select on PORTA, based on current chip select code. */
     switch (SPI_buffer[trail_idx].CScode)
     {
-        case LED_BAR:
+        case SPI_LED_BAR:
             PORTA = CS_LED_BAR;
             break;
-        case LED_STATUS:
+        case SPI_LED_STATUS:
             PORTA = CS_LED_STATUS;
             break;
-        case TTS:
+        case SPI_TTS:
             PORTA = CS_TTS;
             break;
-        case EEPROM_READ_STRING:
-        case EEPROM_READ_BYTE:
-        case EEPROM_WRITE_BYTE:
+        case SPI_EEPROM_READ_STRING:
+        case SPI_EEPROM_READ_BYTE:
+        case SPI_EEPROM_WRITE_BYTE:
             PORTA = CS_EEPROM;
             break;
         default:
@@ -121,7 +121,7 @@ void SPIisr()
     }
 
     /* Single byte read from EEPROM, then set read complete flag */
-    if (SPI_buffer[trail_idx].CScode == EEPROM_READ_BYTE)
+    if (SPI_buffer[trail_idx].CScode == SPI_EEPROM_READ_BYTE)
     {
         *(SPI_buffer[trail_idx].data) = SSPBUF;
         readStatus = READ_COMPLETE;
@@ -134,7 +134,7 @@ void SPIisr()
 
     /* If sending a string, i.e. TTS, increment internal pointer through string
      * until null terminator, then go to next item in SPI buffer. */
-    if (SPI_buffer[trail_idx].CScode == TTS)
+    if (SPI_buffer[trail_idx].CScode == SPI_TTS)
     {
         if (*(SPI_buffer[trail_idx].data) == 0)
         {
