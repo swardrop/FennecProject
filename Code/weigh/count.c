@@ -55,7 +55,7 @@ void count(void)
     sprintf(count_str, "%d", count);
 
     // Display over serial or LCD
-    if ((disp_type & 0xF0) == DISP_RS232)
+    if (disp_type & DISP_RS232)
     {
         //output to serial
             // Get string from EEPROM
@@ -78,7 +78,7 @@ void count(void)
 
 void waitForInput(char* str, char* input)
 {
-    if ((disp_type & 0xF0) == DISP_RS232)
+    if (disp_type & DISP_RS232)
     {
         // Output str to serial
         // Check serial recieve for a new char.
