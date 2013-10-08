@@ -52,7 +52,7 @@ void weigh(void)
             dispString(OUTF_LCD_L2 | OUTF_OZ | STR_EMPTY | OUTF_APPEND,
                     weight_str);
         }
-        if (disp_type & DISP_TTS  && TTScompleteFlag)
+        if (disp_type & DISP_TTS)
         {
             // Speak over TTS
             dispString(OUTF_TTS | OUTF_OZ | STR_WEIGH | OUTF_APPEND, weight_str);
@@ -81,7 +81,7 @@ void weigh(void)
             dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
                     weight_str);
         }
-        if (disp_type & DISP_TTS && TTScompleteFlag)
+        if (disp_type & DISP_TTS)
         {
             // Speak over TTS
             dispString(OUTF_TTS | OUTF_GRAMS | STR_WEIGH | OUTF_APPEND, weight_str);
