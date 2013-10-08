@@ -6,6 +6,8 @@ char num_samples;
 
 char disp_type;
 
+int tare_offset;
+
 char retrieve_state()
 {
 
