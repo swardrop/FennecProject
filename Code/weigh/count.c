@@ -16,7 +16,7 @@ void count(void)
     int count = 0;
 
     // Ask the user to supply a mass of known count if they haven't already.
-    while (req_state ==  COUNT)
+    while (req_state ==  ST_COUNT_I)
     {
         // Print to LCD/Terminal "Place weight\n on scale"
 
@@ -55,7 +55,7 @@ void count(void)
     sprintf(count_str, "%d", count);
 
     // Display over serial or LCD
-    if (disp_type & REMOTE)
+    if ((disp_type & 0xF0) == DISP_RS232)
     {
         //output to serial
             // Get string from EEPROM
@@ -78,7 +78,7 @@ void count(void)
 
 void waitForInput(char* str, char* input)
 {
-    if (disp_type & REMOTE)
+    if ((disp_type & 0xF0) == DISP_RS232)
     {
         // Output str to serial
         // Check serial recieve for a new char.
