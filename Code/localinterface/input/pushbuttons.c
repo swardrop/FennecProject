@@ -61,13 +61,13 @@ void pushBtnISR(void)
     else if (!(portBVal & (1<<BUTTON_MUTE)))
     {
         /*Toggles TTS on and off*/
-        if ((disp_type & 0xF0) == DISP_LCD)
+        if (disp_type & DISP_TTS)   /*If it's on*/
         {
-            disp_type = (disp_type & 0x0F) | DISP_TTS;
+            disp_type &= ~DISP_TTS; /*Turn it off*/
         }
-        else if ((disp_type & 0xF0) == DISP_TTS)
+        else                        /*If it's off*/
         {
-            disp_type = (disp_type & 0x0F) | DISP_LCD;
+            disp_type |= DISP_TTS;  /*Turn it on*/
         }
     }
     INTCONbits.RBIF = 0; /*Clear interrupt flag*/
