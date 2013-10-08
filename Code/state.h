@@ -37,6 +37,8 @@ extern char cur_state;
 extern char disp_type;
 // Number of samples per ADC read
 extern char num_samples;
+// The amount the displayed weight is offset from the actual weight
+extern int tare_offset;
 
 /**
  * retrieveState
