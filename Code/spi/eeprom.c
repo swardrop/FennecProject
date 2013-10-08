@@ -1,5 +1,4 @@
 
-
 #include "../spi.h"
 #include "eeprom.h"
 
@@ -15,7 +14,7 @@ void getEEPROMbyte(int address)
 	EECON1bits.EEPGD = 0;
 	EECON1bits.CFGS = 0;
 	EECON1bits.RD = 1;
-	tempData = EEDATA;
+	char tempData = EEDATA;
 	return tempData;
 }
 
