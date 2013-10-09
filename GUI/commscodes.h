@@ -45,8 +45,8 @@
 #define ST_SHOW_STATISTICS			0x87
 
 // Units type
-#define DISP_GRAMS				0x00
-#define DISP_OZ					0x01
+#define DISP_GRAMS				0x01
+#define DISP_OZ					0x02
 // Display destination
 #define DISP_LCD				0x10
 #define DISP_RS232				0x20
