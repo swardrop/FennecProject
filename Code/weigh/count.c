@@ -74,7 +74,7 @@ char waitForInput(char* input)
     while(1)
     {
         // Check for push button state change.
-        if (req_state != NONE && req_state != ST_COUNT_I)
+        if (req_state != ST_NONE && req_state != ST_COUNT_I)
         {
             return INPUT_STATE_CHNG;
         }
