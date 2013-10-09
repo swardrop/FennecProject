@@ -59,6 +59,8 @@ void main(void)
         {
             cur_state = req_state;
             // Send Change to GUI.
+            writeByte(COMM_CHANGE_STATE);
+            writeByte(cur_state);
             req_state = ST_NONE;
         }
     }

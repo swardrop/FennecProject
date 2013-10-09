@@ -175,7 +175,7 @@ int readNum(void)
                 {
                     return_num |= byte;
 
-                    // Return ACK!
+                    // Return ACK
                     return return_num;
                 }
             }
