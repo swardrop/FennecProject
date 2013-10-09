@@ -2,6 +2,7 @@
 #include "../localinterface/output/warnings.h"
 #include "../remoteinterface/calibrate.h"
 #include "../state.h"
+#include "../../GUI/commscodes.h"
 #include "../weigh/read.h"
 #include "../spi/outf.h"
 #include "smoothing.h"
@@ -12,6 +13,7 @@
 
 // Global (accessible for statistics module)
 int variance;
+int mean;
 
 void convertGramsToOz(int grams, char *output);
 int convertVoltageToGrams(int voltage);
@@ -26,7 +28,6 @@ void weigh(void)
 
     weight = getWeight(); // Get smoothed voltage in strain Gauges.
 
-    weight = convertVoltageToGrams(weight);
 
 
     // If user has selected Ounces, convert to ounces and display.
@@ -41,6 +42,7 @@ void weigh(void)
             // Get string from EEPROM
             // Substitute count value
             // Send over serial
+            
         }
         if (disp_type & DISP_LCD)
         {
@@ -93,23 +95,24 @@ void weigh(void)
 int getWeight(void)
 /*Returns a 10-bit number representing the smoothed weight*/
 {
-    int mean;
+    int temp_mean;
     char temp_idx;
     char temp_lead_idx = ADC_lead_idx;
     long total;
     int temp_variance;
     int weight;
 
-    // Calculate mean and variance from raw data buffer
+    // Calculate temp_mean and variance from raw data buffer
     weight = smoothWeight();
 
-    // Loop through raw data, to calculate mean.
+    // Loop through raw data, to calculate temp_mean.
     total = 0;
     for (temp_idx = 1; temp_idx <= num_samples; temp_idx++)
     {
         total += raw_weight[mod((temp_lead_idx - temp_idx), ADC_BUFSIZE)];
     }
-    mean = total / num_samples;
+    temp_mean = total / num_samples;
+    mean = temp_mean;
 
     // Loop through again, this time calculate variance.
     temp_variance = 0;
@@ -117,7 +120,7 @@ int getWeight(void)
     {
         temp_variance +=
                 square((raw_weight[mod((temp_lead_idx - temp_idx), ADC_BUFSIZE)]
-                        - mean));
+                        - temp_mean));
     }
     variance = temp_variance;
 
@@ -126,7 +129,12 @@ int getWeight(void)
         showWarning(WARNING_VARIANCE);
     }
 
+    weight = convertVoltageToGrams(weight);
     global_weight = weight;
+
+    RS232writeByte(COMM_BEGIN_NUM);
+    RS232writeByte((weight & 0xF0) >> 8);
+    RS232writeByte(weight & 0x0F);
 
     return weight;
 }

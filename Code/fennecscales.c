@@ -51,6 +51,7 @@ void main(void)
             case ST_SHOW_STATISTICS: showStats(); break;
         }
         num_data = parseSerial();
+        
         if (num_data != -1)
         {
             RS232writeByte(COMM_DEBUG);

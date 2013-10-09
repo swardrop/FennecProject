@@ -17,6 +17,7 @@
  * getNextNum
  * Read out next Byte of data from numpad buffer returns it as an ASCII code.
  * Respond to any state change codes.
+ * Look out for Factory Password and
  * @return      ASCII of Byte from buffer, (-1 if none)
  */
 char getNextNum(void);

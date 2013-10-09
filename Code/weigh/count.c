@@ -13,7 +13,6 @@ int waitForInput(int* input);
 
 void count(void)
 {
-    int items;
     char count_str[5];
     static long weightPerItem;           // Persists between function calls
     int weight = 0;
@@ -26,7 +25,7 @@ void count(void)
         // Ask for user to place items on scale and enter number of items.
 
         // Wait for user input of number items
-        if (waitForInput(&items) != INPUT_INT)
+        if (waitForInput(&count) != INPUT_INT)
         {
             return;
         }

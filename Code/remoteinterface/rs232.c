@@ -237,9 +237,9 @@ int parseSerial(void)
                 break;
 
             case COMM_TARE:
-                tare_offset = global_weight;
+                tare_offset += global_weight;
                 break;
-                // Parse rest of codes
+
             default:
                 num_data = -2;
                 break;
