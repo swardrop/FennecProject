@@ -20,7 +20,7 @@
 #define ST_SHOW_WEIGHT_READINGS 0x86
 #define ST_SHOW_STATISTICS      0x87
 
-#define NONE                    0xFF
+#define ST_NONE                    0xFF
 
 // Units display type
 #define GRAMS                   0x00

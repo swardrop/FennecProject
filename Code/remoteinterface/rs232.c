@@ -1,5 +1,5 @@
 #include "rs232.h"
-#include "fmath.h"
+#include "../fmath.h"
 #include <p18f452.h>
 
 #define RS232_BUFSIZE       64

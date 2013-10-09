@@ -52,10 +52,10 @@ void main(void)
             cur_state = ST_COUNT_I;
             //req_state = COUNT;
         }
-        else if (req_state != NONE)
+        else if (req_state != ST_NONE)
         {
             cur_state = req_state;
-            req_state = NONE;
+            req_state = ST_NONE;
         }
     }
 
@@ -69,7 +69,7 @@ void main(void)
  */
 void setup()
 {
-    
+    retrieve_state();
 }
 
 /**
