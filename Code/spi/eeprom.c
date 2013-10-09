@@ -59,20 +59,20 @@ void getEEPROMbyte(int address, char* str_buf)
 {
     incPtr(address);
     exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &instruct_READ);
-    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &addressPtrH);
-    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &addressPtrL);
+    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, addressPtrH);
+    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, addressPtrL);
     exchangeDataSPI(SPI_EEPROM_WRITE_BYTE,0x00);
-    exchangeDataSPI(SPI_EEPROM_READ_BYTE, &str_buf);
+    exchangeDataSPI(SPI_EEPROM_READ_BYTE, str_buf);
 }
 
 void getEEPROMstring(int address, char* str_buf)
 {
     incPtr(address);
     exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &instruct_READ);
-    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &addressPtrH);
-    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &addressPtrL);
+    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, addressPtrH);
+    exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, addressPtrL);
     exchangeDataSPI(SPI_EEPROM_WRITE_BYTE,0x00);
-    exchangeDataSPI(SPI_EEPROM_READ_STRING,&str_buf);
+    exchangeDataSPI(SPI_EEPROM_READ_STRING,str_buf);
 }
 
 
@@ -93,8 +93,8 @@ char sendEEPROMbyte(int address, char *data)
     {
         incPtr(address);
         exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &instruct_WRITE);
-        exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &addressPtrH);
-        exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, &addressPtrL);
+        exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, addressPtrH);
+        exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, addressPtrL);
         exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, data);
         exchangeDataSPI(SPI_EEPROM_WRITE_BYTE, data);
         return *data;
