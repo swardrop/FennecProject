@@ -5,9 +5,10 @@ static char *np_lead_ptr, *np_trail_ptr;
 
 char getNextNum()
 {
-    return 3;
+    return -1;
 }
 
+// The ISR captures the value and write into circular buffer.
 void numpadISR()
 {
     // Capture number

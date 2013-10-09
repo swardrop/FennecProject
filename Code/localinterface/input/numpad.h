@@ -15,10 +15,11 @@
 
 /**
  * getNextNum
- * Read out next byte of data from numpad buffer.
- * @return      Byte from buffer, (-1 if none)
+ * Read out next Byte of data from numpad buffer returns it as an ASCII code.
+ * Respond to any state change codes.
+ * @return      ASCII of Byte from buffer, (-1 if none)
  */
-char getNextNum();
+char getNextNum(void);
 
 /**
  * Interrupt subroutine for capturing numpad press

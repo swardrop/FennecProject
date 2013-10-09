@@ -1,6 +1,7 @@
 #include "rs232.h"
 #include "../fmath.h"
 #include <p18f452.h>
+#include "../../GUI/commscodes.h"
 
 #define RS232_BUFSIZE       64
 
@@ -16,6 +17,8 @@ unsigned char read_lead_idx, read_trail_idx;
 char writeLock;
 char txComplete;
 
+int readNum(void);
+
 char writeByte(char data)
 {
     // If the buffer is full, don't add any more.
@@ -23,7 +26,7 @@ char writeByte(char data)
     {
         return -1;
     }
-    
+
     // Add data byte to write buffer
     writeBuf[write_lead_idx] = data;
     ++write_lead_idx;
@@ -73,7 +76,7 @@ char writeString(char* str)
     {
         spaces = RS232_BUFSIZE - write_trail_idx + write_lead_idx;
     }
-    if ( spaces < count )
+    if (spaces < count)
     {
         return -1;
     }
@@ -125,36 +128,83 @@ char readString(char* dest)
         {
             return -1;
         }
-        
+
         ++temp;
         byte = readByte();
     }
     return 0;
 }
 
+int parseSerial(void)
+{
+    char byte;
+    int num_data = -1;
+
+    while ((byte = readByte()) != -1)
+    {
+        switch (byte)
+        {
+            case COMM_BEGIN_NUM:
+                num_data = readNum();
+                break;
+                // Parse rest of codes
+            default:
+                num_data = -2;
+                break;
+        }
+
+    }
+    return num_data;
+}
+
+int readNum(void)
+{
+    char byte;
+    int return_num;
+    long timeout = 0xFFFF;
+    while (timeout--)
+    {
+        if ((byte = readByte()) != -1)
+        {
+            return_num = ((int) byte << 8);
+            timeout = 0xFFFF;
+            while (timeout--)
+            {
+                if ((byte = readByte()) != -1)
+                {
+                    return_num |= byte;
+
+                    // Return ACK!
+                    return return_num;
+                }
+            }
+        }
+    }
+}
+
 void initialiseRS232()
 {
     /* Configure interrupts */
-    INTCONbits.GIE = 1;              // Enable global interrupts and priority
+    INTCONbits.GIE = 1; // Enable global interrupts and priority
     INTCONbits.PEIE = 1;
     RCONbits.IPEN = 1;
-    
+
     // Initialise Register values
-    PIE1bits.TXIE = 1;                  // Enable TX interrupt
-    IPR1bits.TXIP = 1;                  // TX priority high
+    PIE1bits.TXIE = 1; // Enable TX interrupt
+    IPR1bits.TXIP = 1; // TX priority high
 
-    PIE1bits.RCIE = 1;                  // Enable RC Interrupt
-    IPR1bits.RCIP = 1;                  // Set RC priority high
+    PIE1bits.RCIE = 1; // Enable RC Interrupt
+    IPR1bits.RCIP = 1; // Set RC priority high
 
-    TRISCbits.RC6 = 0;                  // Set PORTC<6> to output
-    TRISCbits.RC7 = 1;                  // Set PORTC<7> to input
+    TRISCbits.RC6 = 0; // Set PORTC<6> to output
+    TRISCbits.RC7 = 1; // Set PORTC<7> to input
 
     /* Configure serial port */
     SPBRG = 64;
-    TXSTAbits.BRGH = 1;                 // Set baud rate to 9600
-    TXSTAbits.SYNC = 0;                 // Assert async mode
-    RCSTAbits.SPEN = 1;                 // Enable serial port
-    RCSTAbits.CREN = 1;                 // Enable reception
+    TXSTAbits.BRGH = 1; // Set baud rate to 9600
+    TXSTAbits.SYNC = 0; // Assert async mode
+    RCSTAbits.SPEN = 1; // Enable serial port
+    RCSTAbits.CREN = 1; // Enable reception
 
     // Initialise module values
     write_lead_idx = write_trail_idx = 0;

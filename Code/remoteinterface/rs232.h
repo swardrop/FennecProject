@@ -48,6 +48,8 @@ char readByte(void);
  */
 char readString(char* dest);
 
+int parseSerial(void);
+
 void initialiseRS232(void);
 
 /**

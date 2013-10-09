@@ -3,6 +3,7 @@
 #include "./weigh/count.h"
 #include "./remoteinterface/calibrate.h"
 #include "./remoteinterface/factory.h"
+#include "./remoteinterface/rs232.h"
 
 /**
  * FennecScales main function, this is the highest level control flow.
@@ -37,24 +38,27 @@ void main(void)
     // Loop until the system is turned off
     while (req_state & POWER_ON)
     {
+        int num_data;
         switch (cur_state)
         {
-            case ST_WEIGH: weigh();
-            case ST_COUNT_I: count();
-            case ST_CALIBRATE: calibrate();
-            case ST_SET_NUM_SAMPLES: setNumSamples();
-            case ST_SHOW_WEIGHT_READINGS: showWeightReadings();
-            case ST_SHOW_STATISTICS: showStats();
+            case ST_WEIGH: weigh(); break;
+            case ST_COUNT_I:
+            case ST_COUNT_F: count(); break;
+            case ST_CALIBRATE: calibrate(); break;
+            case ST_SET_NUM_SAMPLES: setNumSamples(); break;
+            case ST_SHOW_WEIGHT_READINGS: showWeightReadings(); break;
+            case ST_SHOW_STATISTICS: showStats(); break;
+        }
+        num_data = parseSerial();
+        if (num_data != -1)
+        {
+            // Refresh GUI state = cur_state
         }
 
-        if (req_state == ST_COUNT_I)
-        {
-            cur_state = ST_COUNT_I;
-            //req_state = COUNT;
-        }
-        else if (req_state != ST_NONE)
+        if (req_state != ST_NONE)
         {
             cur_state = req_state;
+            // Send Change to GUI.
             req_state = ST_NONE;
         }
     }
@@ -69,7 +73,7 @@ void main(void)
  */
 void setup()
 {
-    retrieve_state();
+    retrieveState();
 }
 
 /**

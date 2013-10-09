@@ -9,21 +9,21 @@
 //// PIC State Codes
 
 // System state (includes power state as MSB)
-#define ST_WEIGH					0x81
+#define ST_WEIGH                                0x81
 #define ST_COUNT_INITIAL			0x82
 #define ST_COUNT_FINAL				0x83
 #define ST_CALIBRATE				0x84
 #define ST_SET_NUM_SAMPLES			0x85
-#define ST_SHOW_WEIGHT_READINGS		0x86
+#define ST_SHOW_WEIGHT_READINGS                 0x86
 #define ST_SHOW_STATISTICS			0x87
 
 // Units display type
-#define DISP_GRAMS					0x00
-#define DISP_OZ						0x01
+#define DISP_GRAMS				0x00
+#define DISP_OZ					0x01
 // Display destination
-#define DISP_LCD					0x10
-#define DISP_RS232					0x20
-#define DISP_TTS					0x40
+#define DISP_LCD				0x10
+#define DISP_RS232				0x20
+#define DISP_TTS				0x40
 
 
 //// "In Progress" Codes
