@@ -34,5 +34,11 @@ void getEEPROMbyte(int address, char* str_buf);
 /* WARNING: Very slow, try not to use except when absolutely necessary. */
 char sendEEPROMbyte(int address, char *data);
 
+/**
+ * incPtr
+ * @param address       Memory address in EEPROM
+ * 
+ * This function increments pointers and converts address into 2 bytes for transmitting*/
+void incPtr(int address);
 
 #endif // EEPROM_H
