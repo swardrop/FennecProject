@@ -8,13 +8,13 @@ char disp_type;
 
 int tare_offset;
 
-char retrieve_state()
+void retrieveState()
 {
     cur_state = ST_WEIGH;
     req_state = ST_NONE;
     tare_offset = 0;
 }
-void save_state()
+void saveState()
 {
     
 }
