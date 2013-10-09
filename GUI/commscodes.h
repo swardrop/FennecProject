@@ -2,10 +2,33 @@
 #define COMMSCODES_H
 
 //// Communication Codes
-#define COMM_BEGIN_NUM				0xFF
+
+// Number transmission
+#define COMM_BEGIN_NUM				0x00
 #define COMM_NUM_RXD				0xA0
+
+// GUI Modes
+#define COMM_START_FAC				0x01
+#define COMM_ACK_FAC				0xA1
 #define COMM_START_REM				0x02
 #define COMM_ACK_REM				0xA2
+#define COMM_STOP_REM				0x03
+
+// PIC State Changes
+#define COMM_CHANGE_STATE			0x04
+#define COMM_ACK_STATE				0xA4
+
+// Display changes
+#define COMM_CHANGE_UNITS			0x05
+#define COMM_ACK_UNITS				0xA5
+#define COMM_CHANGE_DISP			0x06
+#define COMM_ACK_DISP				0xA6
+
+// Commands
+#define COMM_TARE					0x07
+#define COMM_ACK_TARE				0xA7
+// Factory commands
+#define COMM_ACK_FAC_COM			0xA8
 
 //// PIC State Codes
 #ifndef STATE_H
@@ -18,7 +41,7 @@
 #define ST_SHOW_WEIGHT_READINGS                 0x86
 #define ST_SHOW_STATISTICS			0x87
 
-// Units display type
+// Units type
 #define DISP_GRAMS				0x00
 #define DISP_OZ					0x01
 // Display destination
