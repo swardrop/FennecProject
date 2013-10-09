@@ -8,8 +8,6 @@
  * Inputs:  None
  *
  * Outputs: req_state (global)
- *
- * Issues:  Using getWeight() to tare may be a bit too much to do in an interrupt?
  */
 
 /**

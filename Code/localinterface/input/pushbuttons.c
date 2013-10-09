@@ -21,7 +21,7 @@ void pushBtnISR(void)
     {
         /*Tare button was pressed.*/
         /*Set the tare offset to the current weight.*/
-        tare_offset = getWeight();
+        tare_offset = global_weight;
     }
     else if (!(portBVal & (1<<BUTTON_MODE)))
     {

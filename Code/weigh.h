@@ -15,6 +15,7 @@
  * 
  */
 extern int variance;
+extern int global_weight;
  
 /* This is the function that runs the standard weigh module. It gets the value
  * and outputs it the LCD or serial*/

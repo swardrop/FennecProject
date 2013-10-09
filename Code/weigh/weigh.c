@@ -12,6 +12,7 @@
 
 // Global (accessible for statistics module)
 int variance;
+int global_weight;
 
 void convertGramsToOz(int grams, char *output);
 int convertVoltageToGrams(int voltage);
@@ -125,6 +126,8 @@ int getWeight(void)
     {
         showWarning(WARNING_VARIANCE);
     }
+
+    global_weight = weight;
 
     return weight;
 }
