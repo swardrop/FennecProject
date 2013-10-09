@@ -20,7 +20,7 @@ char txComplete;
 
 int readNum(void);
 
-char writeByte(char data)
+char RS232writeByte(char data)
 {
     // If the buffer is full, don't add any more.
     if (writeLock)
@@ -56,7 +56,7 @@ char writeByte(char data)
     }
 }
 
-char writeString(char* str)
+char RS232writeString(char* str)
 {
     char *temp = str;
     char count = 0, spaces;
@@ -86,13 +86,13 @@ char writeString(char* str)
     temp = str;
     while (*temp != '\0')
     {
-        writeByte(*temp);
+        RS232writeByte(*temp);
         ++temp;
     }
     return 0;
 }
 
-char readByte()
+char RS232readByte()
 {
     char data;
 
@@ -110,10 +110,10 @@ char readByte()
     return data;
 }
 
-char readString(char* dest)
+char RS232readString(char* dest)
 {
     char *temp = dest;
-    char byte = readByte();
+    char byte = RS232readByte();
 
     // Read until null-terminator or end of buffer
     while (byte != -1)
@@ -131,7 +131,7 @@ char readString(char* dest)
         }
 
         ++temp;
-        byte = readByte();
+        byte = RS232readByte();
     }
     return 0;
 }
@@ -140,13 +140,104 @@ int parseSerial(void)
 {
     char byte;
     int num_data = -1;
+    int timeout;
 
-    while ((byte = readByte()) != -1)
+    while ((byte = RS232readByte()) != -1)
     {
         switch (byte)
         {
             case COMM_BEGIN_NUM:
                 num_data = readNum();
+                break;
+
+            case COMM_START_REM:
+                disp_type |= DISP_RS232;
+                RS232writeByte(COMM_ACK_REM);
+                RS232writeByte(cur_state);
+                RS232writeByte(disp_type);
+                timeout = 0xFFFF;
+                while (timeout--)
+                {
+                    byte = RS232readByte();
+                    if (byte == -1)
+                        continue;
+                    else if (byte != COMM_ACK_REM)
+                    {
+                        disp_type &= ~DISP_RS232;
+                    }
+                    break;
+                }
+                if (!timeout)// !timeout means timeout reached 0 and timed out
+                {
+                    RS232writeByte(COMM_DEBUG);
+                    RS232writeByte(cur_state);
+                    RS232writeByte(disp_type);
+                }
+                break;
+
+            case COMM_STOP_REM:
+                disp_type &= ~DISP_RS232;
+                break;
+
+            case COMM_CHANGE_STATE:
+                timeout = 0xFFFF;
+                while (timeout--)
+                {
+                    byte = RS232readByte();
+                    if (byte == -1)
+                        continue;
+                    req_state = byte;
+                    RS232writeByte(COMM_ACK_STATE);
+                    break;
+                }
+                if (!timeout)// !timeout means timeout reached 0 and timed out
+                {
+                    RS232writeByte(COMM_DEBUG);
+                    RS232writeByte(cur_state);
+                    RS232writeByte(disp_type);
+                }
+                break;
+
+            case COMM_CHANGE_UNITS:
+                timeout = 0xFFFF;
+                while (timeout--)
+                {
+                    byte = RS232readByte();
+                    if (byte == -1)
+                        continue;
+                    disp_type |= (0xF0 & byte);
+                    RS232writeByte(COMM_ACK_STATE);
+                    break;
+                }
+                if (!timeout) // !timeout means timeout reached 0 and timed out
+                {
+                    RS232writeByte(COMM_DEBUG);
+                    RS232writeByte(cur_state);
+                    RS232writeByte(disp_type);
+                }
+                break;
+
+            case COMM_CHANGE_DISP:
+                timeout = 0xFFFF;
+                while (timeout--)
+                {
+                    byte = RS232readByte();
+                    if (byte == -1)
+                        continue;
+                    disp_type |= (0x0F & byte);
+                    RS232writeByte(COMM_ACK_STATE);
+                    break;
+                }
+                if (!timeout) // !timeout means timeout reached 0 and timed out
+                {
+                    RS232writeByte(COMM_DEBUG);
+                    RS232writeByte(cur_state);
+                    RS232writeByte(disp_type);
+                }
+                break;
+
+            case COMM_TARE:
+                tare_offset = global_weight;
                 break;
                 // Parse rest of codes
             default:
@@ -165,13 +256,13 @@ int readNum(void)
     long timeout = 0xFFFF;
     while (timeout--)
     {
-        if ((byte = readByte()) != -1)
+        if ((byte = RS232readByte()) != -1)
         {
             return_num = ((int) byte << 8);
             timeout = 0xFFFF;
             while (timeout--)
             {
-                if ((byte = readByte()) != -1)
+                if ((byte = RS232readByte()) != -1)
                 {
                     return_num |= byte;
 

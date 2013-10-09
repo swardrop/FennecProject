@@ -18,7 +18,7 @@
  * @param data      Byte to be written into transmit buffer
  * @return          Buffer status (-1 if full)
  */
-char writeByte(char data);
+char RS232writeByte(char data);
 /**
  * writeString
  * Places a null-terminated string into the buffer. The null-terminator will
@@ -27,7 +27,7 @@ char writeByte(char data);
  * @param str       String to be written to buffer (null-terminated)
  * @return          Bufer status (-1 if cannot fit full string)
  */
-char writeString(char* str);
+char RS232writeString(char* str);
 
 /**
  * readByte
@@ -35,7 +35,7 @@ char writeString(char* str);
  * return -1.
  * @return          Next byte in read buffer (-1 if empty)
  */
-char readByte(void);
+char RS232readByte(void);
 /**
  * readString
  * Places a null-terminated string received from serial into a location
@@ -46,7 +46,7 @@ char readByte(void);
  * @param dest      Pointer to memory location to store string
  * @return          0 if a null-terminated string placed in dest, otherwise -1
  */
-char readString(char* dest);
+char RS232readString(char* dest);
 
 int parseSerial(void);
 

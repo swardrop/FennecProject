@@ -4,6 +4,7 @@
 #include "./remoteinterface/calibrate.h"
 #include "./remoteinterface/factory.h"
 #include "./remoteinterface/rs232.h"
+#include "../GUI/commscodes.h"
 
 /**
  * FennecScales main function, this is the highest level control flow.
@@ -52,15 +53,18 @@ void main(void)
         num_data = parseSerial();
         if (num_data != -1)
         {
-            // Refresh GUI state = cur_state
+            RS232writeByte(COMM_DEBUG);
+            RS232writeByte(cur_state);
+            RS232writeByte(disp_type);
+
         }
 
         if (req_state != ST_NONE)
         {
             cur_state = req_state;
             // Send Change to GUI.
-            writeByte(COMM_CHANGE_STATE);
-            writeByte(cur_state);
+            RS232writeByte(COMM_CHANGE_STATE);
+            RS232writeByte(cur_state);
             req_state = ST_NONE;
         }
     }

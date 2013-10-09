@@ -23,8 +23,8 @@
 #define ST_NONE                    0xFF
 
 // Units display type
-#define GRAMS                   0x00
-#define OZ                      0x01
+#define GRAMS                   0x01
+#define OZ                      0x02
 // Display destination
 #define DISP_LCD                0x10
 #define DISP_RS232              0x20
@@ -39,6 +39,8 @@ extern char disp_type;
 extern char num_samples;
 // The amount the displayed weight is offset from the actual weight
 extern int tare_offset;
+
+extern int global_weight;
 
 /**
  * retrieveState

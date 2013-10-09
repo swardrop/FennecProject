@@ -12,7 +12,6 @@
 
 // Global (accessible for statistics module)
 int variance;
-int global_weight;
 
 void convertGramsToOz(int grams, char *output);
 int convertVoltageToGrams(int voltage);

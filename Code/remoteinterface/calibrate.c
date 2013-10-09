@@ -1,4 +1,5 @@
 #include "calibrate.h"
+#include "../state.h"
 
 Coefficients calibrate(void)
 {
@@ -11,7 +12,9 @@ Coefficients calibrate(void)
 
 int convertVoltageToGrams(int voltage)
 {
-    int grams = voltage;
+    int tared_voltage = voltage + tare_offset;
+
+    int grams = tared_voltage;
 
     return grams;
 }
