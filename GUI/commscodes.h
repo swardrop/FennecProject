@@ -30,6 +30,9 @@
 // Factory commands
 #define COMM_ACK_FAC_COM			0xA8
 
+// Debug
+#define COMM_DEBUG            0xFF
+
 //// PIC State Codes
 #ifndef STATE_H
 // System state (includes power state as MSB)
