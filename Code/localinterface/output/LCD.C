@@ -1,8 +1,5 @@
 #include "lcd.h"
 
-
- 
-
 void init_lcd()
 {
 //all pins output
@@ -179,18 +176,18 @@ void L2LCD()
 sendcmd(LCD_SECOND_LINE);
 }
 char stringToLCD(char* str, char line){
-init_lcd();
-while(str !="Äù\0"Ä&& line == 1)
-{
-L1LCD();
-curse_shift(1,5);
-printlcd(str);
-}
-while(str != "Ä\0"Äù && line == 2  )
-{
-L2LCD();
-curse_shift(0,5);
-printlcd(str);
-}
-return 1;
+    init_lcd();
+    while(str !='\0' && line == 1)
+    {
+        L1LCD();
+        curse_shift(1,5);
+        printlcd(str);
+    }
+    while(str != '\0' && line == 2  )
+    {
+        L2LCD();
+        curse_shift(0,5);
+        printlcd(str);
+    }
+    return 1;
 }
