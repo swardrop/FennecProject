@@ -1,6 +1,7 @@
 #include "rs232.h"
 #include "../fmath.h"
 #include <p18f452.h>
+#include "../state.h"
 #include "../../GUI/commscodes.h"
 
 #define RS232_BUFSIZE       64

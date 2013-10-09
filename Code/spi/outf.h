@@ -24,7 +24,6 @@
 #define OUTF_LCD_L1         0x0000
 #define OUTF_LCD_L2         0x0100
 #define OUTF_TTS            0x0200
-#define OUTF_SERIAL         0x0300
 
 // CODES FOR APPENDED UNITS
 #define OUTF_NO_UNITS       0x0000

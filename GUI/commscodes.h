@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMMSCODES_H
+#define COMMSCODES_H
 
 //// Communication Codes
 #define COMM_BEGIN_NUM				0xFF
@@ -7,7 +8,7 @@
 #define COMM_ACK_REM				0xA2
 
 //// PIC State Codes
-
+#ifndef STATE_H
 // System state (includes power state as MSB)
 #define ST_WEIGH                                0x81
 #define ST_COUNT_INITIAL			0x82
@@ -25,9 +26,12 @@
 #define DISP_RS232				0x20
 #define DISP_TTS				0x40
 
+#endif // STATE_H
 
 //// "In Progress" Codes
 #define INPGRSS_STATUS0				0xD0
 #define INPGRSS_STATUS1				0xD1
 #define INPGRSS_NUM0				0xD2
 #define INPGRSS_NUM1				0xD3
+
+#endif // COMMSCODES_H
