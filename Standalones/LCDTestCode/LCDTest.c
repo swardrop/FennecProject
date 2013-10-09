@@ -13,5 +13,5 @@ void main(void)
         count++;
     }
     /*Overwrite top line with a shorter string*/
-    stringToLCD("Shorty");
+    stringToLCD("Shorty", 1);
 }
