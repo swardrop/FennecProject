@@ -10,6 +10,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include "../remoteinterface/rs232.h"
 
 // Global (accessible for statistics module)
 int variance;
