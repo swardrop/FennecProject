@@ -218,4 +218,6 @@ pip-log.txt
 ## MPLABX
 ############
 FennecProject.X/
+#All MPLab projects
+*.X/
 
