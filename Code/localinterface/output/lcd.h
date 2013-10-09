@@ -36,7 +36,7 @@ void init_lcd() ;
 void write_in(void) ;
 void sendcmd(char cddata);
 void putclcd(char data) ;
-void printlcd(const char *data) ;
+void printlcd(char *data) ;
 void write(char data) ;
 void delay(unsigned int count) ;
 void lcd_shift(unsigned char flag, unsigned char count) ;

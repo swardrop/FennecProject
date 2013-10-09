@@ -25,8 +25,8 @@ void init_lcd()
   //asm("nop");
 //enable
   write_in() ;
- delay(0xffff) ;
- delay(0xffff) ;
+ //delay(0xffff) ;
+ //delay(0xffff) ;
 //4bit,2-line.5*8dots
  sendcmd(0x28) ;
  sendcmd(0x0c) ;
@@ -74,9 +74,9 @@ void putclcd(char lcdbyte)
 /**************************************
 *disp string
 *************************************/
-void printlcd(const char *lcdata)
+void printlcd(char *lcdata)
 {
-    while((*lcdata)!='/0')
+    while((*lcdata)!='\0')
     {
        putclcd(*lcdata++);      
     }
@@ -114,7 +114,7 @@ void write(char wdata)
    if(temp&0X10)
    {LCD_DB4=1;}
    write_in() ;
-   delay(160);   
+   //delay(160);
 }
 /*************************************
 *function:display shifting(change the delay var to change the speed of  shifting)
@@ -175,15 +175,16 @@ void L2LCD()
 {
 sendcmd(LCD_SECOND_LINE);
 }
+
 char stringToLCD(char* str, char line){
     init_lcd();
-    while(str !='\0' && line == 1)
+    if(str !='\0' && line == 1)
     {
-        L1LCD();
-        curse_shift(1,5);
-        printlcd(str);
+        L1LCD();/*?Sets cursor to beginning of line 1?*/
+        curse_shift(1,5);/*?Moves cursor on line 1 5 places to the right?*/
+        printlcd(str);/*Prints an entire string (until a '\0' is reached)*/
     }
-    while(str != '\0' && line == 2  )
+    if(str != '\0' && line == 2  )
     {
         L2LCD();
         curse_shift(0,5);
