@@ -56,15 +56,35 @@ void main(void)
             RS232writeByte(COMM_DEBUG);
             RS232writeByte(cur_state);
             RS232writeByte(disp_type);
-
         }
 
         if (req_state != ST_NONE)
         {
+            int timeout = 0xFFFF;
+            char byte;
             cur_state = req_state;
             // Send Change to GUI.
             RS232writeByte(COMM_CHANGE_STATE);
             RS232writeByte(cur_state);
+            while (timeout--)
+            {
+                byte = RS232readByte();
+                if (byte == -1)
+                    continue;
+                else if (byte != COMM_ACK_STATE)
+                {
+                    RS232writeByte(COMM_DEBUG);
+                    RS232writeByte(cur_state);
+                    RS232writeByte(disp_type);
+                }
+                break;
+            }
+            if (!timeout)// !timeout means timeout reached 0 and timed out
+            {
+                RS232writeByte(COMM_DEBUG);
+                RS232writeByte(cur_state);
+                RS232writeByte(disp_type);
+            }
             req_state = ST_NONE;
         }
     }
