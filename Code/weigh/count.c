@@ -1,15 +1,20 @@
 #include "../state.h"
 #include "../weigh.h"
 #include "../spi/outf.h"
-
+#include "../remoteinterface/rs232.h"
+#include "../localinterface/input/numpad.h"
 #include <stdio.h>
 
-void waitForInput(char* str, char* input);
+#define INPUT_STATE_CHNG    0x01
+#define INPUT_CONTINUE      0x02
+#define INPUT_INT           0x04
+
+char waitForInput(char* input);
 int str2num(char* input);
 
 void count(void)
 {
-    char input[10];
+    char input[2];
     char count_str[5];
     static long weightPerItem;           // Persists between function calls
     int weight = 0;
@@ -18,33 +23,17 @@ void count(void)
     // Ask the user to supply a mass of known count if they haven't already.
     while (req_state ==  ST_COUNT_I)
     {
-        // Print to LCD/Terminal "Place weight\n on scale"
+        // Print Welcome to Count.
+        // Ask for user to place items on scale and enter number of items.
 
-        while (!getWeight()) ; // Wait for weight to be placed on scale
-        
-        // Wait for # key press
-        waitForInput("Press #\n when finished", input);
-        weight = getWeight();
+        // Wait for user input of number items
 
-        // Ensure sensible value (i.e. weight non-zero)
-        if (weight == 0)
-        {
-            // Print to LCD/Terminal "Weight must be != 0"
-            continue;
-        }
+        // getWeight()
 
-        // Wait until given usable input
-        while (count == 0)
-        {
-            // Get number of items in pan (formatted as string)
-            waitForInput("Enter no. items.\nPress #", input);
-            // Convert string to integer
-            count = str2num(input);
-        }
         // Produce conversion factor
         weightPerItem = ( (long)weight * 1000) / count;
 
-        req_state = NONE;
+        req_state = ST_COUNT_F;
     }
 
     // Get new weight value
@@ -54,7 +43,7 @@ void count(void)
     // Produce a string representation of the count
     sprintf(count_str, "%d", count);
 
-    // Display over serial or LCD
+    // Display over serial and(or) LCD and(or) TTS
     if (disp_type & DISP_RS232)
     {
         //output to serial
@@ -62,7 +51,7 @@ void count(void)
             // Substitute count value
             // Send over serial
     }
-    else
+    if (disp_type & DISP_LCD)
     {
         //output to LCD
             // Get string from EEPROM
@@ -72,24 +61,37 @@ void count(void)
         dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
                    count_str);
     }
-
-    // Speak over TTS
-}
-
-void waitForInput(char* str, char* input)
-{
-    if (disp_type & DISP_RS232)
+    if (disp_type & DISP_TTS)
     {
-        // Output str to serial
-        // Check serial recieve for a new char.
-        input[0] = '#';
+        // Speak over TTS
 
     }
-    else
+}
+
+char waitForInput(char* input)
+{
+    char byte;
+    while(1)
     {
-        // Output str to LCD
-        // Check numpad input for new char.
-        input[0] = '#';
+        // Check for push button state change.
+        if (req_state != NONE && req_state != ST_COUNT_I)
+        {
+            return INPUT_STATE_CHNG;
+        }
+
+        // Check for RS232 serial input
+        byte = readByte();
+        if (byte != -1)
+        {
+            
+        }
+
+        // Check for local numpad input
+        byte = getNextNum();
+        if (byte != -1)
+        {
+
+        }
     }
 }
 
