@@ -25,11 +25,15 @@ namespace FennecScalesGUI {
 		{
 			InitializeComponent();
 
+			// Reopen serial port
+			port = sp;
+			// Send ack (entered into user remote mode)
+			sendSerialByte(COMM_ACK_REM);
+
 			setButtons(cur_state);
 			showPanel(cur_state.state);
-			showWarnings(); // Need to find some way to show as soon as a warning appears (event-driven)
+			showWarnings();
 			setUnitsLabel();
-			port = sp;
 		}
 
 	protected:
@@ -46,7 +50,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Panel^  weighPanel;
 	private: System::Windows::Forms::Panel^  sidePanel;
 	protected: 
-
+		SerialPort^ port;
 
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
 	private: System::Windows::Forms::GroupBox^  groupBox3;
@@ -102,9 +106,9 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::PictureBox^  pictureBox2;
 	private: System::Windows::Forms::Label^  label1;
 
+	private: System::Windows::Forms::Timer^  updateTimer;
 
-			 SerialPort^ port;
-
+	private: System::ComponentModel::IContainer^  components;
 
 
 
@@ -115,7 +119,7 @@ namespace FennecScalesGUI {
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -124,6 +128,7 @@ namespace FennecScalesGUI {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			this->components = (gcnew System::ComponentModel::Container());
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(FrmUsrRemote::typeid));
 			this->weighPanel = (gcnew System::Windows::Forms::Panel());
 			this->unitsLabel = (gcnew System::Windows::Forms::Label());
@@ -161,6 +166,7 @@ namespace FennecScalesGUI {
 			this->excessiveVarianceLabel = (gcnew System::Windows::Forms::Label());
 			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->updateTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			this->weighPanel->SuspendLayout();
 			this->sidePanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
@@ -186,7 +192,6 @@ namespace FennecScalesGUI {
 			this->weighPanel->Name = L"weighPanel";
 			this->weighPanel->Size = System::Drawing::Size(271, 65);
 			this->weighPanel->TabIndex = 2;
-			this->weighPanel->Visible = false;
 			// 
 			// unitsLabel
 			// 
@@ -572,6 +577,12 @@ namespace FennecScalesGUI {
 			this->label1->TabIndex = 0;
 			this->label1->Text = L"Warning!";
 			// 
+			// updateTimer
+			// 
+			this->updateTimer->Enabled = true;
+			this->updateTimer->Interval = 1;
+			this->updateTimer->Tick += gcnew System::EventHandler(this, &FrmUsrRemote::updateTimer_Tick);
+			// 
 			// FrmUsrRemote
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -610,6 +621,7 @@ namespace FennecScalesGUI {
 
 		}
 #pragma endregion
+
 private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			 if (rbWeigh->Checked)
 			 {
@@ -870,5 +882,19 @@ private: System::Void resetCountButton_Click(System::Object^  sender, System::Ev
 			 // Wait for ack.
 			 resetCountPanel();
 		 }
+private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
+			 // Refresh everything
+			 setButtons(cur_state);
+			 showPanel(cur_state.state);
+			 showWarnings();
+			 setUnitsLabel();
+		 }
+private: System::Void sendSerialByte(unsigned char byte)
+		 {
+			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+			 sendArray[0] = byte;
+			 port->Write(sendArray, 0, 1);
+		 }
 };
+
 }

@@ -5,9 +5,9 @@
 #include "states.h"
 #include "commscodes.h"
 
-char numReady = 0;
-char ackNumReceived = 0;
-char ackRemReceived = 0;
+unsigned char numReady = 0;
+unsigned char ack = 0;
+unsigned char init_statesRxd = 0;
 
 namespace FennecScalesGUI {
 
@@ -32,7 +32,9 @@ namespace FennecScalesGUI {
 			port = gcnew SerialPort("COM1", 9600, Parity::None, 8, StopBits::One);
 			port->Open();
 			port->Encoding = System::Text::Encoding::UTF8;
-			port->DataReceived += gcnew SerialDataReceivedEventHandler(this, &Form1::port_DataReceived);
+
+			form1SerialHandler = gcnew SerialDataReceivedEventHandler(this, &Form1::port_DataReceived);
+			port->DataReceived += form1SerialHandler;
 
 			cur_state.state = WEIGH; // TODO: replace with proper init?
 			cur_state.units = GRAMS;
@@ -53,9 +55,6 @@ namespace FennecScalesGUI {
 		}
 
 	protected: 
-		FrmUsrRemote^ usrRemoteForm;
-		FrmFactoryMode^ factoryForm;
-
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
 
 
@@ -69,8 +68,12 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::GroupBox^  warningsBox;
 	private: System::Windows::Forms::CheckBox^  overWarningCB;
 	private: System::Windows::Forms::CheckBox^  evWarningCB;
+			 
+			 FrmUsrRemote^ usrRemoteForm;
+			 FrmFactoryMode^ factoryForm;
 
 			 SerialPort^ port;
+			 SerialDataReceivedEventHandler^ form1SerialHandler;
 
 	protected: 
 
@@ -245,12 +248,15 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 		 {
 			 static unsigned char inProgress = 0;
 			 static unsigned int numData = 0;
+			 int dataInt;
 			 unsigned char data;
 
-			 while ((data = (unsigned char) port->ReadByte()) != -1)
+			 while ((dataInt = port->ReadByte()) != -1)
 			 {
+				 data = (unsigned char) dataInt;
+
 				 // Check for ongoing reception
-				 if (inProgress == INPGRSS_STATUS0)
+				 if (inProgress == INPGRSS_STATUS0 || inProgress == INPGRSS_STATE)
 				 {
 					 switch (data)
 					 {
@@ -258,35 +264,52 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 case ST_COUNT_INITIAL: cur_state.state = COUNT; break;
 					 case ST_COUNT_FINAL: cur_state.state = COUNT_FINAL; break;
 					 }
-					 inProgress = INPGRSS_STATUS1;
+
+					 if (inProgress == INPGRSS_STATUS0)
+						 inProgress = INPGRSS_STATUS1;
+					 else if (inProgress == INPGRSS_STATE)
+					 {
+						 sendSerialByte(COMM_ACK_STATE);
+						 inProgress = 0;
+					 }
 				 }
-				 else if (inProgress == INPGRSS_STATUS1)
+				 else if (inProgress == INPGRSS_STATUS1 || inProgress == INPGRSS_DISP)
 				 {
 					 if (data & DISP_OZ)
 						 cur_state.units = OUNCES;
 					 else
 						 cur_state.units = GRAMS;
 
-					 if (data & (DISP_LCD | DISP_TTS) )
-						 cur_state.outputs = LCD_TTS;
-					 else if (data & DISP_LCD)
-						 cur_state.outputs = LCD;
+					 if (data & DISP_LCD)
+					 {
+						 if (data & DISP_TTS)
+							 cur_state.outputs = LCD_TTS;
+						 else
+							 cur_state.outputs = LCD;
+					 }
 					 else if (data & DISP_TTS)
 						 cur_state.outputs = TTS;
 					 else cur_state.outputs = NONE;
 				 
+					 if (inProgress == INPGRSS_STATUS1)
+						init_statesRxd = 1;
+					 else if (inProgress == INPGRSS_DISP)
+					 {
+						 sendSerialByte(COMM_ACK_UNITS);
+					 }
+
 					 inProgress = 0;
-					 ackRemReceived = 1;
+					 
 				 }
 
 				 else if (inProgress == INPGRSS_NUM0)
 				 {
-					 numData = data;
+					 numData = (unsigned int) data << 8;
 					 inProgress = INPGRSS_NUM1;
 				 }
 				 else if (inProgress == INPGRSS_NUM1)
 				 {
-					 numData |= (unsigned int) data << 8;
+					 numData |= (unsigned int) data;
 					 numReady = 1;
 					 inProgress = 0;
 				 }
@@ -300,10 +323,32 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 inProgress = INPGRSS_NUM0;
 					 break;
 				 case COMM_NUM_RXD:
-					 ackNumReceived = 1;
+					 ack = (unsigned char) COMM_NUM_RXD;
 					 break;
 				 case COMM_ACK_REM:
 					 inProgress = INPGRSS_STATUS0;
+					 break;
+				 case COMM_START_FAC:
+					 // Start up factory mode. Deal with this.
+					 break;
+				 case COMM_CHANGE_STATE:
+					 inProgress = INPGRSS_STATE;
+					 break;
+				 case COMM_CHANGE_UNITS:
+				 case COMM_CHANGE_DISP:
+					 inProgress = INPGRSS_DISP;
+					 break;
+				 case COMM_ACK_STATE:
+					 ack = (unsigned char) COMM_ACK_STATE;
+					 break;
+				 case COMM_ACK_UNITS:
+					 ack = (unsigned char) COMM_ACK_UNITS;
+					 break;
+				 case COMM_ACK_DISP:
+					 ack = (unsigned char) COMM_ACK_DISP;
+					 break;
+				 case COMM_ACK_TARE:
+					 ack = (unsigned char) COMM_ACK_TARE;
 					 break;
 				 }
 			 }
@@ -319,7 +364,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 
 			 // Wait for state sent back
 			 unsigned int timeoutCounter = 0x0FFFFFFF;
-			 while (!ackRemReceived)
+			 while (!init_statesRxd)
 			 {
 				 if (!(--timeoutCounter))
 				 {
@@ -328,7 +373,6 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 				 }
 				 // do nothing, wait for timeout or completion
 			 }
-			 ackRemReceived = 1;
 			 return 0;
 		 }
 
@@ -396,6 +440,12 @@ private: System::Void overWarningCB_CheckedChanged(System::Object^  sender, Syst
 			 {
 				 cur_warnings &= ~OVERLOAD;
 			 }
+		 }
+private: System::Void sendSerialByte(unsigned char byte)
+		 {
+			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+			 sendArray[0] = byte;
+			 port->Write(sendArray, 0, 1);
 		 }
 };
 }
