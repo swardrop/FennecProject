@@ -16,4 +16,6 @@
 
 void count(void);
 
+extern long weight_per_1000_items;
+
 #endif // COUNT_H

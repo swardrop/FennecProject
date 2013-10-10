@@ -4,6 +4,7 @@
 #include "../remoteinterface/rs232.h"
 #include "../localinterface/input/numpad.h"
 #include <stdio.h>
+#include "../../GUI/commscodes.h"
 
 #define INPUT_STATE_CHNG    0x01
 #define INPUT_INT           0x02
@@ -98,12 +99,33 @@ int waitForInput(int* input)
             // reset on *, return on #.
             switch (byte)
             {
+                int wait_time;
                 case '*':
                     num_data = 0;
                     // Update LCD/TTS?
                     break;
                 case '#':
                     *input = num_data;
+                    RS232writeByte(COMM_CHANGE_STATE);
+                    RS232writeByte(num_data & 0xFF00 >> 8);
+                    RS232writeByte(num_data & 0x00FF);
+                    wait_time = 0xFFFF;
+                    while (wait_time--)
+                    {
+                        byte = RS232readByte();
+                        if (byte == -1)
+                            continue;
+                        if (byte != COMM_ACK_STATE)
+                            continue;
+                        break;
+                    }
+                    if (!wait_time)// !wait_time means it reached 0 and timed out
+                    {
+                        RS232writeByte(COMM_DEBUG);
+                        RS232writeByte(cur_state);
+                        RS232writeByte(disp_type);
+                    }
+
                     return INPUT_INT;
                     break;
                 default:
