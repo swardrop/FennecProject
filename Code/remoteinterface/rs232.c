@@ -157,14 +157,14 @@ int parseSerial(void)
                 RS232writeByte(cur_state);
                 if (cur_state == ST_COUNT_F)
                 {
-                    RS232writeByte((char)(weight_per_1000_items
-                            & 0xFF000000 >> 24));
-                    RS232writeByte((char)(weight_per_1000_items
-                            & 0x00FF0000 >> 16));
-                    RS232writeByte((char)(weight_per_1000_items
-                            & 0x0000FF00 >> 8));
-                    RS232writeByte((char)(weight_per_1000_items
-                            & 0x000000FF));
+                    RS232writeByte((char)((weight_per_1000_items
+                            & 0xFF000000) >> 24));
+                    RS232writeByte((char)((weight_per_1000_items
+                            & 0x00FF0000) >> 16));
+                    RS232writeByte((char)((weight_per_1000_items
+                            & 0x0000FF00) >> 8));
+                    RS232writeByte((char)((weight_per_1000_items
+                            & 0x000000FF)));
                 }
                 RS232writeByte(disp_type);
                 wait_time = 0xFFFF;

@@ -12,10 +12,12 @@
 
 int waitForInput(int* input);
 
+
+long weight_per_1000_items;
+
 void count(void)
 {
     char count_str[5];
-    static long weightPerItem;           // Persists between function calls
     int weight = 0;
     int count = 0;
 
@@ -33,7 +35,7 @@ void count(void)
         weight =  getWeight();
 
         // Produce conversion factor
-        weightPerItem = ( (long)weight * 1000) / count;
+        weight_per_1000_items = ( (long)weight * 1000) / count;
 
         req_state = ST_COUNT_F;
     }
@@ -41,7 +43,7 @@ void count(void)
     // Get new weight value
     weight = getWeight();
     // Calculate new count
-    count = (int) ( (long)weight / weightPerItem) / 1000;
+    count = (int) ( (long)weight / weight_per_1000_items) / 1000;
     // Produce a string representation of the count
     sprintf(count_str, "%d", count);
 
@@ -107,8 +109,8 @@ int waitForInput(int* input)
                 case '#':
                     *input = num_data;
                     RS232writeByte(COMM_CHANGE_STATE);
-                    RS232writeByte(num_data & 0xFF00 >> 8);
-                    RS232writeByte(num_data & 0x00FF);
+                    RS232writeByte((char)(num_data & 0xFF00) >> 8);
+                    RS232writeByte((char)(num_data & 0x00FF));
                     wait_time = 0xFFFF;
                     while (wait_time--)
                     {
