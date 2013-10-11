@@ -1,5 +1,7 @@
 #pragma once
 
+#include "commscodes.h"
+
 extern bool closing;
 extern bool closeAll;
 
@@ -11,6 +13,7 @@ namespace FennecScalesGUI {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::IO::Ports;
 
 	/// <summary>
 	/// Summary for FrmExitConf
@@ -18,12 +21,10 @@ namespace FennecScalesGUI {
 	public ref class FrmExitConf : public System::Windows::Forms::Form
 	{
 	public:
-		FrmExitConf()
+		FrmExitConf(SerialPort^ sp)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
+			port = sp;
 		}
 
 	protected:
@@ -45,6 +46,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Panel^  panel1;
 	private: System::Windows::Forms::Label^  label2;
 	protected: 
+		SerialPort^ port;
 
 	private:
 		/// <summary>
@@ -137,6 +139,11 @@ namespace FennecScalesGUI {
 #pragma endregion
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 				 // Send signal over serial to revert to LOCAL
+				 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+				 sendArray[0] = COMM_STOP_REM;
+				 port->Write(sendArray, 0, 1);
+
+				 // Close application
 				 closeAll = true;
 				 Application::Exit();
 			 }

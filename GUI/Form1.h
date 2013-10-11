@@ -6,8 +6,12 @@
 #include "commscodes.h"
 
 unsigned char numReady = 0;
+unsigned short numData = 0;
 unsigned char ack = 0;
 unsigned char init_statesRxd = 0;
+unsigned char receivedCount = 0;
+unsigned int weightPer1000Items;
+unsigned short count_serial;
 
 namespace FennecScalesGUI {
 
@@ -247,7 +251,7 @@ namespace FennecScalesGUI {
 private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEventArgs^ e)
 		 {
 			 static unsigned char inProgress = 0;
-			 static unsigned int numData = 0;
+			 static unsigned char countInProgress = 0;
 			 int dataInt;
 			 unsigned char data;
 
@@ -255,14 +259,52 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 {
 				 data = (unsigned char) dataInt;
 
-				 // Check for ongoing reception
-				 if (inProgress == INPGRSS_STATUS0 || inProgress == INPGRSS_STATE)
+				 //// Check for ongoing reception
+				 // Check for count/item transmission in progress
+				 if (countInProgress == 6)
+				 {
+					 weightPer1000Items = (unsigned int) data << 24;
+					 countInProgress = 5;
+				 }
+				 else if (countInProgress == 5)
+				 {
+					 weightPer1000Items |= (unsigned int) data << 16;
+					 countInProgress = 4;
+				 }
+				 else if (countInProgress == 4)
+				 {
+					 weightPer1000Items |= (unsigned int) data << 8;
+					 countInProgress = 3;
+				 }
+				 else if (countInProgress == 3)
+				 {
+					 weightPer1000Items |= (unsigned int) data;
+					 receivedCount = RXD_WP1000I;
+					 countInProgress = 0;
+				 }
+				 else if (countInProgress == 2)
+				 {
+					 count_serial = (unsigned short) data << 8;
+					 countInProgress = 1;
+				 }
+				 else if (countInProgress == 1)
+				 {
+					 count_serial |= (unsigned short) data;
+					 receivedCount = RXD_COUNT;
+					 countInProgress = 0;
+				 }
+
+				 // Check reception of state variables
+				 else if (inProgress == INPGRSS_STATUS0 || inProgress == INPGRSS_STATE)
 				 {
 					 switch (data)
 					 {
 					 case ST_WEIGH: cur_state.state = WEIGH; break;
-					 case ST_COUNT_INITIAL: cur_state.state = COUNT; break;
-					 case ST_COUNT_FINAL: cur_state.state = COUNT_FINAL; break;
+					 case ST_COUNT_I: cur_state.state = COUNT; break;
+					 case ST_COUNT_F: 
+						 cur_state.state = COUNT_FINAL;
+						 countInProgress = 6;
+						 break;
 					 }
 
 					 if (inProgress == INPGRSS_STATUS0)
@@ -385,7 +427,7 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 			 
 			 this->Hide();
 
-			 usrRemoteForm = gcnew FrmUsrRemote(port);
+			 usrRemoteForm = gcnew FrmUsrRemote(this, port);
 
 			 // Move this to a serial handler?
 			 if (cur_state.isFactory)

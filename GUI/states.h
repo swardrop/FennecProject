@@ -32,5 +32,14 @@ extern int cur_warnings;
 
 // Communication state variables
 extern unsigned char numReady;
+extern unsigned short numData;
 extern unsigned char ack;
 extern unsigned char init_statesRxd;
+
+// Dealing with count
+#define RXD_COUNT					0xC0
+#define RXD_WP1000I					0xC1
+
+extern unsigned char receivedCount;
+extern unsigned int weightPer1000Items;
+extern unsigned short count_serial;

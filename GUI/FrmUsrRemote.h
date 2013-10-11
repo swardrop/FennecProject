@@ -21,9 +21,10 @@ namespace FennecScalesGUI {
 	public ref class FrmUsrRemote : public System::Windows::Forms::Form
 	{
 	public:
-		FrmUsrRemote(SerialPort^ sp)
+		FrmUsrRemote(Form^ p, SerialPort^ sp)
 		{
 			InitializeComponent();
+			parent = p;
 
 			// Reopen serial port
 			port = sp;
@@ -51,6 +52,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Panel^  sidePanel;
 	protected: 
 		SerialPort^ port;
+		Form^ parent;
 
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
 	private: System::Windows::Forms::GroupBox^  groupBox3;
@@ -362,8 +364,8 @@ namespace FennecScalesGUI {
 			// 
 			// countPanel
 			// 
-			this->countPanel->Controls->Add(this->finalCountPanel);
 			this->countPanel->Controls->Add(this->initialCountPanel);
+			this->countPanel->Controls->Add(this->finalCountPanel);
 			this->countPanel->Controls->Add(this->weightGroupBox);
 			this->countPanel->Location = System::Drawing::Point(114, 0);
 			this->countPanel->Name = L"countPanel";
@@ -589,10 +591,10 @@ namespace FennecScalesGUI {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(567, 319);
 			this->Controls->Add(this->warningPanel);
-			this->Controls->Add(this->weighPanel);
 			this->Controls->Add(this->bottomPanel);
 			this->Controls->Add(this->countPanel);
 			this->Controls->Add(this->sidePanel);
+			this->Controls->Add(this->weighPanel);
 			this->Name = L"FrmUsrRemote";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Fennec Scales Remote Controller";
@@ -628,7 +630,7 @@ private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::Ev
 				 if (cur_state.state != WEIGH)
 				 {
 					 cur_state.state = WEIGH;
-					 // Send serial code for weigh
+					 sendChange(COMM_CHANGE_STATE, ST_WEIGH, COMM_ACK_STATE);
 					 resetWeighPanel();
 					 showPanel(WEIGH);
 				 }
@@ -639,6 +641,7 @@ private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::Ev
 				 {
 					 cur_state.state = COUNT;
 					 // Send serial code for count
+					 sendChange(COMM_CHANGE_STATE, ST_COUNT_I, COMM_ACK_STATE);
 					 resetCountPanel();
 					 showPanel(COUNT);
 				 }
@@ -774,38 +777,41 @@ private: System::Void rbGrams_CheckedChanged(System::Object^  sender, System::Ev
 			 if (rbGrams->Checked)
 			 {
 				 cur_state.units = GRAMS;
+				 sendChange(COMM_CHANGE_UNITS, DISP_GRAMS, COMM_ACK_UNITS);
 			 }
 			 else
 			 {
 				 cur_state.units = OUNCES;
+				 sendChange(COMM_CHANGE_UNITS, DISP_OZ, COMM_ACK_UNITS);
 			 }
 			 setUnitsLabel();
-			 // TODO: Add handler for changing numerical value based on units
 		 }
 
 private: System::Void cbLCD_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			 if (cbLCD->Checked)
 			 {
-				 // TODO: Send LCD enable code
 				 if (cur_state.outputs == NONE)
 				 {
 					cur_state.outputs = LCD;
+					sendChange(COMM_CHANGE_DISP, DISP_LCD, COMM_ACK_DISP);
 				 }
 				 else
 				 {
 					 cur_state.outputs = LCD_TTS;
+					 sendChange(COMM_CHANGE_DISP, DISP_LCD | DISP_TTS, COMM_ACK_DISP);
 				 }
 			 }
 			 else
 			 {
-				 //TODO: Send LCD disable code
 				 if (cur_state.outputs == LCD_TTS)
 				 {
 					 cur_state.outputs = TTS;
+					 sendChange(COMM_CHANGE_DISP, DISP_TTS, COMM_ACK_DISP);
 				 }
 				 else
 				 {
 					 cur_state.outputs = NONE;
+					 sendChange(COMM_CHANGE_DISP, 0, COMM_ACK_DISP);
 				 }
 			 }
 		 }
@@ -815,10 +821,12 @@ private: System::Void cbTTS_CheckedChanged(System::Object^  sender, System::Even
 				 if (cur_state.outputs == NONE)
 				 {
 					 cur_state.outputs = TTS;
+					 sendChange(COMM_CHANGE_DISP, DISP_TTS, COMM_ACK_DISP);
 				 }
 				 else
 				 {
 					 cur_state.outputs = LCD_TTS;
+					 sendChange(COMM_CHANGE_DISP, DISP_LCD | DISP_TTS, COMM_ACK_DISP);
 				 }
 			 }
 			 else
@@ -826,16 +834,17 @@ private: System::Void cbTTS_CheckedChanged(System::Object^  sender, System::Even
 				 if (cur_state.outputs == LCD_TTS)
 				 {
 					 cur_state.outputs = LCD;
+					 sendChange(COMM_CHANGE_DISP, DISP_LCD, COMM_ACK_DISP);
 				 }
 				 else
 				 {
 					 cur_state.outputs = NONE;
+					 sendChange(COMM_CHANGE_DISP, 0, COMM_ACK_DISP);
 				 }
 			 }
 		 }
 private: System::Void tareButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			 // Send TARE code over serial
-			 // Wait for ack.
+			 sendChange(COMM_TARE, COMM_ACK_TARE);
 		 }
 private: System::Void closeButton_Click(System::Object^  sender, System::EventArgs^  e) {
 			 this->Close();
@@ -845,7 +854,7 @@ private: System::Void FrmUsrRemote_FormClosing(System::Object^  sender, System::
 			 if (!closing)
 			 {
 				closing = true;
-				FrmExitConf^ exitForm = gcnew FrmExitConf();
+				FrmExitConf^ exitForm = gcnew FrmExitConf(port);
 				exitForm->Show();
 			 }
 
@@ -869,6 +878,21 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 
 			 // Send knownCount over serial.
 			 // Wait for ack
+			 sendSerialByte(COMM_BEGIN_NUM);
+			 sendSerialByte((unsigned char)((knownCount & 0xFF00) >> 8));
+			 sendSerialByte((unsigned char)(knownCount & 0x00FF));
+
+			 unsigned int timeout = 0x0FFFFFF;
+			 while (ack != COMM_NUM_RXD)
+			 {
+				 if (!(--timeout))
+				 {
+					 MessageBox::Show("Lost connection to scales.");
+					 this->Hide();
+					 parent->Show();
+					 break;
+				 }
+			 }
 
 			 this->initialCountPanel->Hide();
 			 this->finalCountPanel->Show();
@@ -894,6 +918,39 @@ private: System::Void sendSerialByte(unsigned char byte)
 			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
 			 sendArray[0] = byte;
 			 port->Write(sendArray, 0, 1);
+		 }
+private: System::Void sendChange(unsigned char comm_code, unsigned char st_code, unsigned char ack_code)
+		 {
+			 unsigned int timeout = 0x0FFFFFFF;
+			 sendSerialByte(comm_code);
+			 sendSerialByte(st_code);
+			 while (ack != ack_code)
+			 {
+				 if (!(--timeout))
+				 {
+					 MessageBox::Show("Lost connection to scales.");
+					 this->Hide();
+					 parent->Show();
+					 break;
+				 }
+			 }
+			 ack = 0;
+		 }
+private: System::Void sendChange(unsigned char comm_code, unsigned char ack_code)
+		 {
+			 unsigned int timeout = 0x0FFFFFFF;
+			 sendSerialByte(comm_code);
+			 while (ack != ack_code)
+			 {
+				 if (!(--timeout))
+				 {
+					 MessageBox::Show("Lost connection to scales.");
+					 this->Hide();
+					 parent->Show();
+					 break;
+				 }
+			 }
+			 ack = 0;
 		 }
 };
 
