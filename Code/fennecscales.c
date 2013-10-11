@@ -101,6 +101,8 @@ void main(void)
 void setup()
 {
     retrieveState();
+    initialiseRS232();
+
 }
 
 /**
@@ -116,6 +118,10 @@ void powerDown()
 #pragma interrupt highISR
 void highISR()
 {
+    if (PIR1bits.RCIF)                // check for Rx interrupt
+        rx232isr();
+    else if (PIR1bits.TXIF)
+        tx232isr();
     
 }
 
