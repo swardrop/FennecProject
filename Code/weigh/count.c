@@ -104,7 +104,8 @@ int waitForInput(int* input)
                 int wait_time;
                 case '*':
                     num_data = 0;
-                    // Update LCD/TTS?
+                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
+                     * to GUI as well. */
                     break;
                 case '#':
                     *input = num_data;
@@ -132,7 +133,8 @@ int waitForInput(int* input)
                     break;
                 default:
                     num_data = num_data*10 + byte - 0x30;
-                    // update LCD/TTS
+                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
+                     * to GUI as well. */
                     break;
 
             }
