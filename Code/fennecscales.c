@@ -1,10 +1,21 @@
+
+#include "ConfigRegs.h"
 #include "state.h"
-#include "weigh.h"
+#include "../GUI/commscodes.h"
+#include "./spi.h"
+#include "./spi/eeprom.h"
+#include "./weigh.h"
 #include "./weigh/count.h"
+#include "./weigh/read.h"
 #include "./remoteinterface/calibrate.h"
 #include "./remoteinterface/factory.h"
 #include "./remoteinterface/rs232.h"
-#include "../GUI/commscodes.h"
+#include "./localinterface/output/lcd.h"
+#include "./localinterface/output/tts.h"
+#include "./localinterface/input/numpad.h"
+#include "./localinterface/input/pushbuttons.h"
+
+
 
 /**
  * FennecScales main function, this is the highest level control flow.
@@ -102,6 +113,14 @@ void setup()
 {
     retrieveState();
     initialiseRS232();
+    initialiseADC();
+    retrieveState();
+    setupSPI();
+    initialiseEEPROM();
+    initiateTTS();
+    init_lcd();
+    initialiseNumPad();
+    initialisePushBtn();
 
 }
 

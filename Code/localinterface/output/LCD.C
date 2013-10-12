@@ -1,4 +1,5 @@
 #include "lcd.h"
+#include <p18f452.h>
 
 void init_lcd()
 {

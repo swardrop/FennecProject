@@ -1,7 +1,8 @@
 #ifndef LCD_H
 #define LCD_H
 
-#include <p18f452.h>
+
+
 
 #define LCD_DB7     PORTDbits.RD3  //pins set
 #define LCD_DB6     PORTDbits.RD2
@@ -32,7 +33,7 @@
 #define LCD_DISP_RIGHT 0x1C//shift display in right direction
 #define LCD_SECOND_LINE 0xc0 //change line
 
-void init_lcd() ;
+void init_lcd(void) ;
 void write_in(void) ;
 void sendcmd(char cddata);
 void putclcd(char data) ;
@@ -41,8 +42,8 @@ void write(char data) ;
 void delay(unsigned int count) ;
 void lcd_shift(unsigned char flag, unsigned char count) ;
 void curse_shift(unsigned char flag,unsigned char count) ;
-void L1LCD();
-void L2LCD();
+void L1LCD(void);
+void L2LCD(void);
 
 
 /**
