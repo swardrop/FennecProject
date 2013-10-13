@@ -182,7 +182,8 @@ char stringToLCD(char* str, char line){
     if(str !='\0' && line == 1)
     {
         L1LCD();/*?Sets cursor to beginning of line 1?*/
-        curse_shift(1,5);/*?Moves cursor on line 1 5 places to the right?*/
+        curse_shift(1,5);/*?Moves cursor on line 1 5 places to the right?
+        1 means shift right while 5 means 5 bits*/
         printlcd(str);/*Prints an entire string (until a '\0' is reached)*/
     }
     if(str != '\0' && line == 2  )
