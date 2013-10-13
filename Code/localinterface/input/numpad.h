@@ -3,6 +3,9 @@
 
 
 #define NP_BUFSIZE     16
+#define interrupt PORTBbits.RB0
+
+#define keynum PORTD
 
 /**
  * Numpad
