@@ -1,7 +1,6 @@
 #ifndef NUMPAD_H
 #define NUMPAD_H
 
-
 #define NP_BUFSIZE     16
 
 /**
