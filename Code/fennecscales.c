@@ -1,4 +1,3 @@
-
 #include "ConfigRegs.h"
 #include "state.h"
 #include "../GUI/commscodes.h"
@@ -63,7 +62,7 @@ void main(void)
         }
         num_data = parseSerial();
         
-        if (num_data != -1)
+        if (num_data != RS232_NO_DATA)
         {
             RS232writeByte(COMM_DEBUG);
             RS232writeByte(cur_state);
@@ -73,17 +72,17 @@ void main(void)
         if (req_state != ST_NONE)
         {
             int timeout = 0xFFFF;
-            char byte;
+            int serial_return;
             cur_state = req_state;
             // Send Change to GUI.
             RS232writeByte(COMM_CHANGE_STATE);
             RS232writeByte(cur_state);
             while (timeout--)
             {
-                byte = RS232readByte();
-                if (byte == -1)
+                serial_return = parseSerial();
+                if (serial_return == RS232_NO_DATA)
                     continue;
-                else if (byte != COMM_ACK_STATE)
+                else if (serial_return != RS232_ACK_RXD)
                 {
                     RS232writeByte(COMM_DEBUG);
                     RS232writeByte(cur_state);
@@ -114,13 +113,12 @@ void setup()
     retrieveState();
     initialiseRS232();
     initialiseADC();
-    retrieveState();
-    setupSPI();
-    initialiseEEPROM();
-    initiateTTS();
-    init_lcd();
-    initialiseNumPad();
-    initialisePushBtn();
+    //setupSPI();
+    //initialiseEEPROM();
+    //initiateTTS();
+    //init_lcd();
+    //initialiseNumPad();
+    //initialisePushBtn();
 
 }
 
@@ -139,8 +137,10 @@ void highISR()
 {
     if (PIR1bits.RCIF)                // check for Rx interrupt
         rx232isr();
-    else if (PIR1bits.TXIF)
+    if (PIR1bits.TXIF)
         tx232isr();
+    if (PIR1bits.ADIF)
+        ADCisr();
     return;
 }
 

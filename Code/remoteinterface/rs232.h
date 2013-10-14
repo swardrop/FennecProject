@@ -1,6 +1,10 @@
 #ifndef RS232_H
 #define RS232_H
 
+#define RS232_NO_DATA       -1
+#define RS232_UNKNOWN_CODE  -2
+#define RS232_ACK_RXD       -3
+
 /**
  * RS232 (driver) module
  * To write or read a byte, use the public functions specified. Note that a byte

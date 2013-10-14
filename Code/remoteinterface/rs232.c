@@ -100,7 +100,7 @@ char RS232readByte()
     // Check for data in buffer
     if (read_trail_idx == read_lead_idx)
     {
-        return -1;
+        return RS232_NO_DATA;
     }
     // Extract data from buffer
     data = readBuf[read_trail_idx++];
@@ -117,7 +117,7 @@ char RS232readString(char* dest)
     char byte = RS232readByte();
 
     // Read until null-terminator or end of buffer
-    while (byte != -1)
+    while (byte != RS232_NO_DATA)
     {
         *temp = byte;
 
@@ -140,11 +140,12 @@ char RS232readString(char* dest)
 int parseSerial(void)
 {
     char byte;
-    int num_data = -1;
+    int num_data = RS232_NO_DATA;
     int wait_time;
 
-    while ((byte = RS232readByte()) != -1)
+    while ((byte = RS232readByte()) != RS232_NO_DATA)
     {
+
         switch (byte)
         {
             case COMM_BEGIN_NUM:
@@ -157,6 +158,8 @@ int parseSerial(void)
                 RS232writeByte(cur_state);
                 if (cur_state == ST_COUNT_F)
                 {
+                    long weight_per_1000_items = 5000;
+
                     RS232writeByte((char)((weight_per_1000_items
                             & 0xFF000000) >> 24));
                     RS232writeByte((char)((weight_per_1000_items
@@ -253,11 +256,14 @@ int parseSerial(void)
                 RS232writeByte(COMM_ACK_TARE);
                 break;
 
+            case COMM_NUM_RXD:
+                num_data = RS232_ACK_RXD;
+                break;
+
             default:
-                num_data = -2;
+                num_data = RS232_UNKNOWN_CODE;
                 break;
         }
-
     }
     return num_data;
 }
