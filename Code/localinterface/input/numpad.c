@@ -2,10 +2,22 @@
 #include <p18f452.h>
 #include "../../state.h"
 
-#define BUTTON_TARE     0x0A    /*I'm not sure about these definitions - need to check them*/
-#define BUTTON_MODE     0x0B
-#define BUTTON_UNITS    0x0C
-#define BUTTON_MUTE     0x0D
+#define BUTTON_1        0b00000000      /*FIX THESE FIRST IF WRONG CHARS DISPLAYED!*/
+#define BUTTON_2        0b10000000
+#define BUTTON_3        0b01000000
+#define BUTTON_4        0b00100000
+#define BUTTON_5        0b10100000
+#define BUTTON_6        0b01100000
+#define BUTTON_7        0b00010000
+#define BUTTON_8        0b10010000
+#define BUTTON_9        0b01010000
+#define BUTTON_STAR     0b00110000
+#define BUTTON_0        0b10110000
+#define BUTTON_HASH     0b01110000
+#define BUTTON_TARE     0b11000000      /*Labelled A*/
+#define BUTTON_MODE     0b11100000      /*Labelled B*/
+#define BUTTON_UNITS    0b11010000      /*Labelled C*/
+#define BUTTON_MUTE     0b11110000      /*Labelled D*/
 
 char np_buffer[NP_BUFSIZE];
 static char *np_lead_ptr, *np_trail_ptr;
@@ -16,11 +28,51 @@ char getNextNum()
 {
     char num = *np_trail_ptr;
 
-    np_incPtr(np_trail_ptr);
+    np_incPtr(np_trail_ptr);    /*Increment pointer*/
 
     /*Convert num to ASCII*/
-
-    return num;
+    switch (num)
+    {
+        case BUTTON_1:
+            return '1';
+            break;
+        case BUTTON_2:
+            return '2';
+            break;
+        case BUTTON_3:
+            return '3';
+            break;
+        case BUTTON_4:
+            return '4';
+            break;
+        case BUTTON_5:
+            return '5';
+            break;
+        case BUTTON_6:
+            return '6';
+            break;
+        case BUTTON_7:
+            return '7';
+            break;
+        case BUTTON_8:
+            return '8';
+            break;
+        case BUTTON_9:
+            return '9';
+            break;
+        case BUTTON_0:
+            return '0';
+            break;
+        case BUTTON_HASH:
+            return '#';
+            break;
+        case BUTTON_STAR:
+            return '*';
+            break;
+        default:
+            return -1;
+            break;
+    }
 }
 
 // The ISR captures the value and write into circular buffer.
@@ -29,7 +81,7 @@ void numpadISR()
     char digit; //Current number being converted
 
     // update number from IO pins
-    digit = (PORTD & 0b11110000) >> 4;
+    digit = (PORTD & 0b11110000);
 
     switch (digit) /*If one of the function keys was pressed, alter the appropriate state variables.*/
     {
