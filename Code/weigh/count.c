@@ -101,7 +101,6 @@ int waitForInput(int* input)
             // reset on *, return on #.
             switch (byte)
             {
-                int wait_time;
                 case '*':
                     num_data = 0;
                     /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
@@ -109,25 +108,29 @@ int waitForInput(int* input)
                     break;
                 case '#':
                     *input = num_data;
-                    RS232writeByte(COMM_CHANGE_STATE);
-                    RS232writeByte((char)(num_data & 0xFF00) >> 8);
-                    RS232writeByte((char)(num_data & 0x00FF));
-                    wait_time = 0xFFFF;
-                    while (wait_time--)
+                    if(!RS232sendData_i(COMM_CHANGE_STATE, num_data))
                     {
-                        byte = RS232readByte();
-                        if (byte == -1)
-                            continue;
-                        if (byte != COMM_ACK_STATE)
-                            continue;
-                        break;
+                        // Things are broken!
                     }
-                    if (!wait_time)// !wait_time means it reached 0 and timed out
-                    {
-                        RS232writeByte(COMM_DEBUG);
-                        RS232writeByte(cur_state);
-                        RS232writeByte(disp_type);
-                    }
+//                    RS232writeByte(COMM_CHANGE_STATE);
+//                    RS232writeByte((char)(num_data & 0xFF00) >> 8);
+//                    RS232writeByte((char)(num_data & 0x00FF));
+//                    wait_time = 0xFFFF;
+//                    while (wait_time--)
+//                    {
+//                        byte = RS232readByte();
+//                        if (byte == -1)
+//                            continue;
+//                        if (byte != COMM_ACK_STATE)
+//                            continue;
+//                        break;
+//                    }
+//                    if (!wait_time)// !wait_time means it reached 0 and timed out
+//                    {
+//                        RS232writeByte(COMM_DEBUG);
+//                        RS232writeByte(cur_state);
+//                        RS232writeByte(disp_type);
+//                    }
 
                     return INPUT_INT;
                     break;

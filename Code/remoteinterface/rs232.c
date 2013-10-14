@@ -7,6 +7,8 @@
 
 #define RS232_BUFSIZE       64
 
+#define SERIAL_TIMEOUT      0x00FF
+
 // Buffers
 char writeBuf[RS232_BUFSIZE];
 char readBuf[RS232_BUFSIZE];
@@ -19,7 +21,138 @@ unsigned char read_lead_idx, read_trail_idx;
 char writeLock;
 char txComplete;
 
+char packet_loss;
+
 int readNum(void);
+char RS232readByte(void);
+char RS232readString(char* dest);
+
+char RS232sendData(char code)
+{
+    int timeout = SERIAL_TIMEOUT;
+    char ack = 0;
+    while (!ack)
+    {
+        RS232writeByte(code);
+        while (!ack) {
+            if (timeout--)
+            {
+                if (parseSerial() == RS232_ACK_RXD)
+                    {
+                        ack = 1;
+                        packet_loss = 0;
+                    }
+                }
+            else
+            {
+                packet_loss += 1;
+                if (packet_loss == 3)
+                {
+                    return 0;
+                }
+                break;
+            }
+        }
+    }
+    return 1;
+}
+
+char RS232sendData_b(char code, char data)
+{
+    int timeout = SERIAL_TIMEOUT;
+    char ack = 0;
+    while (!ack)
+    {
+        RS232writeByte(code);
+        RS232writeByte(data);
+        while (!ack) {
+            if (timeout--)
+            {
+                if (parseSerial() == RS232_ACK_RXD)
+                    {
+                        ack = 1;
+                        packet_loss = 0;
+                    }
+                }
+            else
+            {
+                packet_loss += 1;
+                if (packet_loss == 3)
+                {
+                    return 0;
+                }
+                break;
+            }
+        }
+    }
+    return 1;
+}
+
+char RS232sendData_i(char code, int data)
+{
+    int timeout = SERIAL_TIMEOUT;
+    char ack = 0;
+    while (!ack)
+    {
+        RS232writeByte(code);
+        RS232writeByte((char) (((data) & 0xFF00) >> 8));
+        RS232writeByte((char) ((data) & 0x00FF));
+        while (!ack) {
+            if (timeout--)
+            {
+                if (parseSerial() == RS232_ACK_RXD)
+                    {
+                        ack = 1;
+                        packet_loss = 0;
+                    }
+                }
+            else
+            {
+                packet_loss += 1;
+                if (packet_loss == 3)
+                {
+                    return 0;
+                }
+                break;
+            }
+        }
+    }
+    return 1;
+}
+
+char RS232sendData_l(char code, long data)
+{
+    int timeout = SERIAL_TIMEOUT;
+    char ack = 0;
+    while (!ack)
+    {
+        RS232writeByte(code);
+        RS232writeByte((char) (((data) & 0xFF000000) >> 16));
+        RS232writeByte((char) (((data) & 0x00FF0000) >> 12));
+        RS232writeByte((char) (((data) & 0x0000FF00) >> 8));
+        RS232writeByte((char) ((data) & 0x000000FF));
+        while (!ack) {
+            if (timeout--)
+            {
+                if (parseSerial() == RS232_ACK_RXD)
+                    {
+                        ack = 1;
+                        packet_loss = 0;
+                    }
+                }
+            else
+            {
+                packet_loss += 1;
+                if (packet_loss == 3)
+                {
+                    return 0;
+                }
+                break;
+            }
+        }
+    }
+    return 1;
+}
 
 char RS232writeByte(char data)
 {
@@ -150,6 +283,7 @@ int parseSerial(void)
         {
             case COMM_BEGIN_NUM:
                 num_data = readNum();
+                return num_data;
                 break;
 
             case COMM_START_REM:
@@ -257,11 +391,17 @@ int parseSerial(void)
                 break;
 
             case COMM_NUM_RXD:
+            case COMM_ACK_STATE:
+            case COMM_ACK_UNITS:
+            case COMM_ACK_DISP:
+            case COMM_ACK_FAC:
                 num_data = RS232_ACK_RXD;
+                return num_data;
                 break;
 
             default:
                 num_data = RS232_UNKNOWN_CODE;
+                return num_data;
                 break;
         }
     }
@@ -289,8 +429,10 @@ int readNum(void)
                     return return_num;
                 }
             }
+            return -1;
         }
     }
+    return -1;
 }
 
 void initialiseRS232()

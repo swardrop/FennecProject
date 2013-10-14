@@ -9,8 +9,6 @@ char ADC_lead_idx;
 void ADCisr(void)
 {
     PIR1bits.ADIF = 0;
-        TRISBbits.RB4 = 0;
-        PORTBbits.RB4 ^= 1;
 
     raw_weight[ADC_lead_idx++] = ((int)ADRESH << 8) | ADRESL;
     if (ADC_lead_idx == ADC_BUFSIZE)

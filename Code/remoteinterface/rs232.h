@@ -16,6 +16,21 @@
  */
 
 /**
+ * RS232sendData
+ * Writes a data byte followed by optional number bytes [int] or [long], waits
+ * to recieve ACk, if no ACK recieved, retries send, if 3 consecutive fails
+ * returns 0.
+ * On success returns 1.
+ * @param data      Byte to send.
+ * @param number    Number to send, 1 byte at a time. (int or long)
+ * @return          1 on success, 0 on 3 failures.
+ */
+char RS232sendData(char code);
+char RS232sendData_b(char code, char data);
+char RS232sendData_i(char code, int data);
+char RS232sendData_l(char code, long data);
+
+/**
  * writeByte
  * Place a byte in the transmit buffer. If the buffer is full, writeByte will
  * return -1, otherwise 0.
@@ -39,7 +54,8 @@ char RS232writeString(char* str);
  * return -1.
  * @return          Next byte in read buffer (-1 if empty)
  */
-char RS232readByte(void);
+//char RS232readByte(void);
+
 /**
  * readString
  * Places a null-terminated string received from serial into a location
@@ -50,8 +66,15 @@ char RS232readByte(void);
  * @param dest      Pointer to memory location to store string
  * @return          0 if a null-terminated string placed in dest, otherwise -1
  */
-char RS232readString(char* dest);
+//char RS232readString(char* dest);
 
+/**
+ * parseSerial
+ * Reads through serial buffer, deals with any state change requests.
+ * Returns any other Data the sequential code needs.
+ * @return      int data recieved, NO_DATA if nothing needs returning,
+ *              UNKOWN_CODE if a command is unrecognised, ACK_RXD if ACK.
+ */
 int parseSerial(void);
 
 void initialiseRS232(void);

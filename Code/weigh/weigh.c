@@ -133,9 +133,11 @@ int getWeight(void)
     weight = convertVoltageToGrams(weight);
     global_weight = weight;
 
-    RS232writeByte(COMM_BEGIN_NUM);
-    RS232writeByte((weight & 0xFF00) >> 8);
-    RS232writeByte(weight & 0x00FF);
+    /* I don't think this should be done here... */
+    RS232sendData_i(COMM_BEGIN_NUM, weight);
+//    RS232writeByte(COMM_BEGIN_NUM);
+//    RS232writeByte((weight & 0xFF00) >> 8);
+//    RS232writeByte(weight & 0x00FF);
 
     return weight;
 }
