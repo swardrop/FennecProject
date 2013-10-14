@@ -31,7 +31,8 @@ extern int cur_warnings;
 #define INPGRSS_DISP				0xD5
 
 // Communication state variables
-extern unsigned char numReady;
+extern bool serialChange;
+extern bool numReady;
 extern unsigned short numData;
 extern unsigned char ack;
 extern unsigned char init_statesRxd;

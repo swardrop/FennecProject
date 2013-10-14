@@ -35,6 +35,7 @@ namespace FennecScalesGUI {
 			showPanel(cur_state.state);
 			showWarnings();
 			setUnitsLabel();
+			closeAll = false;
 		}
 
 	protected:
@@ -658,12 +659,10 @@ private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::Ev
 			}
 			else if (state == COUNT || COUNT_FINAL)
 			{
-				//this->weighPanel->Hide();
 				this->weighPanel->Location = System::Drawing::Point(160, 203);
 				resetCountPanel();
 				this->countPanel->Show();
-				//this->countPanel->BringToFront();
-				//this->weighPanel->BringToFront();
+				this->weighPanel->BringToFront();
 			}
 		}
 
@@ -851,7 +850,7 @@ private: System::Void closeButton_Click(System::Object^  sender, System::EventAr
 		 }
 private: System::Void FrmUsrRemote_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
 			 
-			 if (!closing)
+			 if (!closing && !closeAll)
 			 {
 				closing = true;
 				FrmExitConf^ exitForm = gcnew FrmExitConf(port);
@@ -888,11 +887,14 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 				 if (!(--timeout))
 				 {
 					 MessageBox::Show("Lost connection to scales.");
+					 closeAll = true;
 					 this->Hide();
 					 parent->Show();
 					 break;
 				 }
 			 }
+
+			 weightPer1000Items = (int) ( (double) numData / (double) knownCount ) * 1000;
 
 			 this->initialCountPanel->Hide();
 			 this->finalCountPanel->Show();
@@ -903,15 +905,23 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 private: System::Void resetCountButton_Click(System::Object^  sender, System::EventArgs^  e) {
 			 cur_state.state = COUNT;
 			 // Send reset to count mode over serial
-			 // Wait for ack.
+			 sendChange(COMM_CHANGE_STATE, ST_COUNT_I, COMM_ACK_STATE);
 			 resetCountPanel();
 		 }
 private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
 			 // Refresh everything
+			 if (numReady)
+				weightBox->Text = String::Format("{0}", numData);
+
+			 if (cur_state.state == COUNT_FINAL && numReady)
+			 {
+				 countBox->Text = String::Format("{0}", numData / ((double) weightPer1000Items / 1000));
+			 }
 			 setButtons(cur_state);
 			 showPanel(cur_state.state);
 			 showWarnings();
 			 setUnitsLabel();
+			 serialChange = false;
 		 }
 private: System::Void sendSerialByte(unsigned char byte)
 		 {
@@ -921,6 +931,9 @@ private: System::Void sendSerialByte(unsigned char byte)
 		 }
 private: System::Void sendChange(unsigned char comm_code, unsigned char st_code, unsigned char ack_code)
 		 {
+			 if (serialChange)
+				 return;
+
 			 unsigned int timeout = 0x0FFFFFFF;
 			 sendSerialByte(comm_code);
 			 sendSerialByte(st_code);
@@ -929,6 +942,7 @@ private: System::Void sendChange(unsigned char comm_code, unsigned char st_code,
 				 if (!(--timeout))
 				 {
 					 MessageBox::Show("Lost connection to scales.");
+					 closeAll = true;
 					 this->Hide();
 					 parent->Show();
 					 break;
@@ -938,6 +952,9 @@ private: System::Void sendChange(unsigned char comm_code, unsigned char st_code,
 		 }
 private: System::Void sendChange(unsigned char comm_code, unsigned char ack_code)
 		 {
+			 if (serialChange)
+				 return;
+
 			 unsigned int timeout = 0x0FFFFFFF;
 			 sendSerialByte(comm_code);
 			 while (ack != ack_code)
@@ -945,6 +962,7 @@ private: System::Void sendChange(unsigned char comm_code, unsigned char ack_code
 				 if (!(--timeout))
 				 {
 					 MessageBox::Show("Lost connection to scales.");
+					 closeAll = true;
 					 this->Hide();
 					 parent->Show();
 					 break;

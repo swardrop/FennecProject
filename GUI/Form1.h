@@ -5,7 +5,8 @@
 #include "states.h"
 #include "commscodes.h"
 
-unsigned char numReady = 0;
+bool serialChange = false;
+bool numReady = true;
 unsigned short numData = 0;
 unsigned char ack = 0;
 unsigned char init_statesRxd = 0;
@@ -291,6 +292,8 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 				 {
 					 count_serial |= (unsigned short) data;
 					 receivedCount = RXD_COUNT;
+
+					 weightPer1000Items = (int) ( (double) numData / (double) data ) * 1000;
 					 countInProgress = 0;
 				 }
 
@@ -303,7 +306,9 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 case ST_COUNT_I: cur_state.state = COUNT; break;
 					 case ST_COUNT_F: 
 						 cur_state.state = COUNT_FINAL;
-						 countInProgress = 6;
+						 if (inProgress = INPGRSS_STATUS0)
+							countInProgress = 6;
+						 else countInProgress = 2;
 						 break;
 					 }
 
@@ -313,6 +318,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 {
 						 sendSerialByte(COMM_ACK_STATE);
 						 inProgress = 0;
+						 serialChange = true;
 					 }
 				 }
 				 else if (inProgress == INPGRSS_STATUS1 || inProgress == INPGRSS_DISP)
@@ -341,7 +347,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 }
 
 					 inProgress = 0;
-					 
+					 serialChange = true;
 				 }
 
 				 else if (inProgress == INPGRSS_NUM0)
@@ -352,7 +358,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 				 else if (inProgress == INPGRSS_NUM1)
 				 {
 					 numData |= (unsigned int) data;
-					 numReady = 1;
+					 numReady = true;
 					 inProgress = 0;
 				 }
 
