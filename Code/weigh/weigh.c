@@ -134,8 +134,8 @@ int getWeight(void)
     global_weight = weight;
 
     RS232writeByte(COMM_BEGIN_NUM);
-    RS232writeByte((weight & 0xF0) >> 8);
-    RS232writeByte(weight & 0x0F);
+    RS232writeByte((weight & 0xFF00) >> 8);
+    RS232writeByte(weight & 0x00FF);
 
     return weight;
 }

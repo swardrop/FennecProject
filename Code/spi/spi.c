@@ -5,10 +5,10 @@
 
 // Chip Select defines
 #define CS_NONE         0xCF
-#define CS_LED_BAR      0xFF
-#define CS_LED_STATUS   0xFF
-#define CS_TTS          0xFF
-#define CS_EEPROM       0xFF
+#define CS_LED_BAR      0b00010000
+#define CS_LED_STATUS   0b00100000
+#define CS_TTS          0b00001000
+#define CS_EEPROM       0b00000100
 
 typedef struct spiData
 {

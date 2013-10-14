@@ -141,7 +141,7 @@ void highISR()
         rx232isr();
     else if (PIR1bits.TXIF)
         tx232isr();
-    
+    return;
 }
 
 #pragma interruptlow lowISR
