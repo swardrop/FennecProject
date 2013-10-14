@@ -3,9 +3,12 @@
 
 //// Communication Codes
 
+#define SERIAL_TIMEOUT_GUI			0x40000000
+#define SERIAL_TIMEOUT_PIC			0xFFFF
+
 // Number transmission
-#define COMM_BEGIN_NUM				0x00
-#define COMM_NUM_RXD				0xA0
+#define COMM_BEGIN_NUM				0x09
+#define COMM_NUM_RXD				0xA9
 
 // GUI Modes
 #define COMM_START_FAC				0x01

@@ -74,7 +74,6 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::CheckBox^  overWarningCB;
 	private: System::Windows::Forms::CheckBox^  evWarningCB;
 			 
-			 FrmUsrRemote^ usrRemoteForm;
 			 FrmFactoryMode^ factoryForm;
 
 			 SerialPort^ port;
@@ -360,6 +359,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 numData |= (unsigned int) data;
 					 numReady = true;
 					 inProgress = 0;
+					 sendSerialByte(COMM_NUM_RXD);
 				 }
 
 				 // Check for reception of codes from the PIC
@@ -411,7 +411,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 port->Write(sendArray, 0, 1);
 
 			 // Wait for state sent back
-			 unsigned int timeoutCounter = 0x0FFFFFFF;
+			 unsigned int timeoutCounter = SERIAL_TIMEOUT_GUI;
 			 while (!init_statesRxd)
 			 {
 				 if (!(--timeoutCounter))
@@ -433,7 +433,7 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 			 
 			 this->Hide();
 
-			 usrRemoteForm = gcnew FrmUsrRemote(this, port);
+			 FrmUsrRemote^ usrRemoteForm = gcnew FrmUsrRemote(this, port);
 
 			 // Move this to a serial handler?
 			 if (cur_state.isFactory)

@@ -789,20 +789,21 @@ private: System::Void rbGrams_CheckedChanged(System::Object^  sender, System::Ev
 private: System::Void cbLCD_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			 if (cbLCD->Checked)
 			 {
-				 if (cur_state.outputs == NONE)
-				 {
-					cur_state.outputs = LCD;
-					sendChange(COMM_CHANGE_DISP, DISP_LCD, COMM_ACK_DISP);
-				 }
-				 else
+				 if (cbTTS->Checked)
 				 {
 					 cur_state.outputs = LCD_TTS;
 					 sendChange(COMM_CHANGE_DISP, DISP_LCD | DISP_TTS, COMM_ACK_DISP);
+					
+				 }
+				 else
+				 {
+					 cur_state.outputs = LCD;
+					sendChange(COMM_CHANGE_DISP, DISP_LCD, COMM_ACK_DISP);
 				 }
 			 }
 			 else
 			 {
-				 if (cur_state.outputs == LCD_TTS)
+				 if (cbTTS->Checked)
 				 {
 					 cur_state.outputs = TTS;
 					 sendChange(COMM_CHANGE_DISP, DISP_TTS, COMM_ACK_DISP);
@@ -817,20 +818,21 @@ private: System::Void cbLCD_CheckedChanged(System::Object^  sender, System::Even
 private: System::Void cbTTS_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			 if (cbTTS->Checked)
 			 {
-				 if (cur_state.outputs == NONE)
+				 if (cbLCD->Checked)
+				 {
+					 cur_state.outputs = LCD_TTS;
+					 sendChange(COMM_CHANGE_DISP, DISP_LCD | DISP_TTS, COMM_ACK_DISP);
+					 
+				 }
+				 else
 				 {
 					 cur_state.outputs = TTS;
 					 sendChange(COMM_CHANGE_DISP, DISP_TTS, COMM_ACK_DISP);
 				 }
-				 else
-				 {
-					 cur_state.outputs = LCD_TTS;
-					 sendChange(COMM_CHANGE_DISP, DISP_LCD | DISP_TTS, COMM_ACK_DISP);
-				 }
 			 }
 			 else
 			 {
-				 if (cur_state.outputs == LCD_TTS)
+				 if (cbLCD->Checked)
 				 {
 					 cur_state.outputs = LCD;
 					 sendChange(COMM_CHANGE_DISP, DISP_LCD, COMM_ACK_DISP);
@@ -876,21 +878,45 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 			 }
 
 			 // Send knownCount over serial.
-			 // Wait for ack
-			 sendSerialByte(COMM_BEGIN_NUM);
-			 sendSerialByte((unsigned char)((knownCount & 0xFF00) >> 8));
-			 sendSerialByte((unsigned char)(knownCount & 0x00FF));
-
-			 unsigned int timeout = 0x0FFFFFF;
-			 while (ack != COMM_NUM_RXD)
+			 while (true)
 			 {
-				 if (!(--timeout))
+				 sendSerialByte(COMM_BEGIN_NUM);
+				 sendSerialByte((unsigned char)((knownCount & 0xFF00) >> 8));
+				 sendSerialByte((unsigned char)(knownCount & 0x00FF));
+
+				 // Wait for ack
+				 unsigned int timeout = SERIAL_TIMEOUT_GUI;
+
+				 //while (ack != COMM_NUM_RXD)
+				 //{
+					// if (!(--timeout))
+					// {
+					//	 MessageBox::Show("Lost connection to scales.");
+					//	 closeAll = true;
+					//	 this->Close();
+					//	 parent->Show();
+					//	 break;
+					// }
+				 //}
+
+				 while (--timeout)
 				 {
-					 MessageBox::Show("Lost connection to scales.");
-					 closeAll = true;
-					 this->Hide();
-					 parent->Show();
-					 break;
+					 if (ack = COMM_NUM_RXD)
+					 {
+						 ack = 0;
+						 return;
+					 }
+
+					 if (MessageBox::Show("The scales did not respond to the request."
+						 + " Press retry to try again or Cancel to close the program",
+						 "Lost connection to scales",
+						 MessageBoxButtons::RetryCancel, MessageBoxIcon::Error)
+							 == System::Windows::Forms::DialogResult::Cancel)
+					 {
+						 closeAll = true;
+						 Application::Exit();
+						 break;
+					 }
 				 }
 			 }
 
@@ -929,22 +955,53 @@ private: System::Void sendSerialByte(unsigned char byte)
 			 sendArray[0] = byte;
 			 port->Write(sendArray, 0, 1);
 		 }
-private: System::Void sendChange(unsigned char comm_code, unsigned char st_code, unsigned char ack_code)
-		 {
+private: System::Void sendChange(unsigned char comm_code, unsigned char st_code, unsigned char ack_code) {
 			 if (serialChange)
 				 return;
 
-			 unsigned int timeout = 0x0FFFFFFF;
-			 sendSerialByte(comm_code);
-			 sendSerialByte(st_code);
-			 while (ack != ack_code)
+			 // Loop until return statement is hit (ack received)
+			 while (true)
 			 {
-				 if (!(--timeout))
+				 unsigned int timeout = SERIAL_TIMEOUT_GUI;
+				 sendSerialByte(comm_code);
+				 if (st_code != 0xFF) sendSerialByte(st_code);
+
+				 //while (ack != ack_code)
+				 //{
+					// if (!(--timeout))
+					// {
+					//	 if (MessageBox::Show("The scales did not respond to the request.",
+					//		 "Lost connection to scales",
+					//		 MessageBoxButtons::OK, MessageBoxIcon::Error)
+					//			 == System::Windows::Forms::DialogResult::OK)
+					//	 {
+					//		 closeAll = true;
+					//		 this->Close();
+					//		 parent->Show();
+					//		 break;
+					//	 }
+					// }
+				 //}
+
+				 // Wait for ack
+				 while (--timeout)
 				 {
-					 MessageBox::Show("Lost connection to scales.");
+					 if (ack == ack_code)
+					 {
+						 ack = 0;
+						 return;
+					 }
+				 }
+
+				 // If this code is reached, the ack was not received.
+				 if (MessageBox::Show("The scales did not respond to the request."
+					 + " Press retry to try again or Cancel to close the program",
+					 "Lost connection to scales",
+					 MessageBoxButtons::RetryCancel, MessageBoxIcon::Error)
+						 == System::Windows::Forms::DialogResult::Cancel)
+				 {
 					 closeAll = true;
-					 this->Hide();
-					 parent->Show();
+					 Application::Exit();
 					 break;
 				 }
 			 }
@@ -952,23 +1009,29 @@ private: System::Void sendChange(unsigned char comm_code, unsigned char st_code,
 		 }
 private: System::Void sendChange(unsigned char comm_code, unsigned char ack_code)
 		 {
-			 if (serialChange)
-				 return;
+			 sendChange(comm_code, 0xFF, ack_code);
+			 //if (serialChange)
+				// return;
 
-			 unsigned int timeout = 0x0FFFFFFF;
-			 sendSerialByte(comm_code);
-			 while (ack != ack_code)
-			 {
-				 if (!(--timeout))
-				 {
-					 MessageBox::Show("Lost connection to scales.");
-					 closeAll = true;
-					 this->Hide();
-					 parent->Show();
-					 break;
-				 }
-			 }
-			 ack = 0;
+			 //unsigned int timeout = 0x0FFFFFFF;
+			 //sendSerialByte(comm_code);
+			 //while (ack != ack_code)
+			 //{
+				// if (!(--timeout))
+				// {
+				//	 if (MessageBox::Show("The scales did not respond to the request.",
+				//		 "Lost connection to scales",
+				//		 MessageBoxButtons::OK, MessageBoxIcon::Error)
+				//			 == System::Windows::Forms::DialogResult::OK)
+				//	 {
+				//		 closeAll = true;
+				//		 this->Close();
+				//		 parent->Show();
+				//		 break;
+				//	 }
+				// }
+			 //}
+			 //ack = 0;
 		 }
 };
 
