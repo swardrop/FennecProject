@@ -16,9 +16,7 @@ void delay(unsigned int ms)
 
 char getNextNum()
 {
-    int temp,num,i;
-    while(1)
-    {
+    int temp,num;
     if((interrupt*0x01)==0x01)
     {temp=keynum&0xf0;
      if(i<16;np_buffer[i] != '\n';i++){
@@ -46,7 +44,7 @@ char getNextNum()
         return num;
      }
      else return -1;
-    }
+    
     
     }
     
