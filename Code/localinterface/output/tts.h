@@ -5,7 +5,7 @@
  *
  * This module takes a pointer to the begining of a string, send it over SPI
  * to the TTS chip.
- * It also defines the behaviour upon completion of the TTS saying it's thing.
+ * It also defines the behaviour upon completion of the TTS saying its thing.
  * This module also defines the initialisation process for the TTS.
  *
  * Inputs:  Pointer to a string to be written
