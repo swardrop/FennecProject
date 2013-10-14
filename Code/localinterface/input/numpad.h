@@ -32,7 +32,6 @@ char getNextNum(void);
  * 
  * Outputs: Value in circular buffer (global)
  */
-void delay();
 void numpadISR();
 
 void initialiseNumPad(void);
