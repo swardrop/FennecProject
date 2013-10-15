@@ -5,6 +5,7 @@
 #include "../localinterface/input/numpad.h"
 #include <stdio.h>
 #include "../../GUI/commscodes.h"
+#include <p18f452.h>
 
 #define INPUT_STATE_CHNG    0x01
 #define INPUT_INT           0x02
@@ -22,7 +23,7 @@ void count(void)
     int count = 0;
 
     // Ask the user to supply a mass of known count if they haven't already.
-    while (req_state ==  ST_COUNT_I)
+    if (cur_state ==  ST_COUNT_I)
     {
         // Print Welcome to Count.
         // Ask for user to place items on scale and enter number of items.
@@ -32,6 +33,7 @@ void count(void)
         {
             return;
         }
+        serial_number_rxd = -1;
         weight =  getWeight();
 
         // Produce conversion factor
@@ -39,6 +41,7 @@ void count(void)
 
         req_state = ST_COUNT_F;
     }
+
 
     // Get new weight value
     weight = getWeight();
@@ -75,73 +78,49 @@ void count(void)
 int waitForInput(int* input)
 {
     char byte;
-    int num_data;
+    int serial_return_value;
+    int numpad_return_value;
     while(1)
     {
+        getWeight();
+
         // Check for RS232 serial input
-        num_data = parseSerial();
-
-        switch (num_data)
+        serial_return_value = parseSerial();
+        if (serial_number_rxd != -1)
         {
-            case -1:
-                break;
-            case -2:
-            case -3:
-                // Re-sync GUI and PIC
-                break;
-            default:
-                *input = num_data;
+                *input = serial_number_rxd;
+                serial_number_rxd = -1;
                 return INPUT_INT;
-                break;
         }
-
-        while ((byte = getNextNum()) != -1)
-        {
-            // store and display number as entered on LCD/TTS?.
-            // reset on *, return on #.
-            switch (byte)
-            {
-                case '*':
-                    num_data = 0;
-                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
-                     * to GUI as well. */
-                    break;
-                case '#':
-                    *input = num_data;
-                    if(!RS232sendData_i(COMM_CHANGE_STATE, num_data))
-                    {
-                        // Things are broken!
-                    }
-//                    RS232writeByte(COMM_CHANGE_STATE);
-//                    RS232writeByte((char)(num_data & 0xFF00) >> 8);
-//                    RS232writeByte((char)(num_data & 0x00FF));
-//                    wait_time = 0xFFFF;
-//                    while (wait_time--)
+        
+//        while ((byte = getNextNum()) != -1)
+//        {
+//            // store and display number as entered on LCD/TTS?.
+//            // reset on *, return on #.
+//            switch (byte)
+//            {
+//                case '*':
+//                    numpad_return_value = 0;
+//                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
+//                     * to GUI as well. */
+//                    break;
+//                case '#':
+//                    *input = numpad_return_value;
+//                    if(!RS232sendData_i(COMM_CHANGE_STATE, num_data))
 //                    {
-//                        byte = RS232readByte();
-//                        if (byte == -1)
-//                            continue;
-//                        if (byte != COMM_ACK_STATE)
-//                            continue;
-//                        break;
+//                        // Things are broken!
 //                    }
-//                    if (!wait_time)// !wait_time means it reached 0 and timed out
-//                    {
-//                        RS232writeByte(COMM_DEBUG);
-//                        RS232writeByte(cur_state);
-//                        RS232writeByte(disp_type);
-//                    }
-
-                    return INPUT_INT;
-                    break;
-                default:
-                    num_data = num_data*10 + byte - 0x30;
-                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
-                     * to GUI as well. */
-                    break;
-
-            }
-        }
+//
+//                    return INPUT_INT;
+//                    break;
+//                default:
+//                    numpad_return_value = numpad_return_value*10 + byte - 0x30;
+//                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
+//                     * to GUI as well. */
+//                    break;
+//
+//            }
+//        }
 
         // Check for state change.
         if (req_state != ST_NONE && req_state != ST_COUNT_I)

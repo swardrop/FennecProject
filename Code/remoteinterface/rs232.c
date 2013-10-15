@@ -6,7 +6,6 @@
 #include "../weigh/count.h"
 
 #define RS232_BUFSIZE       64
-
 #define SERIAL_TIMEOUT      0x00FF
 
 // Buffers
@@ -22,6 +21,7 @@ char writeLock;
 char txComplete;
 
 char packet_loss;
+int serial_number_rxd;
 
 int readNum(void);
 char RS232readByte(void);
@@ -88,24 +88,26 @@ char RS232sendData_b(char code, char data)
     return 1;
 }
 
-char RS232sendData_i(char code, int data)
+char RS232sendData_i(char data, int number)
 {
     int timeout = SERIAL_TIMEOUT;
+    int recieved = -1;
     char ack = 0;
     while (!ack)
     {
-        RS232writeByte(code);
-        RS232writeByte((char) (((data) & 0xFF00) >> 8));
-        RS232writeByte((char) ((data) & 0x00FF));
+        RS232writeByte(data);
+        RS232writeByte((char) (((number) & 0xFF00) >> 8));
+        RS232writeByte((char) ((number) & 0x00FF));
         while (!ack) {
             if (timeout--)
             {
-                if (parseSerial() == RS232_ACK_RXD)
-                    {
-                        ack = 1;
-                        packet_loss = 0;
-                    }
+                recieved = parseSerial();
+                if (recieved == RS232_ACK_RXD)
+                {
+                    ack = 1;
+                    packet_loss = 0;
                 }
+            }
             else
             {
                 packet_loss += 1;
@@ -120,39 +122,6 @@ char RS232sendData_i(char code, int data)
     return 1;
 }
 
-char RS232sendData_l(char code, long data)
-{
-    int timeout = SERIAL_TIMEOUT;
-    char ack = 0;
-    while (!ack)
-    {
-        RS232writeByte(code);
-        RS232writeByte((char) (((data) & 0xFF000000) >> 16));
-        RS232writeByte((char) (((data) & 0x00FF0000) >> 12));
-        RS232writeByte((char) (((data) & 0x0000FF00) >> 8));
-        RS232writeByte((char) ((data) & 0x000000FF));
-        while (!ack) {
-            if (timeout--)
-            {
-                if (parseSerial() == RS232_ACK_RXD)
-                    {
-                        ack = 1;
-                        packet_loss = 0;
-                    }
-                }
-            else
-            {
-                packet_loss += 1;
-                if (packet_loss == 3)
-                {
-                    return 0;
-                }
-                break;
-            }
-        }
-    }
-    return 1;
-}
 
 char RS232writeByte(char data)
 {
@@ -190,41 +159,6 @@ char RS232writeByte(char data)
     }
 }
 
-char RS232writeString(char* str)
-{
-    char *temp = str;
-    char count = 0, spaces;
-
-    // Count number of bytes in string before null-terminator
-    while (*temp != '\0' && count < RS232_BUFSIZE)
-    {
-        ++count;
-        ++temp;
-    }
-
-    // If too many bytes to fit in buffer, return failure
-    if (write_trail_idx > write_lead_idx)
-    {
-        spaces = write_trail_idx - write_lead_idx;
-    }
-    else
-    {
-        spaces = RS232_BUFSIZE - write_trail_idx + write_lead_idx;
-    }
-    if (spaces < count)
-    {
-        return -1;
-    }
-
-    // Otherwise, write all bytes to the buffer.
-    temp = str;
-    while (*temp != '\0')
-    {
-        RS232writeByte(*temp);
-        ++temp;
-    }
-    return 0;
-}
 
 char RS232readByte()
 {
@@ -244,36 +178,10 @@ char RS232readByte()
     return data;
 }
 
-char RS232readString(char* dest)
-{
-    char *temp = dest;
-    char byte = RS232readByte();
-
-    // Read until null-terminator or end of buffer
-    while (byte != RS232_NO_DATA)
-    {
-        *temp = byte;
-
-        if (byte == '\0')
-        {
-            break;
-        }
-        // If end of buffer reached before null-terminator, return -1
-        if (read_trail_idx == read_lead_idx)
-        {
-            return -1;
-        }
-
-        ++temp;
-        byte = RS232readByte();
-    }
-    return 0;
-}
 
 int parseSerial(void)
 {
     char byte;
-    int num_data = RS232_NO_DATA;
     int wait_time;
 
     while ((byte = RS232readByte()) != RS232_NO_DATA)
@@ -282,8 +190,7 @@ int parseSerial(void)
         switch (byte)
         {
             case COMM_BEGIN_NUM:
-                num_data = readNum();
-                return num_data;
+                serial_number_rxd = readNum();
                 break;
 
             case COMM_START_REM:
@@ -348,13 +255,13 @@ int parseSerial(void)
                 break;
 
             case COMM_CHANGE_UNITS:
-                wait_time = 0x00FF;
+                wait_time = 0xFFFF;
                 while (wait_time--)
                 {
                     byte = RS232readByte();
                     if (byte == -1)
                         continue;
-                    disp_type &= (0xF0 | byte);
+                    disp_type = ((disp_type & 0xF0) | byte);
                     RS232writeByte(COMM_ACK_UNITS);
                     break;
                 }
@@ -373,7 +280,7 @@ int parseSerial(void)
                     byte = RS232readByte();
                     if (byte == -1)
                         continue;
-                    disp_type &= (0x0F | DISP_RS232 | byte);
+                    disp_type = ((disp_type & 0x0F) | DISP_RS232 | byte);
                     RS232writeByte(COMM_ACK_DISP);
                     break;
                 }
@@ -394,18 +301,16 @@ int parseSerial(void)
             case COMM_ACK_STATE:
             case COMM_ACK_UNITS:
             case COMM_ACK_DISP:
-            case COMM_ACK_FAC:
-                num_data = RS232_ACK_RXD;
-                return num_data;
+            case COMM_ACK_FAC:                
+                return RS232_ACK_RXD;
                 break;
 
             default:
-                num_data = RS232_UNKNOWN_CODE;
-                return num_data;
+                return RS232_UNKNOWN_CODE;
                 break;
         }
     }
-    return num_data;
+    return RS232_NO_DATA;
 }
 
 int readNum(void)
@@ -429,19 +334,12 @@ int readNum(void)
                     return return_num;
                 }
             }
-            return -1;
         }
     }
-    return -1;
 }
 
 void initialiseRS232()
 {
-    /* Configure interrupts */
-    INTCONbits.GIE = 1; // Enable global interrupts and priority
-    INTCONbits.PEIE = 1;
-    RCONbits.IPEN = 1;
-
     // Initialise Register values
     PIE1bits.TXIE = 1; // Enable TX interrupt
     IPR1bits.TXIP = 1; // TX priority high
@@ -464,6 +362,7 @@ void initialiseRS232()
     read_lead_idx = read_trail_idx = 0;
     writeLock = 0;
     txComplete = 1;
+    serial_number_rxd = -1;
 }
 
 void tx232isr()

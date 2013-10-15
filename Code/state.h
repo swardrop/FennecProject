@@ -20,7 +20,7 @@
 #define ST_SHOW_WEIGHT_READINGS 0x86
 #define ST_SHOW_STATISTICS      0x87
 
-#define ST_NONE                    0xFF
+#define ST_NONE                  0xFF
 
 // Units display type
 #define GRAMS                   0x01
@@ -41,6 +41,8 @@ extern char num_samples;
 extern int tare_offset;
 
 extern int global_weight;
+
+extern char st_chng_rs232_flag;
 
 /**
  * retrieveState

@@ -15,6 +15,9 @@
  * once all previous data has been sent.
  */
 
+
+extern int serial_number_rxd;
+
 /**
  * RS232sendData
  * Writes a data byte followed by optional number bytes [int] or [long], waits
@@ -25,10 +28,10 @@
  * @param number    Number to send, 1 byte at a time. (int or long)
  * @return          1 on success, 0 on 3 failures.
  */
-char RS232sendData(char code);
-char RS232sendData_b(char code, char data);
-char RS232sendData_i(char code, int data);
-char RS232sendData_l(char code, long data);
+char RS232sendData(char data);
+char RS232sendData_b(char data, char number);
+char RS232sendData_i(char data, int number);
+char RS232sendData_l(char data, long number);
 
 /**
  * writeByte

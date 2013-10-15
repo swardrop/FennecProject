@@ -46,11 +46,13 @@ void main(void)
 {
     // Initialise system
     setup();
+    TRISBbits.RB4 = 0;
+    PORTBbits.RB4 = 0;
 
     // Loop until the system is turned off
     while (req_state & POWER_ON)
     {
-        int num_data;
+        int serial_data;
         switch (cur_state)
         {
             case ST_WEIGH: weigh(); break;
@@ -61,9 +63,9 @@ void main(void)
             case ST_SHOW_WEIGHT_READINGS: showWeightReadings(); break;
             case ST_SHOW_STATISTICS: showStats(); break;
         }
-        num_data = parseSerial();
+        serial_data = parseSerial();
         
-        if (num_data != RS232_NO_DATA)
+        if (serial_data != RS232_NO_DATA)
         {
             RS232writeByte(COMM_DEBUG);
             RS232writeByte(cur_state);
@@ -76,7 +78,9 @@ void main(void)
 //            int serial_return;
             cur_state = req_state;
             // Send Change to GUI.
-            RS232sendData_b(COMM_CHANGE_STATE, cur_state);
+            if (!st_chng_rs232_flag)
+                RS232sendData_b(COMM_CHANGE_STATE, cur_state);
+            st_chng_rs232_flag = 0;
             req_state = ST_NONE;
         }
     }
@@ -91,6 +95,11 @@ void main(void)
  */
 void setup()
 {
+            /* Configure interrupts */
+    INTCONbits.GIE = 1; // Enable global interrupts and priority
+    INTCONbits.PEIE = 1;
+    RCONbits.IPEN = 1;
+
     retrieveState();
     initialiseRS232();
     initialiseADC();
