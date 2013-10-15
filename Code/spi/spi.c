@@ -23,8 +23,10 @@ char readStatus;
 void setupSPI()
 {
     /* Enable the SSP Interrupt and set priority. */
-    PIE1bits.SSPIE = 1;
+    PIE1bits.SSPIE = 0;
     IPR1bits.SSPIP = 1;
+
+    PORTA = CS_NONE;
 
     SSPSTAT = 0b00000001; /* Sample Mid, Transmit Falling */
     SSPCON1 = 0b00100010; /* Enable, Master & Fosc/64, Idle Low. */
@@ -39,7 +41,6 @@ void setupSPI()
     TRISAbits.RA3 = 0;
     TRISAbits.RA4 = 0;
     TRISAbits.RA5 = 0;
-
 }
 
 void exchangeDataSPI(char destinationCode, char* data)
@@ -53,11 +54,11 @@ void exchangeDataSPI(char destinationCode, char* data)
     }
     if (PIE1bits.SSPIE == 0)
     {
+        PORTBbits.RB1 = 1;
         PIE1bits.SSPIE = 1;
-        SPIisr();
+        SSPBUF = 0xFF;
     }
 }
-
 void SPIisr()
 {
     /* Reached end of buffer, disable interrupt, reset Chip select. */
@@ -67,6 +68,7 @@ void SPIisr()
         PORTA = CS_NONE;
         return;
     }
+    PORTBbits.RB0 = 1;
 
     /* If reading a string from EEPROM */
     if (SPI_buffer[trail_idx].CScode == SPI_EEPROM_READ_STRING)
@@ -102,18 +104,18 @@ void SPIisr()
     switch (SPI_buffer[trail_idx].CScode)
     {
         case SPI_LED_BAR:
-            PORTA = CS_LED_BAR;
+            PORTA = ~CS_LED_BAR;
             break;
         case SPI_LED_STATUS:
-            PORTA = CS_LED_STATUS;
+            PORTA = ~CS_LED_STATUS;
             break;
         case SPI_TTS:
-            PORTA = CS_TTS;
+            PORTA = ~CS_TTS;
             break;
         case SPI_EEPROM_READ_STRING:
         case SPI_EEPROM_READ_BYTE:
         case SPI_EEPROM_WRITE_BYTE:
-            PORTA = CS_EEPROM;
+            PORTA = ~CS_EEPROM;
             break;
         default:
             PORTA = CS_NONE;

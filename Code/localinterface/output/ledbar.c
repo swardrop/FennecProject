@@ -7,6 +7,8 @@ char writeLEDbar(int weight, int max_weight)
 {
     unsigned char weightFraction;
     unsigned int outVal;
+    char* a;
+    char* b;
 
     /*Return an error if the measured weight is higher than the max.*/
     if (weight > max_weight){
@@ -19,8 +21,11 @@ char writeLEDbar(int weight, int max_weight)
     outVal = weightFrac2lightPattern(weightFraction);
     /*Converts the weight fraction to a light-bar pattern for the LEDs*/
 
-    exchangeDataSPI(SPI_LED_BAR, (char*)&outVal);
-    exchangeDataSPI(SPI_LED_BAR, ((char*)&outVal)+1);
+    a = (char*)&outVal;
+    b = a+1;
+
+    exchangeDataSPI(SPI_LED_BAR, a);
+    //exchangeDataSPI(SPI_LED_BAR, ((char*)&outVal)+1);
     
     /* Theoretically, should only return 1 if the SPI write succeeds, and 0 
      * otherwise, but I don't know how to check this.*/
