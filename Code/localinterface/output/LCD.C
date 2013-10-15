@@ -49,9 +49,10 @@ enable write in
 void write_in(void)
 {
  
- LCD_E=1 ;
- 
  LCD_E=0 ;
+ delay(160)
+ 
+ LCD_E=1 ;
 // asm("nop") ;
 }
 /***********************************
@@ -60,6 +61,7 @@ send cmd
 void sendcmd(char cmdata)
 {
    LCD_RS=0;                //send cmd mode
+    LCD_RW=0;
     write(cmdata);           
  //delay(255);
 }
@@ -69,6 +71,7 @@ disp single byte
 void putclcd(char lcdbyte)
 {
     LCD_RS=1;//output mode
+    LCD_RW=0;
  write(lcdbyte);
  //   delay(255);
 }
