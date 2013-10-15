@@ -59,6 +59,7 @@ void exchangeDataSPI(char destinationCode, char* data)
         SSPBUF = 0xFF;
     }
 }
+
 void SPIisr()
 {
     /* Reached end of buffer, disable interrupt, reset Chip select. */
