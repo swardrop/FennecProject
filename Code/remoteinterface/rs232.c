@@ -355,7 +355,7 @@ int parseSerial(void)
                     if (byte == -1)
                         continue;
                     disp_type &= (0xF0 | byte);
-                    RS232writeByte(COMM_ACK_STATE);
+                    RS232writeByte(COMM_ACK_UNITS);
                     break;
                 }
                 if (!wait_time) // !wait_time means it reached 0 and timed out
@@ -374,7 +374,7 @@ int parseSerial(void)
                     if (byte == -1)
                         continue;
                     disp_type &= (0x0F | DISP_RS232 | byte);
-                    RS232writeByte(COMM_ACK_STATE);
+                    RS232writeByte(COMM_ACK_DISP);
                     break;
                 }
                 if (!wait_time) // !wait_time means it reached 0 and timed out
