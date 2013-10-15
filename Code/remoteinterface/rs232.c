@@ -348,7 +348,7 @@ int parseSerial(void)
                 break;
 
             case COMM_CHANGE_UNITS:
-                wait_time = 0xFFFF;
+                wait_time = 0x00FF;
                 while (wait_time--)
                 {
                     byte = RS232readByte();

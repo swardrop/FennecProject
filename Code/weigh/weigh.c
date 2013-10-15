@@ -134,7 +134,8 @@ int getWeight(void)
     global_weight = weight;
 
     /* I don't think this should be done here... */
-    RS232sendData_i(COMM_BEGIN_NUM, weight);
+    if (disp_type & DISP_RS232)
+        RS232sendData_i(COMM_BEGIN_NUM, weight);
 //    RS232writeByte(COMM_BEGIN_NUM);
 //    RS232writeByte((weight & 0xFF00) >> 8);
 //    RS232writeByte(weight & 0x00FF);

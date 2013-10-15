@@ -1,3 +1,4 @@
+#include <p18f452.h>
 #include "ConfigRegs.h"
 #include "state.h"
 #include "../GUI/commscodes.h"
