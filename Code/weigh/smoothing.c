@@ -15,7 +15,10 @@ int smoothWeight(void)
     total = 0;
     for(temp_idx = 0; temp_idx < num_samples; temp_idx++)
     {
-        total = total + raw_weight[(temp_lead_idx - temp_idx)%ADC_BUFSIZE];
+        char index = temp_lead_idx - temp_idx;
+        if (index < 0)
+            index += ADC_BUFSIZE;
+        total = total + raw_weight[index];
     }
     mean = total/num_samples;
 

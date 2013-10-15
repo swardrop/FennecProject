@@ -1,3 +1,4 @@
+#include <p18f452.h>
 #include "ConfigRegs.h"
 #include "state.h"
 #include "../GUI/commscodes.h"
@@ -76,27 +77,6 @@ void main(void)
             cur_state = req_state;
             // Send Change to GUI.
             RS232sendData_b(COMM_CHANGE_STATE, cur_state);
-//            RS232writeByte(COMM_CHANGE_STATE);
-//            RS232writeByte(cur_state);
-//            while (timeout--)
-//            {
-//                serial_return = parseSerial();
-//                if (serial_return == RS232_NO_DATA)
-//                    continue;
-//                else if (serial_return != RS232_ACK_RXD)
-//                {
-//                    RS232writeByte(COMM_DEBUG);
-//                    RS232writeByte(cur_state);
-//                    RS232writeByte(disp_type);
-//                }
-//                break;
-//            }
-//            if (!timeout)// !timeout means timeout reached 0 and timed out
-//            {
-//                RS232writeByte(COMM_DEBUG);
-//                RS232writeByte(cur_state);
-//                RS232writeByte(disp_type);
-//            }
             req_state = ST_NONE;
         }
     }

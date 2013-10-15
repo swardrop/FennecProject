@@ -49,19 +49,21 @@ enable write in
 void write_in(void)
 {
  
- LCD_E=1 ;
+    LCD_E=0 ;
+    delay(160);
+    LCD_E=1;
  
- LCD_E=0 ;
-// asm("nop") ;
-}
+   
+   }
 /***********************************
 send cmd
 *************************************/
 void sendcmd(char cmdata)
 {
    LCD_RS=0;                //send cmd mode
+    LCD_RW=0;
     write(cmdata);           
- //delay(255);
+ delay(255);
 }
 /********************************************
 disp single byte
@@ -69,8 +71,9 @@ disp single byte
 void putclcd(char lcdbyte)
 {
     LCD_RS=1;//output mode
+    LCD_RW=0;
  write(lcdbyte);
- //   delay(255);
+   delay(255);
 }
 /**************************************
 *disp string
@@ -115,11 +118,11 @@ void write(char wdata)
    if(temp&0X10)
    {LCD_DB4=1;}
    write_in() ;
-   //delay(160);
+   delay(160);
 }
 /*************************************
 *function:display shifting(change the delay var to change the speed of  shifting)
-*flag=0  shift left ；flag=1 shift right ;count :the bit og shift 
+*flag=0  shift left ï¼flag=1 shift right ;count :the bit og shift 
 ******************************/
 void lcd_shift(unsigned char flag,unsigned char count)
 {
@@ -145,7 +148,7 @@ void lcd_shift(unsigned char flag,unsigned char count)
 
 /*****************************
 *function: curser shifting
-*when flag=0  shift left ；flag=1 shift right ;count :the bits shift 
+*when flag=0  shift left ï¼flag=1 shift right ;count :the bits shift 
 **************************/
 void curse_shift(unsigned char flag,unsigned char count)
 {
@@ -178,18 +181,19 @@ sendcmd(LCD_SECOND_LINE);
 }
 
 char stringToLCD(char* str, char line){
-    init_lcd();
-    if(str !='\0' && line == 1)
+    
+    delay(255);
+    if(str != '\0' && line == 1)
     {
         L1LCD();/*?Sets cursor to beginning of line 1?*/
-        curse_shift(1,5);/*?Moves cursor on line 1 5 places to the right?
+        delay(255);/*?Moves cursor on line 1 5 places to the right?
         1 means shift right while 5 means 5 bits*/
         printlcd(str);/*Prints an entire string (until a '\0' is reached)*/
     }
-    if(str != '\0' && line == 2  )
+    else if(str != '\0' && line == 2  )
     {
         L2LCD();
-        curse_shift(0,5);
+       delay(255);
         printlcd(str);
     }
     return 1;

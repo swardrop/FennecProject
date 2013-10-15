@@ -13,7 +13,9 @@ void retrieveState()
 {
     cur_state = ST_WEIGH;
     req_state = ST_NONE;
+    disp_type = GRAMS | DISP_LCD;
     tare_offset = 0;
+    num_samples = 20;
 }
 void saveState()
 {
