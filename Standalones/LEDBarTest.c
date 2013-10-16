@@ -18,18 +18,16 @@ void high_interrupt(void)
 void main(void)
 {
     weight = 500;
-    maxWeight = 1000;
+    maxWeight = 1000;	
 
+    TRISB = 0;	/*output*/
     PORTB = 0;
-
 
     setupSPI();
 
     INTCONbits.GIE = 1;
 	INTCONbits.PEIE = 1;
 	RCONbits.IPEN = 1;
-
-    TRISB = 0;
 
     while(1)/*Put breakpoint here, change the weight and maxWeight in the debugger.*/
     {
