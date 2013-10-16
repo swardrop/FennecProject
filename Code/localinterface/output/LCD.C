@@ -31,8 +31,10 @@ void init_lcd()
 //4bit,2-line.5*8dots
  sendcmd(0x28) ;
  sendcmd(0x0c) ;
+ sendcmd(0x0f);
  sendcmd(0x80) ;//L1 starts
- sendcmd(0x01) ;//clr
+ 
+
 
 }
 /*********************
@@ -183,6 +185,8 @@ sendcmd(LCD_SECOND_LINE);
 char stringToLCD(char* str, char line){
     
     delay(255);
+    init_lcd();
+    
     if(str != '\0' && line == 1)
     {
         L1LCD();/*?Sets cursor to beginning of line 1?*/
