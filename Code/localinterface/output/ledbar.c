@@ -1,34 +1,33 @@
 #include "../../spi.h"
 #include "ledbar.h"
+#include <p18f452.h>
 
 int weightFrac2lightPattern(unsigned char weightFraction);
 
 char writeLEDbar(int weight, int max_weight)
 {
     unsigned char weightFraction;
-    unsigned int outVal;
-    char* a;
-    char* b;
+    static unsigned int outVal;
 
-    /*Return an error if the measured weight is higher than the max.*/
-    if (weight > max_weight){
-        return -1;
-    }
+
 
     weightFraction = ((short long int)weight*0x0000FF)/(max_weight);
     /*This gives weightFraction as a value from 0 to 0xFF, which can easily be converted.*/
 
     outVal = weightFrac2lightPattern(weightFraction);
     /*Converts the weight fraction to a light-bar pattern for the LEDs*/
-
-    a = (char*)&outVal;
-    b = a+1;
-
-    exchangeDataSPI(SPI_LED_BAR, a);
-    //exchangeDataSPI(SPI_LED_BAR, ((char*)&outVal)+1);
+    if (weight < 0)
+    {
+        outVal = 0;
+    }
+    exchangeDataSPI(SPI_LED_BAR, (char*)&outVal);
     
     /* Theoretically, should only return 1 if the SPI write succeeds, and 0 
      * otherwise, but I don't know how to check this.*/
+    /*Return an error if the measured weight is higher than the max.*/
+    if (weight > max_weight){
+        return -1;
+    }
     return 1;
 }
 

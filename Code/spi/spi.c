@@ -4,11 +4,10 @@
 #define SPI_BUFSIZE     16
 
 // Chip Select defines
-#define CS_NONE         0xCF
-#define CS_LED_BAR      0b00010000
-#define CS_LED_STATUS   0b00100000
-#define CS_TTS          0b00001000
-#define CS_EEPROM       0b00000100
+#define CS_EEPROM       PORTBbits.RB2
+#define CS_LED_BAR      PORTBbits.RB3
+#define CS_TTS          PORTBbits.RB2
+#define CS_LED_STATUS   PORTBbits.RB5
 
 typedef struct spiData
 {
@@ -17,8 +16,10 @@ typedef struct spiData
 } SPIdata;
 
 static SPIdata SPI_buffer[SPI_BUFSIZE];
-static char lead_idx, trail_idx;
+static unsigned char lead_idx, trail_idx;
 char readStatus;
+
+void incTrailIdx(void);
 
 void setupSPI()
 {
@@ -26,10 +27,23 @@ void setupSPI()
     PIE1bits.SSPIE = 0;
     IPR1bits.SSPIP = 1;
 
-    PORTA = CS_NONE;
+    // CS_NONE
+    CS_EEPROM = 1;
+    CS_LED_BAR = 1;
+    CS_TTS = 1;
+    CS_LED_STATUS = 1;
 
-    SSPSTAT = 0b00000001; /* Sample Mid, Transmit Falling */
-    SSPCON1 = 0b00100010; /* Enable, Master & Fosc/64, Idle Low. */
+    SSPSTATbits.SMP = 0;        // Sample input @ middle of output time.
+    SSPSTATbits.CKE = 1;        // Transmit on first edge of clock
+
+    SSPCON1bits.WCOL = 0;       // Clear write collision flag
+    SSPCON1bits.SSPOV = 0;      // Slave mode only.
+    SSPCON1bits.SSPEN = 1;      // Enable Synchronous serial port
+    SSPCON1bits.CKP = 0;        // Clock idle low
+    SSPCON1bits.SSPM = 0b0010;  // Master mode using Fosc/64
+
+    //SSPSTAT = 0b00000001; /* Sample Mid, Transmit Falling */
+    //SSPCON1 = 0b00100010; /* Enable, Master & Fosc/64, Idle Low. */
 
     /* Set data direction for Serial pins.*/
     TRISCbits.RC4 = 1; /* SDI = input */
@@ -37,10 +51,14 @@ void setupSPI()
     TRISCbits.RC3 = 0; /* SCK = output */
 
     /* Set data direction for CS pins (Output) */
-    TRISAbits.RA2 = 0;
-    TRISAbits.RA3 = 0;
-    TRISAbits.RA4 = 0;
-    TRISAbits.RA5 = 0;
+    TRISBbits.RB2 = 0;
+    TRISBbits.RB3 = 0;
+    TRISBbits.RB4 = 0;
+    TRISBbits.RB5 = 0;
+
+    trail_idx = 0;
+    lead_idx = 0;
+    readStatus = READ_COMPLETE;
 }
 
 void exchangeDataSPI(char destinationCode, char* data)
@@ -54,10 +72,10 @@ void exchangeDataSPI(char destinationCode, char* data)
     }
     if (PIE1bits.SSPIE == 0)
     {
-        PORTBbits.RB1 = 1;
         PIE1bits.SSPIE = 1;
         SSPBUF = 0xFF;
     }
+    return;
 }
 
 void SPIisr()
@@ -66,10 +84,14 @@ void SPIisr()
     if (trail_idx == lead_idx)
     {
         PIE1bits.SSPIE = 0;
-        PORTA = CS_NONE;
+        // CS_NONE
+        CS_EEPROM = 1;
+        CS_LED_BAR = 1;
+        CS_TTS = 1;
+        CS_LED_STATUS = 1;
         return;
     }
-    PORTBbits.RB0 = 1;
+
 
     /* If reading a string from EEPROM */
     if (SPI_buffer[trail_idx].CScode == SPI_EEPROM_READ_STRING)
@@ -77,9 +99,9 @@ void SPIisr()
         char temp = 0;
 
         /* If physical CS no longer set to EEPROM, Stop read, return failure. */
-        if ((PORTA & CS_NONE) != CS_EEPROM)
+        if (CS_EEPROM == 1)
         {
-            ++trail_idx;
+            incTrailIdx();
             readStatus = READ_FAILURE;
             return;
         }
@@ -90,8 +112,12 @@ void SPIisr()
         /* If last byte was null terminator, stop read, next buffer item. */
         if (temp == 0)
         {
-            PORTA = CS_NONE;
-            ++trail_idx;
+            // CS_NONE
+            CS_EEPROM = 1;
+            CS_LED_BAR = 1;
+            CS_TTS = 1;
+            CS_LED_STATUS = 1;
+            incTrailIdx();
             readStatus = READ_COMPLETE;
         }
         else
@@ -101,25 +127,30 @@ void SPIisr()
         return;
     }
 
-    /* Set physical chip select on PORTA, based on current chip select code. */
+    /* Set physical chip select on PORTB, based on current chip select code. */
     switch (SPI_buffer[trail_idx].CScode)
     {
         case SPI_LED_BAR:
-            PORTA = ~CS_LED_BAR;
+        case SPI_LED_BAR_2:
+            CS_LED_BAR = 0;
             break;
         case SPI_LED_STATUS:
-            PORTA = ~CS_LED_STATUS;
+            CS_LED_STATUS = 0;
             break;
         case SPI_TTS:
-            PORTA = ~CS_TTS;
+            CS_TTS = 0;
             break;
         case SPI_EEPROM_READ_STRING:
         case SPI_EEPROM_READ_BYTE:
         case SPI_EEPROM_WRITE_BYTE:
-            PORTA = ~CS_EEPROM;
+            CS_EEPROM = 0;
             break;
         default:
-            PORTA = CS_NONE;
+            // CS_NONE
+            CS_EEPROM = 1;
+            CS_LED_BAR = 1;
+            CS_TTS = 1;
+            CS_LED_STATUS = 1;
             break;
     }
 
@@ -142,26 +173,39 @@ void SPIisr()
         if (*(SPI_buffer[trail_idx].data) == 0)
         {
             // increment SPI buffer pointer.
-            ++trail_idx;
+            incTrailIdx();
         }
         else
         {
             /* If transmission terminated externaly, i.e. mode change,
              * stop trying to transmit. */
-            if ((PORTA & CS_NONE) != CS_TTS)
+            if (CS_TTS == 1)
             {
                 // May need to also reset TTS.
-                ++trail_idx;
+                incTrailIdx();
                 return;
             }
             // increment pointer inside string.
             ++SPI_buffer[trail_idx].data;
         }
     }
+    else if (SPI_buffer[trail_idx].CScode == SPI_LED_BAR)
+    {
+        SPI_buffer[trail_idx].CScode = SPI_LED_BAR_2;
+        SPI_buffer[trail_idx].data++;
+    }
     else // was only transmitting/reading single byte, go to next item.
     {
-        ++trail_idx;
+        incTrailIdx();
     }
     return;
+}
 
+void incTrailIdx(void)
+{
+    ++trail_idx;
+    if (trail_idx == SPI_BUFSIZE)
+    {
+        trail_idx = 0;
+    }
 }
