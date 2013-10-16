@@ -124,7 +124,7 @@ void write(char wdata)
 }
 /*************************************
 *function:display shifting(change the delay var to change the speed of  shifting)
-*flag=0  shift left ï¼flag=1 shift right ;count :the bit og shift 
+*flag=0  shift left Ã¯Â¼Âflag=1 shift right ;count :the bit og shift 
 ******************************/
 void lcd_shift(unsigned char flag,unsigned char count)
 {
@@ -150,7 +150,7 @@ void lcd_shift(unsigned char flag,unsigned char count)
 
 /*****************************
 *function: curser shifting
-*when flag=0  shift left ï¼flag=1 shift right ;count :the bits shift 
+*when flag=0  shift left Ã¯Â¼Âflag=1 shift right ;count :the bits shift 
 **************************/
 void curse_shift(unsigned char flag,unsigned char count)
 {
@@ -186,9 +186,10 @@ char stringToLCD(char* str, char line){
     
     delay(255);
     init_lcd();
-    
+    while(1){
     if(str != '\0' && line == 1)
     {
+        
         L1LCD();/*?Sets cursor to beginning of line 1?*/
         delay(255);/*?Moves cursor on line 1 5 places to the right?
         1 means shift right while 5 means 5 bits*/
@@ -200,5 +201,6 @@ char stringToLCD(char* str, char line){
        delay(255);
         printlcd(str);
     }
-    return 1;
+    }
+    
 }
