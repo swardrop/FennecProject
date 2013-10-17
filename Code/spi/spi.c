@@ -16,7 +16,7 @@ typedef struct spiData
 } SPIdata;
 
 static SPIdata SPI_buffer[SPI_BUFSIZE];
-static unsigned char lead_idx, trail_idx;
+static unsigned char lead_idx, trail_idx, temp_lead_idx;
 char readStatus;
 
 void incTrailIdx(void);
@@ -61,19 +61,23 @@ void setupSPI()
     readStatus = READ_COMPLETE;
 }
 
-void exchangeDataSPI(char destinationCode, char* data)
+void exchangeDataSPI(char destinationCode, char* data, char tx_status)
 {
-    SPI_buffer[lead_idx].CScode = destinationCode;
-    SPI_buffer[lead_idx].data = data;
-    ++lead_idx;
-    if (lead_idx == SPI_BUFSIZE)
+    SPI_buffer[temp_lead_idx].CScode = destinationCode;
+    SPI_buffer[temp_lead_idx].data = data;
+    ++temp_lead_idx;
+    if (temp_lead_idx == SPI_BUFSIZE)
     {
-        lead_idx = 0;
+        temp_lead_idx = 0;
     }
-    if (PIE1bits.SSPIE == 0)
+    if (tx_status == TX_END)
     {
-        PIE1bits.SSPIE = 1;
-        SSPBUF = 0xFF;
+        lead_idx = temp_lead_idx;
+        if (PIE1bits.SSPIE == 0)
+        {
+            PIE1bits.SSPIE = 1;
+            SSPBUF = 0xFF;
+        }
     }
     return;
 }
@@ -131,7 +135,6 @@ void SPIisr()
     switch (SPI_buffer[trail_idx].CScode)
     {
         case SPI_LED_BAR:
-        case SPI_LED_BAR_2:
             CS_LED_BAR = 0;
             break;
         case SPI_LED_STATUS:
@@ -188,11 +191,6 @@ void SPIisr()
             // increment pointer inside string.
             ++SPI_buffer[trail_idx].data;
         }
-    }
-    else if (SPI_buffer[trail_idx].CScode == SPI_LED_BAR)
-    {
-        SPI_buffer[trail_idx].CScode = SPI_LED_BAR_2;
-        SPI_buffer[trail_idx].data++;
     }
     else // was only transmitting/reading single byte, go to next item.
     {

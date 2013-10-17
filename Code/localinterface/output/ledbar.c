@@ -20,7 +20,8 @@ char writeLEDbar(int weight, int max_weight)
     {
         outVal = 0;
     }
-    exchangeDataSPI(SPI_LED_BAR, (char*)&outVal);
+    exchangeDataSPI(SPI_LED_BAR, (char*)&outVal, TX_PART);
+    exchangeDataSPI(SPI_LED_BAR, (char*)&outVal+1, TX_END);
     
     /* Theoretically, should only return 1 if the SPI write succeeds, and 0 
      * otherwise, but I don't know how to check this.*/

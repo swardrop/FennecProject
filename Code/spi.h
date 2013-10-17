@@ -12,9 +12,8 @@
 
 // Code Definitions
 #define SPI_LED_BAR             0x01
-#define SPI_LED_BAR_2           0x02
-#define SPI_LED_STATUS          0x03
-#define SPI_TTS                 0x04
+#define SPI_LED_STATUS          0x02
+#define SPI_TTS                 0x03
 #define SPI_EEPROM              0x10
 #define SPI_EEPROM_READ_STRING  0x11
 #define SPI_EEPROM_READ_BYTE    0x12
@@ -25,6 +24,10 @@
 #define READ_ONGOING    0x4
 #define READ_FAILURE    0x2
 extern char readStatus;
+
+//tx_status
+#define TX_PART     0x01
+#define TX_END      0x02
 
 /**
  * setupSPI(void)
@@ -37,7 +40,7 @@ void setupSPI(void);
  * @param destination   The code for the destination, i.e. LED_BAR
  * @param data          A pointer to the first byte of data to be written
  */
-void exchangeDataSPI(char destinationCode, char* data);
+void exchangeDataSPI(char destinationCode, char* data, char tx_status);
 
 /**
  * SPIisr
