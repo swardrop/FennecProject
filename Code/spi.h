@@ -39,6 +39,8 @@ void setupSPI(void);
  * sendDataSPI
  * @param destination   The code for the destination, i.e. LED_BAR
  * @param data          A pointer to the first byte of data to be written
+ * @param tx_status     Tells the function if you want to send further commands
+ *                      or if this is the end of the transmission.
  */
 void exchangeDataSPI(char destinationCode, char* data, char tx_status);
 
