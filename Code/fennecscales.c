@@ -64,7 +64,7 @@ void main(void)
             case ST_SHOW_STATISTICS: showStats(); break;
         }
         serial_data = parseSerial();
-        
+
         if (serial_data != RS232_NO_DATA)
         {
             RS232writeByte(COMM_DEBUG);
@@ -103,11 +103,11 @@ void setup()
     retrieveState();
     initialiseRS232();
     initialiseADC();
-    //setupSPI();
+    setupSPI();
     //initialiseEEPROM();
     //initiateTTS();
     //init_lcd();
-    //initialiseNumPad();
+    initialiseNumPad();
     //initialisePushBtn();
 
 }
@@ -131,6 +131,10 @@ void highISR()
         tx232isr();
     if (PIR1bits.ADIF)
         ADCisr();
+    if (INTCON1bits.INT0IF)
+        numpadISR();
+    if (PIR1bits.SSPIF)
+        SPIisr();
     return;
 }
 

@@ -33,7 +33,7 @@ extern int cur_warnings;
 // Communication state variables
 extern bool serialChange;
 extern bool numReady;
-extern unsigned short numData;
+extern short numData;
 extern unsigned char ack;
 extern unsigned char init_statesRxd;
 

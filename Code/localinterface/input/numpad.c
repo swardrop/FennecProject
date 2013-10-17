@@ -79,6 +79,8 @@ char getNextNum()
 void numpadISR()
 {
     char digit; //Current number being converted
+    INTCON1bits.INT0IF = 0;
+    PORTBbits.RB4 = 1;
 
     // update number from IO pins
     digit = (PORTD & 0b11110000);
@@ -155,6 +157,8 @@ char* np_incPtr(char* p){
 
 void initialiseNumPad(void)
 {
+    INTCONbits.INT0IF = 0;
     INTCONbits.INT0IE = 1;  /*Enable INT0 which will trigger on keypress*/
     TRISD |= 0xF0;          /*Set the high nibble of PORTD as input.*/
+    TRISBbits.RB0 = 1;
 }

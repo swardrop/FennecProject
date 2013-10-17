@@ -35,6 +35,8 @@ void numpadISR();
 
 void initialiseNumPad(void);
 
+void numpadISR(void);
+
 extern char np_buffer[NP_BUFSIZE];
 
 #endif //NUMPAD_H

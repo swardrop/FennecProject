@@ -7,7 +7,7 @@
 
 bool serialChange = false;
 bool numReady = true;
-unsigned short numData = 0;
+short numData = 0;
 unsigned char ack = 0;
 unsigned char init_statesRxd = 0;
 unsigned char receivedCount = 0;

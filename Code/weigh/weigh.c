@@ -31,6 +31,7 @@ void weigh(void)
 
 
 
+
     // If user has selected Ounces, convert to ounces and display.
     if (disp_type & OZ)
     {

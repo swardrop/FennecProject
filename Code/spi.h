@@ -12,8 +12,9 @@
 
 // Code Definitions
 #define SPI_LED_BAR             0x01
-#define SPI_LED_STATUS          0x02
-#define SPI_TTS                 0x03
+#define SPI_LED_BAR_2           0x02
+#define SPI_LED_STATUS          0x03
+#define SPI_TTS                 0x04
 #define SPI_EEPROM              0x10
 #define SPI_EEPROM_READ_STRING  0x11
 #define SPI_EEPROM_READ_BYTE    0x12
