@@ -9,8 +9,6 @@ char writeLEDbar(int weight, int max_weight)
     unsigned char weightFraction;
     static unsigned int outVal;
 
-
-
     weightFraction = ((short long int)weight*0x0000FF)/(max_weight);
     /*This gives weightFraction as a value from 0 to 0xFF, which can easily be converted.*/
 

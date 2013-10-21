@@ -1,13 +1,13 @@
 #include "../spi.h"
 #include <p18f452.h>
 
-#define SPI_BUFSIZE     16
+#define SPI_BUFSIZE 16
 
 // Chip Select defines
-#define CS_EEPROM       PORTBbits.RB2
-#define CS_LED_BAR      PORTBbits.RB3
-#define CS_TTS          PORTBbits.RB2
-#define CS_LED_STATUS   PORTBbits.RB5
+#define CS_EEPROM PORTBbits.RB2
+#define CS_LED_BAR PORTBbits.RB3
+#define CS_TTS PORTBbits.RB4
+#define CS_LED_STATUS PORTBbits.RB5
 
 typedef struct spiData
 {
@@ -27,20 +27,26 @@ void setupSPI()
     PIE1bits.SSPIE = 0;
     IPR1bits.SSPIP = 1;
 
+    /* Set data direction for CS pins (Output) */
+    TRISBbits.RB2 = 0;
+    TRISBbits.RB3 = 0;
+    TRISBbits.RB4 = 0;
+    TRISBbits.RB5 = 0;
+
     // CS_NONE
     CS_EEPROM = 1;
     CS_LED_BAR = 1;
     CS_TTS = 1;
     CS_LED_STATUS = 1;
 
-    SSPSTATbits.SMP = 0;        // Sample input @ middle of output time.
-    SSPSTATbits.CKE = 1;        // Transmit on first edge of clock
+    SSPSTATbits.SMP = 0; // Sample input @ middle of output time.
+    SSPSTATbits.CKE = 1; // Transmit on first edge of clock
 
-    SSPCON1bits.WCOL = 0;       // Clear write collision flag
-    SSPCON1bits.SSPOV = 0;      // Slave mode only.
-    SSPCON1bits.SSPEN = 1;      // Enable Synchronous serial port
-    SSPCON1bits.CKP = 0;        // Clock idle low
-    SSPCON1bits.SSPM = 0b0010;  // Master mode using Fosc/64
+    SSPCON1bits.WCOL = 0; // Clear write collision flag
+    SSPCON1bits.SSPOV = 0; // Slave mode only.
+    SSPCON1bits.SSPEN = 1; // Enable Synchronous serial port
+    SSPCON1bits.CKP = 0; // Clock idle low
+    SSPCON1bits.SSPM = 0b0010; // Master mode using Fosc/64
 
     //SSPSTAT = 0b00000001; /* Sample Mid, Transmit Falling */
     //SSPCON1 = 0b00100010; /* Enable, Master & Fosc/64, Idle Low. */
@@ -58,6 +64,7 @@ void setupSPI()
 
     trail_idx = 0;
     lead_idx = 0;
+    temp_lead_idx = 0;
     readStatus = READ_COMPLETE;
 }
 
@@ -84,6 +91,8 @@ void exchangeDataSPI(char destinationCode, char* data, char tx_status)
 
 void SPIisr()
 {
+    PIR1bits.SSPIF = 0;
+
     /* Reached end of buffer, disable interrupt, reset Chip select. */
     if (trail_idx == lead_idx)
     {
@@ -93,9 +102,14 @@ void SPIisr()
         CS_LED_BAR = 1;
         CS_TTS = 1;
         CS_LED_STATUS = 1;
+
+        trail_idx = 0;
+        lead_idx = 0;
+        temp_lead_idx = 0;
+        readStatus = READ_COMPLETE;
+
         return;
     }
-
 
     /* If reading a string from EEPROM */
     if (SPI_buffer[trail_idx].CScode == SPI_EEPROM_READ_STRING)
@@ -170,7 +184,7 @@ void SPIisr()
     }
 
     /* If sending a string, i.e. TTS, increment internal pointer through string
-     * until null terminator, then go to next item in SPI buffer. */
+* until null terminator, then go to next item in SPI buffer. */
     if (SPI_buffer[trail_idx].CScode == SPI_TTS)
     {
         if (*(SPI_buffer[trail_idx].data) == 0)
@@ -181,7 +195,7 @@ void SPIisr()
         else
         {
             /* If transmission terminated externaly, i.e. mode change,
-             * stop trying to transmit. */
+* stop trying to transmit. */
             if (CS_TTS == 1)
             {
                 // May need to also reset TTS.

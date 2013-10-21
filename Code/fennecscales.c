@@ -12,6 +12,7 @@
 #include "./remoteinterface/rs232.h"
 #include "./localinterface/output/lcd.h"
 #include "./localinterface/output/tts.h"
+#include "./localinterface/output/ledbar.h"
 #include "./localinterface/input/numpad.h"
 #include "./localinterface/input/pushbuttons.h"
 
@@ -28,6 +29,8 @@ void setup(void);
 void powerDown(void);
 void highISR(void);
 void lowISR(void);
+void setupTMR1(void);
+void TMR1isr(void);
 
 // Interrupt vectors
 #pragma code highint=0x0008
@@ -53,6 +56,7 @@ void main(void)
     while (req_state & POWER_ON)
     {
         int serial_data;
+        writeLEDbar(500, 1000);
         switch (cur_state)
         {
             case ST_WEIGH: weigh(); break;
@@ -103,7 +107,12 @@ void setup()
     retrieveState();
     initialiseRS232();
     initialiseADC();
+<<<<<<< HEAD
+    setupTMR1();
+    //setupSPI();
+=======
     setupSPI();
+>>>>>>> 4793ab54818bcac8d4b37c9fcb9179dd4c78c784
     //initialiseEEPROM();
     //initiateTTS();
     //init_lcd();
@@ -122,6 +131,33 @@ void powerDown()
     
 }
 
+void setupTMR1(void)
+{
+    PIE1bits.TMR1IE = 1;
+    PIR1bits.TMR1IF = 0;
+    IPR1bits.TMR1IP = 1;
+
+    /* Triggers every 100 ms. On the PICMINI, this is 250,000 cycles.
+     * Using 1:4 prescaler, this becomes 62500 or 0xF424.
+     * Start counter at 0xBDB, interrupt on overflow.*/
+
+    /* 16-bit Read/Write, 1:4 prescale, Fosc*/
+    T1CON = 0b10100001;
+
+
+    TMR1H = 0x0B;
+    TMR1L = 0xDB;
+}
+
+void TMR1isr(void)
+{
+    PIR1bits.TMR1IF = 0;
+    //writeLEDbar(500, 1000);
+
+    TMR1H = 0x0B;
+    TMR1L = 0xDB;
+}
+
 #pragma interrupt highISR
 void highISR()
 {
@@ -131,10 +167,15 @@ void highISR()
         tx232isr();
     if (PIR1bits.ADIF)
         ADCisr();
+<<<<<<< HEAD
+    if (PIR1bits.TMR1IF)
+        TMR1isr();
+=======
     if (INTCON1bits.INT0IF)
         numpadISR();
     if (PIR1bits.SSPIF)
         SPIisr();
+>>>>>>> 4793ab54818bcac8d4b37c9fcb9179dd4c78c784
     return;
 }
 
