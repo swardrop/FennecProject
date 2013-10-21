@@ -51,9 +51,9 @@ enable write in
 void write_in(void)
 {
  
-    LCD_E=0 ;
+    LCD_E=1 ;
     delay(160);
-    LCD_E=1;
+    LCD_E=0;
  
    
    }
