@@ -107,12 +107,9 @@ void setup()
     retrieveState();
     initialiseRS232();
     initialiseADC();
-<<<<<<< HEAD
     setupTMR1();
     //setupSPI();
-=======
     setupSPI();
->>>>>>> 4793ab54818bcac8d4b37c9fcb9179dd4c78c784
     //initialiseEEPROM();
     //initiateTTS();
     //init_lcd();
@@ -167,15 +164,12 @@ void highISR()
         tx232isr();
     if (PIR1bits.ADIF)
         ADCisr();
-<<<<<<< HEAD
     if (PIR1bits.TMR1IF)
         TMR1isr();
-=======
     if (INTCON1bits.INT0IF)
         numpadISR();
     if (PIR1bits.SSPIF)
         SPIisr();
->>>>>>> 4793ab54818bcac8d4b37c9fcb9179dd4c78c784
     return;
 }
 
