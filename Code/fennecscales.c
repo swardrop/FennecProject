@@ -56,7 +56,6 @@ void main(void)
     while (req_state & POWER_ON)
     {
         int serial_data;
-        writeLEDbar(500, 1000);
         switch (cur_state)
         {
             case ST_WEIGH: weigh(); break;
@@ -108,7 +107,6 @@ void setup()
     initialiseRS232();
     initialiseADC();
     setupTMR1();
-    //setupSPI();
     setupSPI();
     //initialiseEEPROM();
     //initiateTTS();
@@ -149,7 +147,6 @@ void setupTMR1(void)
 void TMR1isr(void)
 {
     PIR1bits.TMR1IF = 0;
-    //writeLEDbar(500, 1000);
 
     TMR1H = 0x0B;
     TMR1L = 0xDB;

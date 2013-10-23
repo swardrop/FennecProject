@@ -28,6 +28,9 @@ char getNextNum()
 {
     char num = *np_trail_ptr;
 
+    if(np_trail_ptr == np_lead_ptr)
+        return -1;
+
     np_incPtr(np_trail_ptr);    /*Increment pointer*/
 
     /*Convert num to ASCII*/
