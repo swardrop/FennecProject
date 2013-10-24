@@ -17,7 +17,7 @@ extern char TTScompleteFlag;
 
 /**
  * strToTTS
- * Places the string (null terminated) into the SPI send buffer, to TTS
+ * Places the string into the SPI send buffer, to TTS
  * @param str       Pointer to start of string to send.
  */
 void strToTTS(char* str);
@@ -34,5 +34,14 @@ void TTS_ISR(void);
  * Wakes up TTS, and sends required bytes over SPI to put TTS in a ready state.
  */
 void initiateTTS(void);
+
+/**
+ * initiateExchange
+ * A sub-funcion purely for initiateTTS to pass in the string for each 
+ * initialisation command. It assumes each command word is 2 bytes and is used 
+ * to prevent repetitive code. 
+ * @return default 0, error detected 1
+ */
+int initiateExchange(char* cmd);
 
 #endif /*TTS_H*/
