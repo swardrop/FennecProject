@@ -80,7 +80,7 @@
 //    PWRT = ON         Enabled
 //    PWRT = OFF        Disabled
 
-#pragma config OSC  = HS
+#pragma config OSC  = EC
 #pragma config OSCS = OFF
 #pragma config PWRT = ON
 
