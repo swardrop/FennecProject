@@ -1,9 +1,7 @@
 #include "factory.h"
-
-void setNumSamples()
-{
-
-}
+#include "./rs232.h"
+#include "./../state.h"
+#include "./../weigh/read.h"
 
 void showWeightReadings()
 {

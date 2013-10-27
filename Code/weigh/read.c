@@ -30,7 +30,7 @@ void initialiseADC(void)
     
     ADCON1bits.ADFM = 1;        // Right justified
     ADCON1bits.ADCS2 = 1;       // (AD Conversion Clock = Fosc/64)
-    ADCON1bits.PCFG = 0b1110;   // 1 Analog - 7 Digital - Vdd, Vss as reference
+    ADCON1bits.PCFG = 0b1111;   // 1 Analog - 5 Digital - RA3 and , Vss as reference
     //ADCON1 = 0b11001110;
 
     CCP2CONbits.CCP2M = 0b1011; // Compare mode, trigger special event

@@ -27,6 +27,7 @@
 // Function declarations
 void setup(void);
 void powerDown(void);
+void setupPower(void);
 void highISR(void);
 void lowISR(void);
 void setupTMR1(void);
@@ -49,6 +50,7 @@ void main(void)
 {
     // Initialise system
     setup();
+    // used for debugging.
     TRISBbits.RB4 = 0;
     PORTBbits.RB4 = 0;
 
@@ -62,9 +64,6 @@ void main(void)
             case ST_COUNT_I:
             case ST_COUNT_F: count(); break;
             case ST_CALIBRATE: calibrate(); break;
-            case ST_SET_NUM_SAMPLES: setNumSamples(); break;
-            case ST_SHOW_WEIGHT_READINGS: showWeightReadings(); break;
-            case ST_SHOW_STATISTICS: showStats(); break;
         }
         serial_data = parseSerial();
 
@@ -98,10 +97,7 @@ void main(void)
  */
 void setup()
 {
-            /* Configure interrupts */
-    INTCONbits.GIE = 1; // Enable global interrupts and priority
-    INTCONbits.PEIE = 1;
-    RCONbits.IPEN = 1;
+    setupPower();
 
     retrieveState();
     initialiseRS232();
@@ -114,6 +110,11 @@ void setup()
     initialiseNumPad();
     //initialisePushBtn();
 
+                /* Configure interrupts */
+    INTCONbits.GIE = 1; // Enable global interrupts and priority
+    INTCONbits.PEIE = 1;
+    RCONbits.IPEN = 1;
+
 }
 
 /**
@@ -121,9 +122,22 @@ void setup()
  * Saves the current state of the system into EEPROM and powers down the
  * machine.
  */
-void powerDown()
+void powerDown(void)
 {
-    
+    saveState();
+    // Other shut down stuff.
+
+    // Turn off power circuit.
+    PORTCbits.RC2 = 0;
+}
+
+void setupPower(void)
+{
+    // Hold pin on to keep Power circuit on.
+    TRISCbits.RC2 = 0;
+    PORTCbits.RC2 = 1;
+
+    // Set up power down Interrupt
 }
 
 void setupTMR1(void)

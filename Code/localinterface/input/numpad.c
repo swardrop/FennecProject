@@ -1,6 +1,8 @@
 #include "numpad.h"
 #include <p18f452.h>
 #include "../../state.h"
+#include "../../../GUI/commscodes.h"
+#include "../../remoteinterface/rs232.h"
 
 #define BUTTON_1        0b00000000      /*FIX THESE FIRST IF WRONG CHARS DISPLAYED!*/
 #define BUTTON_2        0b10000000
@@ -88,6 +90,12 @@ void numpadISR()
     // update number from IO pins
     digit = (PORTD & 0b11110000);
 
+    // Check for Factory Password key combination
+    if (0)
+    {
+        RS232writeByte(COMM_START_FAC);
+    }
+
     switch (digit) /*If one of the function keys was pressed, alter the appropriate state variables.*/
     {
         case BUTTON_TARE:
@@ -105,12 +113,12 @@ void numpadISR()
                     break;
                 /*If in either count mode, switch to weigh mode.*/
                 case ST_COUNT_I:
-                    req_state = ST_WEIGH;
-                    break;
                 case ST_COUNT_F:
                     req_state = ST_WEIGH;
-                /*If in one of the other (special factory) modes, nothing happens.*/
+                    break;
+                /*If in one of the other (special factory) modes, default weigh.*/
                 default:
+                    req_state = ST_WEIGH;
                     break;
             }
             break;

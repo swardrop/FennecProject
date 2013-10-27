@@ -11,18 +11,12 @@
  * Outputs: struct	coefficients of the curve polynomial.
  */
 
-typedef struct poly_coeff
-{
-	int coeff0;
-	int coeff1; //... Initially assumed linear, 2 coeff
-} Coefficients ;
-
 /**
  * calibrate
  * Performs calibration routine to get values to define calibration curve
  * @return      Struct of the coefficients
  */
-Coefficients calibrate(void);
+void calibrate(void);
 
 int convertVoltageToGrams(int voltage);
 

@@ -12,7 +12,7 @@ int global_weight;
 
 void retrieveState()
 {
-    cur_state = ST_WEIGH;
+    cur_state = ST_WEIGH; // Note when get from EEPROM, if it is a Factory, default to weigh.
     req_state = ST_NONE;
     disp_type = GRAMS | DISP_LCD;
     tare_offset = 0;

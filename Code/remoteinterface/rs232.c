@@ -4,6 +4,8 @@
 #include "../state.h"
 #include "../../GUI/commscodes.h"
 #include "../weigh/count.h"
+#include "../weigh.h"
+#include "../weigh/read.h"
 
 #define RS232_BUFSIZE       64
 #define SERIAL_TIMEOUT      0x00FF
@@ -26,6 +28,7 @@ int serial_number_rxd;
 int readNum(void);
 char RS232readByte(void);
 char RS232readString(char* dest);
+void sendRawWeight(void);
 
 char RS232sendData(char code)
 {
@@ -182,7 +185,7 @@ char RS232readByte()
 int parseSerial(void)
 {
     char byte;
-    int wait_time;
+    long wait_time;
 
     while ((byte = RS232readByte()) != RS232_NO_DATA)
     {
@@ -191,6 +194,18 @@ int parseSerial(void)
         {
             case COMM_BEGIN_NUM:
                 serial_number_rxd = readNum();
+                break;
+
+            case COMM_SET_NUM_SAMPLES:
+                        wait_time = 0xFFFF;
+                        while (wait_time--)
+                        {
+                            if ((byte = RS232readByte()) != -1)
+                            {
+                                num_samples = byte;
+                                RS232writeByte(COMM_NUM_RXD);
+                            }
+                        }
                 break;
 
             case COMM_START_REM:
@@ -233,6 +248,10 @@ int parseSerial(void)
 
             case COMM_STOP_REM:
                 disp_type &= ~DISP_RS232;
+                if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
+                {
+                    req_state = ST_WEIGH;
+                }
                 break;
 
             case COMM_CHANGE_STATE:
@@ -305,6 +324,23 @@ int parseSerial(void)
                 return RS232_ACK_RXD;
                 break;
 
+            case COMM_WEIGHT_READINGS:
+                sendRawWeight();
+                break;
+
+            case COMM_GET_STATS:
+                RS232writeByte(COMM_ACK_STATS);
+                RS232writeByte((char) (((mean) & 0xFF00) >> 8));
+                RS232writeByte((char) ((mean) & 0x00FF));
+                RS232writeByte((char) (((variance) & 0xFF00) >> 8));
+                RS232writeByte((char) ((variance) & 0x00FF));
+                break;
+
+            case COMM_GET_NUM_SAMPLES:
+                RS232writeByte(COMM_ACK_NUM_SAMPLES);
+                RS232writeByte(num_samples);
+                break;
+                
             default:
                 return RS232_UNKNOWN_CODE;
                 break;
@@ -335,6 +371,20 @@ int readNum(void)
                 }
             }
         }
+    }
+}
+
+void sendRawWeight(void)
+{
+    char i = 0;
+    char temp_lead_idx = ADC_lead_idx;
+    RS232writeByte(COMM_ACK_WEIGHT_READINGS);
+    RS232writeByte((char) (((num_samples) & 0xFF00) >> 8));
+    for (i=0; i < num_samples; i++)
+    {
+        char index = temp_lead_idx - i;
+        RS232writeByte((char) (((raw_weight[index]) & 0xFF00) >> 8));
+        RS232writeByte((char) ((raw_weight[index]) & 0x00FF));
     }
 }
 

@@ -32,6 +32,15 @@
 #define COMM_ACK_TARE				0xA7
 // Factory commands
 #define COMM_ACK_FAC_COM			0xA8
+#define COMM_SET_NUM_SAMPLES                    0x0A
+#define COMM_GET_NUM_SAMPLES                    0x0B
+#define COMM_ACK_NUM_SAMPLES                    0xAB
+#define COMM_WEIGHT_READINGS                        0x0C
+#define COMM_ACK_WEIGHT_READINGS                    0xAC
+#define COMM_GET_STATS                          0x0D
+#define COMM_ACK_STATS                          0xAD
+
+
 
 // Debug
 #define COMM_DEBUG					0xFF
@@ -43,9 +52,6 @@
 #define ST_COUNT_I					0x82
 #define ST_COUNT_F					0x83
 #define ST_CALIBRATE				0x84
-#define ST_SET_NUM_SAMPLES			0x85
-#define ST_SHOW_WEIGHT_READINGS                 0x86
-#define ST_SHOW_STATISTICS			0x87
 
 // Units type
 #define DISP_GRAMS				0x01
@@ -56,5 +62,7 @@
 #define DISP_TTS				0x40
 
 #endif // STATE_H
+
+#define ADC_BUFSIZE 32
 
 #endif // COMMSCODES_H

@@ -8,12 +8,6 @@
  */
 
 /**
- * setNumSamples
- * Operates upon the global variable num_samples.
- */
-void setNumSamples(void);
-
-/**
  * showWeightReadings
  * Produces a readout of the (num_samples) most recent samples on the remote
  * terminal

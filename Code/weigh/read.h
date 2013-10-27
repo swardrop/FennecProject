@@ -1,12 +1,14 @@
 #ifndef READ_H
 #define READ_H
 
+#include "./../FennecProject/GUI/commscodes.h"
+
 /**
  * Read Module
  * Contains the ADC interrupt and the initialise
  */
 
-#define ADC_BUFSIZE 32
+
 
 extern int raw_weight[];
 extern char ADC_lead_idx;

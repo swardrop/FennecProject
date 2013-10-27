@@ -16,9 +16,6 @@
 #define ST_COUNT_I              0x82
 #define ST_COUNT_F              0x83
 #define ST_CALIBRATE            0x84
-#define ST_SET_NUM_SAMPLES      0x85
-#define ST_SHOW_WEIGHT_READINGS 0x86
-#define ST_SHOW_STATISTICS      0x87
 
 #define ST_NONE                  0xFF
 

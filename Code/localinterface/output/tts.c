@@ -69,8 +69,8 @@ int initiateExchange(char* cmd)
 {
     int error = 0;
 
-    error = exchangeDataSPI(SPI_TTS , cmd[0], TX_PART);
-    error = exchangeDataSPI(SPI_TTS , cmd[1], TX_END);
+    //error = exchangeDataSPI(SPI_TTS , cmd[0], TX_PART);
+    //error = exchangeDataSPI(SPI_TTS , cmd[1], TX_END);
 
     return error;
 }

@@ -110,20 +110,24 @@ int getWeight(void)
 
     // Loop through raw data, to calculate temp_mean.
     total = 0;
-    for (temp_idx = 1; temp_idx <= num_samples; temp_idx++)
+
+    for(temp_idx = 0; temp_idx < num_samples; temp_idx++)
     {
-        total += raw_weight[mod((temp_lead_idx - temp_idx), ADC_BUFSIZE)];
+        char index = temp_lead_idx - temp_idx;
+        if (index < 0)
+            index += ADC_BUFSIZE;
+        total = total + raw_weight[index];
     }
-    temp_mean = total / num_samples;
-    mean = temp_mean;
+    mean = total/num_samples;
 
     // Loop through again, this time calculate variance.
     temp_variance = 0;
     for (temp_idx = num_samples + 1; temp_idx > 1; temp_idx--)
     {
-        temp_variance +=
-                square((raw_weight[mod((temp_lead_idx - temp_idx), ADC_BUFSIZE)]
-                        - temp_mean));
+        char index = temp_lead_idx - temp_idx;
+        if (index < 0)
+            index += ADC_BUFSIZE;
+        temp_variance += square((raw_weight[index] - temp_mean));
     }
     variance = temp_variance;
 
