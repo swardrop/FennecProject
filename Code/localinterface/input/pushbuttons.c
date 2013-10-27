@@ -15,6 +15,9 @@ void pushBtnISR(void)
      * this is actually the case.*/
     char portBVal = PORTB;
 
+
+    shut_off_timer_count = TWO_MINUTES;
+
     /* Check which bit is low by ANDing portBVal with the bit representing each
      * button.*/
     if (!(portBVal & (1<<BUTTON_TARE)))

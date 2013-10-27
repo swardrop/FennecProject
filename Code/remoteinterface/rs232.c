@@ -443,6 +443,8 @@ void rx232isr()
     // Clear flag
     PIR1bits.RCIF = 0;
 
+    shut_off_timer_count = TWO_MINUTES;
+
     // Read value from serial into buffer
     readBuf[read_lead_idx++] = RCREG;
     if (read_lead_idx == RS232_BUFSIZE)

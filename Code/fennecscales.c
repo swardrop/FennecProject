@@ -165,6 +165,11 @@ void setupTMR1(void)
 void TMR1isr(void)
 {
     PIR1bits.TMR1IF = 0;
+    shut_off_timer_count--;
+    if (shut_off_timer_count == 0)
+    {
+        powerDown();
+    }
 
     TMR1H = 0x0B;
     TMR1L = 0xDB;

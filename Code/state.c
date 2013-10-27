@@ -9,6 +9,7 @@ char disp_type;
 
 int tare_offset;
 int global_weight;
+int shut_off_timer_count;
 
 void retrieveState()
 {
@@ -18,6 +19,7 @@ void retrieveState()
     tare_offset = 0;
     num_samples = 30;
     st_chng_rs232_flag = 0;
+    shut_off_timer_count = TWO_MINUTES;
 }
 void saveState()
 {

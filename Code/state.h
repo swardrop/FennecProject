@@ -27,6 +27,9 @@
 #define DISP_RS232              0x20
 #define DISP_TTS                0x40
 
+// power down timer reset value
+#define TWO_MINUTES             1200
+
 // State variables
 extern char req_state;
 extern char cur_state;
@@ -38,6 +41,7 @@ extern char num_samples;
 extern int tare_offset;
 
 extern int global_weight;
+extern int shut_off_timer_count;
 
 extern char st_chng_rs232_flag;
 

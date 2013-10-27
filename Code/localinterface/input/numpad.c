@@ -85,7 +85,8 @@ void numpadISR()
 {
     char digit; //Current number being converted
     INTCON1bits.INT0IF = 0;
-    PORTBbits.RB4 = 1;
+    
+    shut_off_timer_count = TWO_MINUTES;
 
     // update number from IO pins
     digit = (PORTD & 0b11110000);
