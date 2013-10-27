@@ -138,6 +138,10 @@ void setupPower(void)
     PORTCbits.RC2 = 1;
 
     // Set up power down Interrupt
+    INTCON2bits.INTEDG2 = 1; // Iterrupt on rising edge
+    INTCON3bits.INT2IP = 1;
+    INTCON3bits.INT2IE = 1;
+    INTCON3bits.INT2IF = 0;
 }
 
 void setupTMR1(void)
@@ -181,6 +185,8 @@ void highISR()
         numpadISR();
     if (PIR1bits.SSPIF)
         SPIisr();
+    if (INTCON3bits.INT2IF)
+        powerDown();
     return;
 }
 
