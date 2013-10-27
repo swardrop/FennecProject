@@ -3,7 +3,12 @@
 #include "states.h"
 #include "FrmExitConf.h"
 #include "FrmHelp.h"
-#include "commscodes.h"
+#include "serialcomms.h"
+//#include "commscodes.h"
+
+#define GRAMS_TO_OUNCES		(double)0.035274
+
+extern bool closeFactory;
 
 namespace FennecScalesGUI {
 
@@ -21,13 +26,18 @@ namespace FennecScalesGUI {
 	public ref class FrmUsrRemote : public System::Windows::Forms::Form
 	{
 	public:
-		FrmUsrRemote(Form^ p, SerialPort^ sp)
+		FrmUsrRemote(Form^ p, SerialComms^ sc)
 		{
+			serialChange = true;
 			InitializeComponent();
 			parent = p;
 
-			// Reopen serial port
-			port = sp;
+			comms = sc;
+			closeAll = false;
+		}
+
+		void Open()
+		{
 			// Send ack (entered into user remote mode)
 			sendSerialByte(COMM_ACK_REM);
 
@@ -35,9 +45,8 @@ namespace FennecScalesGUI {
 			showPanel(cur_state.state);
 			showWarnings();
 			setUnitsLabel();
-			closeAll = false;
+			this->ShowDialog();
 		}
-
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -52,7 +61,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Panel^  weighPanel;
 	private: System::Windows::Forms::Panel^  sidePanel;
 	protected: 
-		SerialPort^ port;
+		SerialComms^ comms;
 		Form^ parent;
 
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
@@ -150,16 +159,16 @@ namespace FennecScalesGUI {
 			this->rbCount = (gcnew System::Windows::Forms::RadioButton());
 			this->rbWeigh = (gcnew System::Windows::Forms::RadioButton());
 			this->countPanel = (gcnew System::Windows::Forms::Panel());
-			this->finalCountPanel = (gcnew System::Windows::Forms::Panel());
-			this->resetCountButton = (gcnew System::Windows::Forms::Button());
-			this->label6 = (gcnew System::Windows::Forms::Label());
-			this->countBox = (gcnew System::Windows::Forms::TextBox());
-			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->initialCountPanel = (gcnew System::Windows::Forms::Panel());
 			this->numEnterButton = (gcnew System::Windows::Forms::Button());
 			this->knownCountBox = (gcnew System::Windows::Forms::NumericUpDown());
 			this->label4 = (gcnew System::Windows::Forms::Label());
 			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->finalCountPanel = (gcnew System::Windows::Forms::Panel());
+			this->resetCountButton = (gcnew System::Windows::Forms::Button());
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->countBox = (gcnew System::Windows::Forms::TextBox());
+			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->weightGroupBox = (gcnew System::Windows::Forms::GroupBox());
 			this->bottomPanel = (gcnew System::Windows::Forms::Panel());
 			this->helpButton = (gcnew System::Windows::Forms::Button());
@@ -177,9 +186,9 @@ namespace FennecScalesGUI {
 			this->groupBox2->SuspendLayout();
 			this->groupBox1->SuspendLayout();
 			this->countPanel->SuspendLayout();
-			this->finalCountPanel->SuspendLayout();
 			this->initialCountPanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->knownCountBox))->BeginInit();
+			this->finalCountPanel->SuspendLayout();
 			this->bottomPanel->SuspendLayout();
 			this->warningPanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox2))->BeginInit();
@@ -374,59 +383,6 @@ namespace FennecScalesGUI {
 			this->countPanel->TabIndex = 3;
 			this->countPanel->Visible = false;
 			// 
-			// finalCountPanel
-			// 
-			this->finalCountPanel->Controls->Add(this->resetCountButton);
-			this->finalCountPanel->Controls->Add(this->label6);
-			this->finalCountPanel->Controls->Add(this->countBox);
-			this->finalCountPanel->Controls->Add(this->label5);
-			this->finalCountPanel->Location = System::Drawing::Point(6, 68);
-			this->finalCountPanel->Name = L"finalCountPanel";
-			this->finalCountPanel->Size = System::Drawing::Size(329, 89);
-			this->finalCountPanel->TabIndex = 10;
-			// 
-			// resetCountButton
-			// 
-			this->resetCountButton->Location = System::Drawing::Point(131, 61);
-			this->resetCountButton->Name = L"resetCountButton";
-			this->resetCountButton->Size = System::Drawing::Size(75, 23);
-			this->resetCountButton->TabIndex = 9;
-			this->resetCountButton->Text = L"Reset";
-			this->resetCountButton->UseVisualStyleBackColor = true;
-			this->resetCountButton->Click += gcnew System::EventHandler(this, &FrmUsrRemote::resetCountButton_Click);
-			// 
-			// label6
-			// 
-			this->label6->AutoSize = true;
-			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
-				static_cast<System::Byte>(0)));
-			this->label6->Location = System::Drawing::Point(238, 33);
-			this->label6->Name = L"label6";
-			this->label6->Size = System::Drawing::Size(47, 20);
-			this->label6->TabIndex = 8;
-			this->label6->Text = L"items";
-			// 
-			// countBox
-			// 
-			this->countBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
-				static_cast<System::Byte>(0)));
-			this->countBox->Location = System::Drawing::Point(120, 30);
-			this->countBox->Name = L"countBox";
-			this->countBox->ReadOnly = true;
-			this->countBox->Size = System::Drawing::Size(100, 26);
-			this->countBox->TabIndex = 7;
-			// 
-			// label5
-			// 
-			this->label5->AutoSize = true;
-			this->label5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
-				static_cast<System::Byte>(0)));
-			this->label5->Location = System::Drawing::Point(37, 33);
-			this->label5->Name = L"label5";
-			this->label5->Size = System::Drawing::Size(77, 20);
-			this->label5->TabIndex = 0;
-			this->label5->Text = L"There are";
-			// 
 			// initialCountPanel
 			// 
 			this->initialCountPanel->Controls->Add(this->numEnterButton);
@@ -482,6 +438,59 @@ namespace FennecScalesGUI {
 			this->textBox3->Size = System::Drawing::Size(306, 36);
 			this->textBox3->TabIndex = 0;
 			this->textBox3->Text = L"Please place a known number of items on the scale, then input that number:";
+			// 
+			// finalCountPanel
+			// 
+			this->finalCountPanel->Controls->Add(this->resetCountButton);
+			this->finalCountPanel->Controls->Add(this->label6);
+			this->finalCountPanel->Controls->Add(this->countBox);
+			this->finalCountPanel->Controls->Add(this->label5);
+			this->finalCountPanel->Location = System::Drawing::Point(6, 68);
+			this->finalCountPanel->Name = L"finalCountPanel";
+			this->finalCountPanel->Size = System::Drawing::Size(329, 89);
+			this->finalCountPanel->TabIndex = 10;
+			// 
+			// resetCountButton
+			// 
+			this->resetCountButton->Location = System::Drawing::Point(131, 61);
+			this->resetCountButton->Name = L"resetCountButton";
+			this->resetCountButton->Size = System::Drawing::Size(75, 23);
+			this->resetCountButton->TabIndex = 9;
+			this->resetCountButton->Text = L"Reset";
+			this->resetCountButton->UseVisualStyleBackColor = true;
+			this->resetCountButton->Click += gcnew System::EventHandler(this, &FrmUsrRemote::resetCountButton_Click);
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->label6->Location = System::Drawing::Point(238, 33);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(47, 20);
+			this->label6->TabIndex = 8;
+			this->label6->Text = L"items";
+			// 
+			// countBox
+			// 
+			this->countBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->countBox->Location = System::Drawing::Point(120, 30);
+			this->countBox->Name = L"countBox";
+			this->countBox->ReadOnly = true;
+			this->countBox->Size = System::Drawing::Size(100, 26);
+			this->countBox->TabIndex = 7;
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->label5->Location = System::Drawing::Point(37, 33);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(77, 20);
+			this->label5->TabIndex = 0;
+			this->label5->Text = L"There are";
 			// 
 			// weightGroupBox
 			// 
@@ -596,6 +605,7 @@ namespace FennecScalesGUI {
 			this->Controls->Add(this->countPanel);
 			this->Controls->Add(this->sidePanel);
 			this->Controls->Add(this->weighPanel);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->Name = L"FrmUsrRemote";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Fennec Scales Remote Controller";
@@ -611,11 +621,11 @@ namespace FennecScalesGUI {
 			this->groupBox1->ResumeLayout(false);
 			this->groupBox1->PerformLayout();
 			this->countPanel->ResumeLayout(false);
-			this->finalCountPanel->ResumeLayout(false);
-			this->finalCountPanel->PerformLayout();
 			this->initialCountPanel->ResumeLayout(false);
 			this->initialCountPanel->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->knownCountBox))->EndInit();
+			this->finalCountPanel->ResumeLayout(false);
+			this->finalCountPanel->PerformLayout();
 			this->bottomPanel->ResumeLayout(false);
 			this->warningPanel->ResumeLayout(false);
 			this->warningPanel->PerformLayout();
@@ -852,10 +862,17 @@ private: System::Void closeButton_Click(System::Object^  sender, System::EventAr
 		 }
 private: System::Void FrmUsrRemote_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
 			 
+			 /*if (closeFactory && !closeAll)
+			 {
+				 closeFactory = false;
+				 e->Cancel = true;
+				 return;
+			 }*/
+
 			 if (!closing && !closeAll)
 			 {
 				closing = true;
-				FrmExitConf^ exitForm = gcnew FrmExitConf(port);
+				FrmExitConf^ exitForm = gcnew FrmExitConf(comms);
 				exitForm->Show();
 			 }
 
@@ -920,7 +937,7 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 				 }
 			 }
 
-			 weightPer1000Items = (int) ( (double) numData / (double) knownCount ) * 1000;
+			 weightPer1000Items = (int) ( (double) weightData / (double) knownCount ) * 1000;
 
 			 this->initialCountPanel->Hide();
 			 this->finalCountPanel->Show();
@@ -936,12 +953,17 @@ private: System::Void resetCountButton_Click(System::Object^  sender, System::Ev
 		 }
 private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
 			 // Refresh everything
-			 if (numReady)
-				weightBox->Text = String::Format("{0}", numData);
-
-			 if (cur_state.state == COUNT_FINAL && numReady)
+			 if (weightReady)
 			 {
-				 countBox->Text = String::Format("{0}", numData / ((double) weightPer1000Items / 1000));
+				 if (rbGrams->Checked)
+					weightBox->Text = String::Format("{0}", weightData);
+				 else
+					 weightBox->Text = String::Format("{0}", (double) weightData * GRAMS_TO_OUNCES);
+			 }
+
+			 if (cur_state.state == COUNT_FINAL && weightReady)
+			 {
+				 countBox->Text = String::Format("{0}", weightData / ((double) weightPer1000Items / 1000));
 			 }
 			 setButtons(cur_state);
 			 showPanel(cur_state.state);
@@ -951,61 +973,64 @@ private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArg
 		 }
 private: System::Void sendSerialByte(unsigned char byte)
 		 {
-			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+			 /*array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
 			 sendArray[0] = byte;
-			 port->Write(sendArray, 0, 1);
+			 port->Write(sendArray, 0, 1);*/
+			 comms->sendSerialByte(byte);
 		 }
 private: System::Void sendChange(unsigned char comm_code, unsigned char st_code, unsigned char ack_code) {
-			 if (serialChange)
-				 return;
 
-			 // Loop until return statement is hit (ack received)
-			 while (true)
-			 {
-				 unsigned int timeout = SERIAL_TIMEOUT_GUI;
-				 sendSerialByte(comm_code);
-				 if (st_code != 0xFF) sendSerialByte(st_code);
+			 comms->sendChange(comm_code, st_code, ack_code);
+			 //if (serialChange)
+				// return;
 
-				 //while (ack != ack_code)
-				 //{
-					// if (!(--timeout))
-					// {
-					//	 if (MessageBox::Show("The scales did not respond to the request.",
-					//		 "Lost connection to scales",
-					//		 MessageBoxButtons::OK, MessageBoxIcon::Error)
-					//			 == System::Windows::Forms::DialogResult::OK)
-					//	 {
-					//		 closeAll = true;
-					//		 this->Close();
-					//		 parent->Show();
-					//		 break;
-					//	 }
-					// }
-				 //}
+			 //// Loop until return statement is hit (ack received)
+			 //while (true)
+			 //{
+				// unsigned int timeout = SERIAL_TIMEOUT_GUI;
+				// sendSerialByte(comm_code);
+				// if (st_code != 0xFF) sendSerialByte(st_code);
 
-				 // Wait for ack
-				 while (--timeout)
-				 {
-					 if (ack == ack_code)
-					 {
-						 ack = 0;
-						 return;
-					 }
-				 }
+				// //while (ack != ack_code)
+				// //{
+				//	// if (!(--timeout))
+				//	// {
+				//	//	 if (MessageBox::Show("The scales did not respond to the request.",
+				//	//		 "Lost connection to scales",
+				//	//		 MessageBoxButtons::OK, MessageBoxIcon::Error)
+				//	//			 == System::Windows::Forms::DialogResult::OK)
+				//	//	 {
+				//	//		 closeAll = true;
+				//	//		 this->Close();
+				//	//		 parent->Show();
+				//	//		 break;
+				//	//	 }
+				//	// }
+				// //}
 
-				 // If this code is reached, the ack was not received.
-				 if (MessageBox::Show("The scales did not respond to the request."
-					 + " Press retry to try again or Cancel to close the program",
-					 "Lost connection to scales",
-					 MessageBoxButtons::RetryCancel, MessageBoxIcon::Error)
-						 == System::Windows::Forms::DialogResult::Cancel)
-				 {
-					 closeAll = true;
-					 Application::Exit();
-					 break;
-				 }
-			 }
-			 ack = 0;
+				// // Wait for ack
+				// while (--timeout)
+				// {
+				//	 if (ack == ack_code)
+				//	 {
+				//		 ack = 0;
+				//		 return;
+				//	 }
+				// }
+
+				// // If this code is reached, the ack was not received.
+				// if (MessageBox::Show("The scales did not respond to the request."
+				//	 + " Press Retry to try again or Cancel to close the program",
+				//	 "Lost connection to scales",
+				//	 MessageBoxButtons::RetryCancel, MessageBoxIcon::Error)
+				//		 == System::Windows::Forms::DialogResult::Cancel)
+				// {
+				//	 closeAll = true;
+				//	 Application::Exit();
+				//	 break;
+				// }
+			 //}
+			 //ack = 0;
 		 }
 private: System::Void sendChange(unsigned char comm_code, unsigned char ack_code)
 		 {

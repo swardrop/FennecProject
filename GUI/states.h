@@ -25,15 +25,17 @@ extern int cur_warnings;
 // "In Progress" Codes
 #define INPGRSS_STATUS0				0xD0
 #define INPGRSS_STATUS1				0xD1
-#define INPGRSS_NUM0				0xD2
-#define INPGRSS_NUM1				0xD3
+#define INPGRSS_WGT0				0xD2
+#define INPGRSS_WGT1				0xD3
 #define INPGRSS_STATE				0xD4
 #define INPGRSS_DISP				0xD5
+#define INPGRSS_READINGS			0xD6
+#define INPGRSS_SAMPLES				0xD7
 
 // Communication state variables
 extern bool serialChange;
-extern bool numReady;
-extern short numData;
+extern bool weightReady;
+extern short weightData;
 extern unsigned char ack;
 extern unsigned char init_statesRxd;
 
@@ -44,3 +46,14 @@ extern unsigned char init_statesRxd;
 extern unsigned char receivedCount;
 extern unsigned int weightPer1000Items;
 extern unsigned short count_serial;
+
+extern unsigned short mean;
+extern unsigned short variance;
+
+extern unsigned short weightReadings[];
+extern unsigned char numReadings;
+
+extern unsigned char numSamples;
+
+extern bool closing;
+extern bool closeAll;

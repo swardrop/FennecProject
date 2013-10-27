@@ -42,6 +42,12 @@
     <ClCompile Include="FrmHelp.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="FrmFactoryClosing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="serialcomms.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Form1.h">
@@ -69,6 +75,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="commscodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrmFactoryClosing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serialcomms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

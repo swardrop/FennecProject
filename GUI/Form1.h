@@ -6,13 +6,17 @@
 #include "commscodes.h"
 
 bool serialChange = false;
-bool numReady = true;
-short numData = 0;
+bool weightReady = true;
+short weightData = 0;
 unsigned char ack = 0;
 unsigned char init_statesRxd = 0;
 unsigned char receivedCount = 0;
 unsigned int weightPer1000Items;
 unsigned short count_serial;
+unsigned short mean, variance;
+unsigned short weightReadings[ADC_BUFSIZE];
+unsigned char numReadings;
+unsigned char numSamples;
 
 namespace FennecScalesGUI {
 
@@ -37,9 +41,13 @@ namespace FennecScalesGUI {
 			port = gcnew SerialPort("COM1", 9600, Parity::None, 8, StopBits::One);
 			port->Open();
 			port->Encoding = System::Text::Encoding::UTF8;
+			comms = gcnew SerialComms(port);
 
 			form1SerialHandler = gcnew SerialDataReceivedEventHandler(this, &Form1::port_DataReceived);
 			port->DataReceived += form1SerialHandler;
+
+			usrRemoteForm = gcnew FrmUsrRemote(this, comms);
+			factoryForm = gcnew FrmFactoryMode(usrRemoteForm, comms);
 
 			cur_state.state = WEIGH; // TODO: replace with proper init?
 			cur_state.units = GRAMS;
@@ -75,9 +83,12 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::CheckBox^  evWarningCB;
 			 
 			 FrmFactoryMode^ factoryForm;
+			 FrmUsrRemote^ usrRemoteForm;
 
 			 SerialPort^ port;
+			 SerialComms^ comms;
 			 SerialDataReceivedEventHandler^ form1SerialHandler;
+	private: System::Windows::Forms::Button^  facButton;
 
 	protected: 
 
@@ -105,6 +116,7 @@ namespace FennecScalesGUI {
 			this->warningsBox = (gcnew System::Windows::Forms::GroupBox());
 			this->overWarningCB = (gcnew System::Windows::Forms::CheckBox());
 			this->evWarningCB = (gcnew System::Windows::Forms::CheckBox());
+			this->facButton = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->State->SuspendLayout();
 			this->warningsBox->SuspendLayout();
@@ -223,17 +235,29 @@ namespace FennecScalesGUI {
 			this->evWarningCB->UseVisualStyleBackColor = true;
 			this->evWarningCB->CheckedChanged += gcnew System::EventHandler(this, &Form1::evWarningCB_CheckedChanged);
 			// 
+			// facButton
+			// 
+			this->facButton->Location = System::Drawing::Point(12, 12);
+			this->facButton->Name = L"facButton";
+			this->facButton->Size = System::Drawing::Size(75, 23);
+			this->facButton->TabIndex = 8;
+			this->facButton->Text = L"FACTORY";
+			this->facButton->UseVisualStyleBackColor = true;
+			this->facButton->Click += gcnew System::EventHandler(this, &Form1::facButton_Click);
+			// 
 			// Form1
 			// 
 			this->AccessibleName = L"WeighMode";
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(453, 319);
+			this->Controls->Add(this->facButton);
 			this->Controls->Add(this->warningsBox);
 			this->Controls->Add(this->State);
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->label1);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->Name = L"Form1";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Fennec Scales";
@@ -252,6 +276,10 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 		 {
 			 static unsigned char inProgress = 0;
 			 static unsigned char countInProgress = 0;
+			 
+			 static unsigned char statsInProgress = 0;
+			 static unsigned char statsBuffer[4];
+			 
 			 int dataInt;
 			 unsigned char data;
 
@@ -259,9 +287,23 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 {
 				 data = (unsigned char) dataInt;
 
+
 				 //// Check for ongoing reception
+				 if (statsInProgress)
+				 {
+					 statsBuffer[4 - statsInProgress] = data;
+					 
+					 if (!(statsInProgress--))
+					 {
+						 mean = ((unsigned short) statsBuffer[0] << 8) + (unsigned short) statsBuffer[1];
+						 variance = ((unsigned short) statsBuffer[2] << 8) + (unsigned short) statsBuffer[3];
+						 ack = COMM_ACK_STATS;
+					 }
+				 }
+
+				 
 				 // Check for count/item transmission in progress
-				 if (countInProgress == 6)
+				 else if (countInProgress == 6)
 				 {
 					 weightPer1000Items = (unsigned int) data << 24;
 					 countInProgress = 5;
@@ -292,7 +334,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 count_serial |= (unsigned short) data;
 					 receivedCount = RXD_COUNT;
 
-					 weightPer1000Items = (int) ( (double) numData / (double) data ) * 1000;
+					 weightPer1000Items = (int) ( (double) weightData / (double) data ) * 1000;
 					 countInProgress = 0;
 				 }
 
@@ -349,26 +391,58 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 serialChange = true;
 				 }
 
-				 else if (inProgress == INPGRSS_NUM0)
+				 else if (inProgress == INPGRSS_WGT0)
 				 {
-					 numData = (unsigned int) data << 8;
-					 inProgress = INPGRSS_NUM1;
+					 weightData = (unsigned int) data << 8;
+					 inProgress = INPGRSS_WGT1;
 				 }
-				 else if (inProgress == INPGRSS_NUM1)
+				 else if (inProgress == INPGRSS_WGT1)
 				 {
-					 numData |= (unsigned int) data;
-					 numReady = true;
+					 weightData |= (unsigned int) data;
+					 weightReady = true;
 					 inProgress = 0;
 					 sendSerialByte(COMM_NUM_RXD);
+				 }
+				 else if (inProgress == INPGRSS_READINGS)
+				 {
+					 static char numRemaining = -1;
+
+					 if (numRemaining == -1)
+					 {
+						 numReadings = data;
+						 numRemaining = numReadings * 2;
+					 }
+
+					 // If num remaining is even, then this is the MSB
+					 if (numRemaining % 2 == 0)
+					 {
+						weightReadings[numReadings - numRemaining/2] = data << 8;
+					 }
+					 // Else this is the LSB.
+					 else 
+					 {
+						 // Note integer truncation.
+						 weightReadings[numReadings - numRemaining/2 - 1] += data;
+					 }
+
+					 if (!(--numRemaining))
+					 {
+						 ack = COMM_ACK_WEIGHT_READINGS;
+					 }
+				 }
+				 else if (inProgress == INPGRSS_SAMPLES)
+				 {
+					 numSamples = data;
+					 ack = COMM_ACK_NUM_SAMPLES;
 				 }
 
 				 // Check for reception of codes from the PIC
 				 else switch (data)
 				 {
 				 case COMM_BEGIN_NUM:
-					 numReady = 0;
-					 numData = 0;
-					 inProgress = INPGRSS_NUM0;
+					 weightReady = 0;
+					 weightData = 0;
+					 inProgress = INPGRSS_WGT0;
 					 break;
 				 case COMM_NUM_RXD:
 					 ack = (unsigned char) COMM_NUM_RXD;
@@ -377,7 +451,8 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 inProgress = INPGRSS_STATUS0;
 					 break;
 				 case COMM_START_FAC:
-					 // Start up factory mode. Deal with this.
+					 this->Hide();
+					 factoryForm->Open();
 					 break;
 				 case COMM_CHANGE_STATE:
 					 inProgress = INPGRSS_STATE;
@@ -397,6 +472,15 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 break;
 				 case COMM_ACK_TARE:
 					 ack = (unsigned char) COMM_ACK_TARE;
+					 break;
+				 case COMM_ACK_STATS:
+					 statsInProgress = 4;
+					 break;
+				 case COMM_ACK_WEIGHT_READINGS:
+					 inProgress = INPGRSS_READINGS;
+					 break;
+				 case COMM_ACK_NUM_SAMPLES:
+					 inProgress = INPGRSS_SAMPLES;
 					 break;
 				 }
 			 }
@@ -433,17 +517,15 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 			 
 			 this->Hide();
 
-			 FrmUsrRemote^ usrRemoteForm = gcnew FrmUsrRemote(this, port);
-
 			 // Move this to a serial handler?
 			 if (cur_state.isFactory)
 			 {
-				 factoryForm = gcnew FrmFactoryMode();
 				 factoryForm->ShowDialog();
 			 }
 			 else
 			 {
-				 usrRemoteForm->ShowDialog();
+				 usrRemoteForm->Open();
+				 //usrRemoteForm->ShowDialog();
 			 }
 
 		 }
@@ -491,9 +573,15 @@ private: System::Void overWarningCB_CheckedChanged(System::Object^  sender, Syst
 		 }
 private: System::Void sendSerialByte(unsigned char byte)
 		 {
-			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+			 /*array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
 			 sendArray[0] = byte;
-			 port->Write(sendArray, 0, 1);
+			 port->Write(sendArray, 0, 1);*/
+			 SerialComms ^comms = gcnew SerialComms(port);
+			 comms->sendSerialByte(byte);
+		 }
+private: System::Void facButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 this->Hide();
+			 factoryForm->Open();
 		 }
 };
 }
