@@ -14,7 +14,6 @@
 #include "./localinterface/output/tts.h"
 #include "./localinterface/output/ledbar.h"
 #include "./localinterface/input/numpad.h"
-#include "./localinterface/input/pushbuttons.h"
 
 
 
@@ -82,10 +81,13 @@ void main(void)
             // Send Change to GUI.
             if (!st_chng_rs232_flag)
             {
-                RS232sendData_b(COMM_CHANGE_STATE, cur_state);
                 if (cur_state = ST_COUNT_F)
                 {
-                    //Send the count as input.
+                    RS232sendData_b_i(COMM_CHANGE_STATE, cur_state, number_items);
+                }
+                else
+                {
+                    RS232sendData_b(COMM_CHANGE_STATE, cur_state);
                 }
             }
             st_chng_rs232_flag = 0;

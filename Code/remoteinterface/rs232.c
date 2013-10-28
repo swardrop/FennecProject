@@ -80,6 +80,24 @@ char RS232sendData_i(char data, int number)
     return 1;
 }
 
+char RS232sendData_b_i(char code, char data, int number)
+{
+    char ack = 0;
+    while (!ack)
+    {
+        RS232writeByte(code);
+        RS232writeByte(data);
+        RS232writeByte((char) (((number) & 0xFF00) >> 8));
+        RS232writeByte((char) ((number) & 0x00FF));
+        ack = waitAck();
+        if (ack == -1)
+        {
+            return -1;
+        }
+    }
+    return 1;
+}
+
 char waitAck(void)
 {
     int timeout = SERIAL_TIMEOUT;

@@ -16,12 +16,12 @@ int waitForInput(int* input);
 
 
 long weight_per_1024_items;
+int number_items = 0;
 
 void count(void)
 {
     char count_str[5];
     int weight = 0;
-    int count = 0;
 
     // Ask the user to supply a mass of known count if they haven't already.
     if (cur_state ==  ST_COUNT_I)
@@ -30,7 +30,7 @@ void count(void)
         // Ask for user to place items on scale and enter number of items.
 
         // Wait for user input of number items
-        if (waitForInput(&count) != INPUT_INT)
+        if (waitForInput(&number_items) != INPUT_INT)
         {
             return;
         }
@@ -38,7 +38,7 @@ void count(void)
         weight =  getWeight();
 
         // Produce conversion factor
-        weight_per_1024_items = ( (long)weight * 1024) / count;
+        weight_per_1024_items = ( (long)weight * 1024) / number_items;
 		//Write Base Count string to LCD
         //something like, stringToLCD(count_str, LINE_1);
         req_state = ST_COUNT_F;
@@ -48,9 +48,9 @@ void count(void)
     // Get new weight value
     weight = getWeight();
     // Calculate new count
-    count = (int) ( (long)weight / weight_per_1024_items) / 1024;
+    number_items = (int) ( (long)weight / weight_per_1024_items) / 1024;
     // Produce a string representation of the count
-    sprintf(count_str, "%d", count);
+    sprintf(count_str, "%d", number_items);
 
     // Display over serial and(or) LCD and(or) TTS
     if (disp_type & DISP_RS232)
@@ -70,7 +70,7 @@ void count(void)
         dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
                    count_str);
 		/*Update value on LCD*/
-        LCDUpdateVal(count);
+        LCDUpdateVal(number_items);
     }
     if (disp_type & DISP_TTS)
     {
@@ -82,8 +82,8 @@ void count(void)
 int waitForInput(int* input)
 {
     char byte;
-    int serial_return_value;
-    int numpad_return_value;
+    int serial_return_value = 0;
+    int numpad_return_value = 0;
     while(1)
     {
         getWeight();
@@ -94,6 +94,7 @@ int waitForInput(int* input)
         {
                 *input = serial_number_rxd;
                 serial_number_rxd = -1;
+                st_chng_rs232_flag = 1;
                 return INPUT_INT;
         }
         

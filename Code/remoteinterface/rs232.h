@@ -32,6 +32,7 @@ char RS232sendData(char data);
 char RS232sendData_b(char data, char number);
 char RS232sendData_i(char data, int number);
 char RS232sendData_l(char data, long number);
+char RS232sendData_b_i(char code, char data, int number);
 
 /**
  * writeByte
