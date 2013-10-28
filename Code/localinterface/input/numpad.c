@@ -14,12 +14,12 @@
 #define BUTTON_8        0x50
 #define BUTTON_9        0x60
 #define BUTTON_STAR     0x00
-#define BUTTON_0        0x01
-#define BUTTON_HASH     0x02
-#define BUTTON_TARE     0x0F      /*Labelled A*/
-#define BUTTON_MODE     0x0B      /*Labelled B*/
-#define BUTTON_UNITS    0x07      /*Labelled C*/
-#define BUTTON_MUTE     0x03      /*Labelled D*/
+#define BUTTON_0        0x10
+#define BUTTON_HASH     0x20
+#define BUTTON_TARE     0xF0      /*Labelled A*/
+#define BUTTON_MODE     0xB0      /*Labelled B*/
+#define BUTTON_UNITS    0x70      /*Labelled C*/
+#define BUTTON_MUTE     0x30      /*Labelled D*/
 
 char np_buffer[NP_BUFSIZE];
 static char *np_lead_ptr, *np_trail_ptr;
@@ -29,6 +29,8 @@ char* np_incPtr(char*);
 char getNextNum()
 {
     char num = *np_trail_ptr;
+
+
 
     if(np_trail_ptr == np_lead_ptr)
         return -1;
@@ -92,9 +94,10 @@ void numpadISR()
     digit = (PORTD & 0b11110000);
 
     // Check for Factory Password key combination
-    if (0)
+    if (1)
     {
-        //RS232writeByte(COMM_START_FAC);
+        RS232writeByte(COMM_START_FAC);
+        RS232writeByte(COMM_START_FAC);
     }
 
     switch (digit) /*If one of the function keys was pressed, alter the appropriate state variables.*/
@@ -173,4 +176,7 @@ void initialiseNumPad(void)
     INTCONbits.INT0IE = 1;  /*Enable INT0 which will trigger on keypress*/
     TRISD |= 0xF0;          /*Set the high nibble of PORTD as input.*/
     TRISBbits.RB0 = 1;
+
+    np_lead_ptr = np_buffer;
+    np_trail_ptr = np_buffer;
 }

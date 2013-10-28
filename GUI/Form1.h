@@ -17,6 +17,12 @@ unsigned short mean, variance;
 unsigned short weightReadings[ADC_BUFSIZE];
 unsigned char numReadings;
 unsigned char numSamples;
+bool newData;
+
+bool startFactory;
+
+sys_state cur_state(WEIGH, GRAMS, LCD_TTS, false);
+bool isRemote;
 
 namespace FennecScalesGUI {
 
@@ -49,10 +55,13 @@ namespace FennecScalesGUI {
 			usrRemoteForm = gcnew FrmUsrRemote(this, comms);
 			factoryForm = gcnew FrmFactoryMode(usrRemoteForm, comms);
 
-			cur_state.state = WEIGH; // TODO: replace with proper init?
-			cur_state.units = GRAMS;
-			cur_state.outputs = LCD_TTS;
-			cur_state.isFactory = false;
+			//cur_state.state = WEIGH; // TODO: replace with proper init?
+			//cur_state.units = GRAMS;
+			//cur_state.outputs = LCD_TTS;
+			//cur_state.isFactory = false;
+			//cur_state.isRemote = false;
+			startFactory = false;
+			newData = false;
 		}
 
 	protected:
@@ -89,6 +98,8 @@ namespace FennecScalesGUI {
 			 SerialComms^ comms;
 			 SerialDataReceivedEventHandler^ form1SerialHandler;
 	private: System::Windows::Forms::Button^  facButton;
+	private: System::Windows::Forms::Timer^  timer1;
+	private: System::ComponentModel::IContainer^  components;
 
 	protected: 
 
@@ -96,7 +107,7 @@ namespace FennecScalesGUI {
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -105,6 +116,7 @@ namespace FennecScalesGUI {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			this->components = (gcnew System::ComponentModel::Container());
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
@@ -117,6 +129,7 @@ namespace FennecScalesGUI {
 			this->overWarningCB = (gcnew System::Windows::Forms::CheckBox());
 			this->evWarningCB = (gcnew System::Windows::Forms::CheckBox());
 			this->facButton = (gcnew System::Windows::Forms::Button());
+			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->State->SuspendLayout();
 			this->warningsBox->SuspendLayout();
@@ -245,6 +258,12 @@ namespace FennecScalesGUI {
 			this->facButton->UseVisualStyleBackColor = true;
 			this->facButton->Click += gcnew System::EventHandler(this, &Form1::facButton_Click);
 			// 
+			// timer1
+			// 
+			this->timer1->Enabled = true;
+			this->timer1->Interval = 200;
+			this->timer1->Tick += gcnew System::EventHandler(this, &Form1::timer1_Tick);
+			// 
 			// Form1
 			// 
 			this->AccessibleName = L"WeighMode";
@@ -282,6 +301,8 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 
 			 int dataInt;
 			 unsigned char data;
+
+			 newData = true;
 
 			 while ((dataInt = port->ReadByte()) != -1)
 			 {
@@ -381,7 +402,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 else cur_state.outputs = NONE;
 				 
 					 if (inProgress == INPGRSS_STATUS1)
-						init_statesRxd = 1;
+						ack = COMM_ACK_REM;
 					 else if (inProgress == INPGRSS_DISP)
 					 {
 						 sendSerialByte(COMM_ACK_UNITS);
@@ -435,6 +456,14 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 numSamples = data;
 					 ack = COMM_ACK_NUM_SAMPLES;
 				 }
+				 else if (inProgress == INPGRSS_STARTFAC)
+				 {
+					if (data == COMM_START_FAC)
+					{
+						startFactory = true;
+					}
+					inProgress = 0;
+				 }
 
 				 // Check for reception of codes from the PIC
 				 else switch (data)
@@ -451,8 +480,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 inProgress = INPGRSS_STATUS0;
 					 break;
 				 case COMM_START_FAC:
-					 this->Hide();
-					 factoryForm->Open();
+					 inProgress = INPGRSS_STARTFAC;
 					 break;
 				 case COMM_CHANGE_STATE:
 					 inProgress = INPGRSS_STATE;
@@ -486,34 +514,37 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 }
 		 }
 
-		 int sendStartUsrRem()
-		 {
-			 unsigned char remoteCode = COMM_START_REM;
-			 array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
-			 sendArray[0] = remoteCode;
-			 // Send code over serial for USER_REMOTE launch
-			 port->Write(sendArray, 0, 1);
+		 //int sendStartUsrRem()
+		 //{
+			// unsigned char remoteCode = COMM_START_REM;
+			// array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
+			// sendArray[0] = remoteCode;
+			// // Send code over serial for USER_REMOTE launch
+			// port->Write(sendArray, 0, 1);
 
-			 // Wait for state sent back
-			 unsigned int timeoutCounter = SERIAL_TIMEOUT_GUI;
-			 while (!init_statesRxd)
-			 {
-				 if (!(--timeoutCounter))
-				 {
-					 MessageBox::Show("Serial connection timed out. Unable to connect.");
-					 return -1;
-				 }
-				 // do nothing, wait for timeout or completion
-			 }
-			 return 0;
-		 }
+			// // Wait for state sent back
+			// unsigned int timeoutCounter = SERIAL_TIMEOUT_GUI;
+			// while (!init_statesRxd)
+			// {
+			//	 if (!(--timeoutCounter))
+			//	 {
+			//		 MessageBox::Show("Serial connection timed out. Unable to connect.");
+			//		 return -1;
+			//	 }
+			//	 // do nothing, wait for timeout or completion
+			// }
+			// return 0;
+		 //}
 
 private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 			 
 			 // Send User Remote begin and wait for state
-			 int check = sendStartUsrRem();
+			 /*int check = sendStartUsrRem();
 			 if (check == -1)
-				 return;
+				 return;*/
+			 comms->sendChange(COMM_START_REM, COMM_ACK_REM);
+			 isRemote = true;
+			 //cur_state.setRemote();
 			 
 			 this->Hide();
 
@@ -582,6 +613,16 @@ private: System::Void sendSerialByte(unsigned char byte)
 private: System::Void facButton_Click(System::Object^  sender, System::EventArgs^  e) {
 			 this->Hide();
 			 factoryForm->Open();
+		 }
+private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e) {
+			 if (startFactory)
+			 {
+				 this->Hide();
+				 factoryForm->Open();
+				 cur_state.isFactory = true;
+				 isRemote = true;
+			 }
+			 startFactory = false;
 		 }
 };
 }

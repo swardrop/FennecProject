@@ -120,6 +120,7 @@ namespace FennecScalesGUI {
 
 	private: System::Windows::Forms::Timer^  updateTimer;
 
+
 	private: System::ComponentModel::IContainer^  components;
 
 
@@ -695,7 +696,7 @@ private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::Ev
 				 this->weighPanel->Location = System::Drawing::Point(160, 98);
 			 }
 
-	private: System::Void setButtons(State state)
+	private: System::Void setButtons(sys_state state)
 			{
 				if (cur_state.state == WEIGH)
 				{
@@ -855,7 +856,7 @@ private: System::Void cbTTS_CheckedChanged(System::Object^  sender, System::Even
 			 }
 		 }
 private: System::Void tareButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			 sendChange(COMM_TARE, COMM_ACK_TARE);
+			 comms->sendChange(COMM_TARE, COMM_ACK_TARE);
 		 }
 private: System::Void closeButton_Click(System::Object^  sender, System::EventArgs^  e) {
 			 this->Close();
@@ -893,6 +894,13 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 				 // Count must be positive.
 				 return;
 			 }
+
+			 weightPer1000Items = (int) ( (double) weightData / (double) knownCount ) * 1000;
+
+			 this->initialCountPanel->Hide();
+			 this->finalCountPanel->Show();
+
+			 cur_state.state = COUNT_FINAL;
 
 			 // Send knownCount over serial.
 			 while (true)
@@ -932,18 +940,10 @@ private: System::Void numEnterButton_Click(System::Object^  sender, System::Even
 					 {
 						 closeAll = true;
 						 Application::Exit();
-						 break;
+						 return;
 					 }
 				 }
 			 }
-
-			 weightPer1000Items = (int) ( (double) weightData / (double) knownCount ) * 1000;
-
-			 this->initialCountPanel->Hide();
-			 this->finalCountPanel->Show();
-
-			 cur_state.state = COUNT_FINAL;
-
 		 }
 private: System::Void resetCountButton_Click(System::Object^  sender, System::EventArgs^  e) {
 			 cur_state.state = COUNT;
@@ -952,6 +952,9 @@ private: System::Void resetCountButton_Click(System::Object^  sender, System::Ev
 			 resetCountPanel();
 		 }
 private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
+			 static short refreshCount = 100;
+
+			 short temp = refreshCount;
 			 // Refresh everything
 			 if (weightReady)
 			 {
@@ -970,6 +973,16 @@ private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArg
 			 showWarnings();
 			 setUnitsLabel();
 			 serialChange = false;
+
+			 // Ensure continued connection once every 2s.
+			 if (!(--refreshCount))
+			 {
+				 if (!comms->waiting && isRemote)
+				 {
+					 comms->sendChange(COMM_START_REM, COMM_ACK_REM);
+				 }
+				 refreshCount = 100;
+			 }
 		 }
 private: System::Void sendSerialByte(unsigned char byte)
 		 {

@@ -31,10 +31,12 @@ void SerialComms::sendChange(unsigned char comm_code, unsigned char st_code, uns
 			if (ack == ack_code)
 			{
 				ack = 0;
+				waiting = false;
 				return;
 			}
 		}
 
+		waiting = true;
 		// If this code is reached, the ack was not received.
 		if (MessageBox::Show("The scales did not respond to the request."
 			+ " Press Retry to try again or Cancel to close the program",
@@ -43,6 +45,7 @@ void SerialComms::sendChange(unsigned char comm_code, unsigned char st_code, uns
 				== System::Windows::Forms::DialogResult::Cancel)
 		{
 			closeAll = true;
+			waiting = false;
 			Application::Exit();
 			break;
 		}

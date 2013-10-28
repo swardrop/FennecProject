@@ -11,9 +11,9 @@
  */
 
 // Code Definitions
-#define SPI_LED_BAR             0x01 // Needs to be added as 2 consecutive bytes
+#define SPI_LED_BAR             0x01
 #define SPI_LED_STATUS          0x02
-#define SPI_TTS                 0x03 // Assumes sending a null terminated string.
+#define SPI_TTS                 0x03
 #define SPI_EEPROM              0x10
 #define SPI_EEPROM_READ_STRING  0x11
 #define SPI_EEPROM_READ_BYTE    0x12

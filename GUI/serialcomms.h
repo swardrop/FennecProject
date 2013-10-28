@@ -8,6 +8,7 @@ public:
 	SerialComms(System::IO::Ports::SerialPort ^port)
 	{
 		sp = port;
+		waiting = false;
 	}
 
 	~SerialComms()
@@ -19,6 +20,8 @@ public:
 	void sendChange(unsigned char comm_code, unsigned char ack_code);
 
 	void timeout(unsigned char ack_code);
+
+	bool waiting;
 private:
 	System::IO::Ports::SerialPort ^sp;
 };

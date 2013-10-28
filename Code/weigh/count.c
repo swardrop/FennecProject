@@ -93,34 +93,34 @@ int waitForInput(int* input)
                 return INPUT_INT;
         }
         
-//        while ((byte = getNextNum()) != -1)
-//        {
-//            // store and display number as entered on LCD/TTS?.
-//            // reset on *, return on #.
-//            switch (byte)
-//            {
-//                case '*':
-//                    numpad_return_value = 0;
-//                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
-//                     * to GUI as well. */
-//                    break;
-//                case '#':
-//                    *input = numpad_return_value;
-//                    if(!RS232sendData_i(COMM_CHANGE_STATE, num_data))
-//                    {
-//                        // Things are broken!
-//                    }
-//
-//                    return INPUT_INT;
-//                    break;
-//                default:
-//                    numpad_return_value = numpad_return_value*10 + byte - 0x30;
-//                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
-//                     * to GUI as well. */
-//                    break;
-//
-//            }
-//        }
+        while ((byte = getNextNum()) != -1)
+        {
+            // store and display number as entered on LCD/TTS?.
+            // reset on *, return on #.
+            switch (byte)
+            {
+                case '*':
+                    numpad_return_value = 0;
+                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
+                     * to GUI as well. */
+                    break;
+                case '#':
+                    *input = numpad_return_value;
+                    if(!RS232sendData_i(COMM_CHANGE_STATE, *input))
+                    {
+                        // Things are broken!
+                    }
+
+                    return INPUT_INT;
+                    break;
+                default:
+                    numpad_return_value = numpad_return_value*10 + byte - 0x30;
+                    /* update LCD/TTS, if not on, turn on, send "Turned on LCD"
+                     * to GUI as well. */
+                    break;
+
+            }
+        }
 
         // Check for state change.
         if (req_state != ST_NONE && req_state != ST_COUNT_I)

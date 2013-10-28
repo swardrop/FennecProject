@@ -26,6 +26,7 @@ namespace FennecScalesGUI {
 			InitializeComponent();
 			remoteFrm = remFrm;
 			comms = sc;
+			remoteFrm->Hide();
 		}
 
 		void Open()
@@ -33,6 +34,7 @@ namespace FennecScalesGUI {
 			resetFactoryForm();
 			this->Show();
 			remoteFrm->Show();
+			comms->sendSerialByte(COMM_ACK_FAC);
 		}
 
 	protected:

@@ -8,17 +8,24 @@ enum systemOutputs { NONE, LCD, TTS, LCD_TTS};
 enum warnings { EXCESSIVE_VARIANCE = 1, OVERLOAD = 2 }; // Bitwise OR-able
 
 // Data structure to hold internal state
-typedef struct sys_state
+struct sys_state
 {
+public:
+	sys_state(systemStates s, systemUnits u, systemOutputs o, bool f)
+		: state(s), units(u), outputs(o), isFactory(f)
+	{
+	}
+
 	systemStates state;
 	systemUnits units;
 	systemOutputs outputs;
 	bool isFactory;
-} State;
+};
 
 // Variables containing current system state
-extern State cur_state;
+extern sys_state cur_state;
 extern int cur_warnings;
+extern bool isRemote;
 
 //// Dealing with communication with PIC.
 
@@ -31,13 +38,16 @@ extern int cur_warnings;
 #define INPGRSS_DISP				0xD5
 #define INPGRSS_READINGS			0xD6
 #define INPGRSS_SAMPLES				0xD7
+#define INPGRSS_STARTFAC			0xD8
 
 // Communication state variables
 extern bool serialChange;
 extern bool weightReady;
 extern short weightData;
 extern unsigned char ack;
-extern unsigned char init_statesRxd;
+//extern unsigned char init_statesRxd;
+
+extern bool newData;
 
 // Dealing with count
 #define RXD_COUNT					0xC0
