@@ -21,6 +21,8 @@ bool newData;
 
 bool startFactory;
 
+unsigned short refreshCount = REFRESH_COUNT;
+
 sys_state cur_state(WEIGH, GRAMS, LCD_TTS, false);
 bool isRemote;
 
@@ -302,12 +304,10 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 int dataInt;
 			 unsigned char data;
 
-			 newData = true;
-
 			 while ((dataInt = port->ReadByte()) != -1)
 			 {
 				 data = (unsigned char) dataInt;
-
+				 refreshCount = REFRESH_COUNT;
 
 				 //// Check for ongoing reception
 				 if (statsInProgress)
@@ -402,7 +402,10 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 else cur_state.outputs = NONE;
 				 
 					 if (inProgress == INPGRSS_STATUS1)
+					 {
 						ack = COMM_ACK_REM;
+						sendSerialByte(COMM_ACK_REM);
+					 }
 					 else if (inProgress == INPGRSS_DISP)
 					 {
 						 sendSerialByte(COMM_ACK_UNITS);

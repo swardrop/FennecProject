@@ -39,7 +39,7 @@ namespace FennecScalesGUI {
 		void Open()
 		{
 			// Send ack (entered into user remote mode)
-			sendSerialByte(COMM_ACK_REM);
+			//sendSerialByte(COMM_ACK_REM);
 
 			setButtons(cur_state);
 			showPanel(cur_state.state);
@@ -952,9 +952,7 @@ private: System::Void resetCountButton_Click(System::Object^  sender, System::Ev
 			 resetCountPanel();
 		 }
 private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArgs^  e) {
-			 static short refreshCount = 100;
 
-			 short temp = refreshCount;
 			 // Refresh everything
 			 if (weightReady)
 			 {
@@ -981,7 +979,7 @@ private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArg
 				 {
 					 comms->sendChange(COMM_START_REM, COMM_ACK_REM);
 				 }
-				 refreshCount = 100;
+				 refreshCount = REFRESH_COUNT;
 			 }
 		 }
 private: System::Void sendSerialByte(unsigned char byte)

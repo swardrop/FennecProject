@@ -81,7 +81,13 @@ void main(void)
             cur_state = req_state;
             // Send Change to GUI.
             if (!st_chng_rs232_flag)
+            {
                 RS232sendData_b(COMM_CHANGE_STATE, cur_state);
+                if (cur_state = ST_COUNT_F)
+                {
+                    //Send the count as input.
+                }
+            }
             st_chng_rs232_flag = 0;
             req_state = ST_NONE;
         }

@@ -30,12 +30,10 @@ char getNextNum()
 {
     char num = *np_trail_ptr;
 
-
-
     if(np_trail_ptr == np_lead_ptr)
         return -1;
 
-    np_incPtr(np_trail_ptr);    /*Increment pointer*/
+    np_trail_ptr = np_incPtr(np_trail_ptr);    /*Increment pointer*/
 
     /*Convert num to ASCII*/
     switch (num)
@@ -94,7 +92,7 @@ void numpadISR()
     digit = (PORTD & 0b11110000);
 
     // Check for Factory Password key combination
-    if (1)
+    if (0)
     {
         RS232writeByte(COMM_START_FAC);
         RS232writeByte(COMM_START_FAC);
@@ -139,6 +137,10 @@ void numpadISR()
             {
                 disp_type = (disp_type & 0xF0) | GRAMS;
             }
+            if (disp_type & DISP_RS232)
+            {
+                RS232sendData_b(COMM_CHANGE_UNITS, disp_type);
+            }
             break;
         case BUTTON_MUTE:
             /*Toggles TTS on and off*/
@@ -150,13 +152,17 @@ void numpadISR()
             {
                 disp_type |= DISP_TTS;  /*Turn it on*/
             }
+            if (disp_type & DISP_RS232)
+            {
+                RS232sendData_b(COMM_CHANGE_DISP, disp_type);
+            }
             break;
         default: /*If it was a number.*/
             // Insert value into buffer
             *np_lead_ptr = digit;
 
             /*Increment pointer*/
-            np_incPtr(np_lead_ptr);
+            np_lead_ptr = np_incPtr(np_lead_ptr);
             break;
     }    
 }

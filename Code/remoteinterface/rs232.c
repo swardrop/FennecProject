@@ -30,37 +30,18 @@ int readNum(void);
 char RS232readByte(void);
 char RS232readString(char* dest);
 void sendRawWeight(void);
+char waitAck(void);
 
 char RS232sendData(char code)
 {
-    int timeout = SERIAL_TIMEOUT;
     char ack = 0;
     while (!ack)
     {
         RS232writeByte(code);
-        while (!ack) {
-            if (timeout--)
-            {
-                if (parseSerial() == RS232_ACK_RXD)
-                    {
-                        ack = 1;
-                        packet_loss = 0;
-                    }
-                }
-            else
-            {
-                packet_loss += 1;
-                if (packet_loss == 3)
-                {
-                    disp_type &= ~DISP_RS232;
-                    if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
-                    {
-                        req_state = ST_WEIGH;
-                    }
-                    return 0;
-                }
-                break;
-            }
+        ack = waitAck();
+        if (ack == -1)
+        {
+            return -1;
         }
     }
     return 1;
@@ -68,35 +49,15 @@ char RS232sendData(char code)
 
 char RS232sendData_b(char code, char data)
 {
-    int timeout = SERIAL_TIMEOUT;
     char ack = 0;
     while (!ack)
     {
         RS232writeByte(code);
         RS232writeByte(data);
-        while (!ack) {
-            if (timeout--)
-            {
-                if (parseSerial() == RS232_ACK_RXD)
-                    {
-                        ack = 1;
-                        packet_loss = 0;
-                    }
-                }
-            else
-            {
-                packet_loss += 1;
-                if (packet_loss == 3)
-                {
-                    disp_type &= ~DISP_RS232;
-                    if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
-                    {
-                        req_state = ST_WEIGH;
-                    }
-                    return 0;
-                }
-                break;
-            }
+        ack = waitAck();
+        if (ack == -1)
+        {
+            return -1;
         }
     }
     return 1;
@@ -104,43 +65,46 @@ char RS232sendData_b(char code, char data)
 
 char RS232sendData_i(char data, int number)
 {
-    int timeout = SERIAL_TIMEOUT;
-    int recieved = -1;
     char ack = 0;
     while (!ack)
     {
         RS232writeByte(data);
         RS232writeByte((char) (((number) & 0xFF00) >> 8));
         RS232writeByte((char) ((number) & 0x00FF));
-        while (!ack) {
-            if (timeout--)
-            {
-                recieved = parseSerial();
-                if (recieved == RS232_ACK_RXD)
-                {
-                    ack = 1;
-                    packet_loss = 0;
-                }
-            }
-            else
-            {
-                packet_loss += 1;
-                if (packet_loss == 3)
-                {
-                    disp_type &= ~DISP_RS232;
-                    if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
-                    {
-                        req_state = ST_WEIGH;
-                    }
-                    return 0;
-                }
-                break;
-            }
+        ack = waitAck();
+        if (ack == -1)
+        {
+            return -1;
         }
     }
     return 1;
 }
 
+char waitAck(void)
+{
+    int timeout = SERIAL_TIMEOUT;
+    char ack = 0;
+    while (timeout--)
+    {
+        if (parseSerial() == RS232_ACK_RXD)
+        {
+            ack = 1;
+            packet_loss = 0;
+            return 1;
+        }
+    }
+    packet_loss += 1;
+    if (packet_loss == 3)
+    {
+        disp_type &= ~DISP_RS232;
+        if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
+        {
+            req_state = ST_WEIGH;
+        }
+        return -1;
+    }
+    return 0;
+}
 
 char RS232writeByte(char data)
 {

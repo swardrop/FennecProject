@@ -67,3 +67,6 @@ extern unsigned char numSamples;
 
 extern bool closing;
 extern bool closeAll;
+
+#define REFRESH_COUNT			50
+extern unsigned short refreshCount;
