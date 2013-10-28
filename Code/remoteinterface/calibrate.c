@@ -10,11 +10,11 @@ typedef struct poly_coeff
 } Coefficients ;
 
 
-Coefficients c = {1, 0, 0};
+Coefficients c = {100, 0, 0};
 
 void calibrate(void)
 {
-    int coeff0 = 1;
+    int coeff0 = 100;
     int coeff1 = 0;
     int coeff2 = 0;
 
@@ -29,8 +29,7 @@ void calibrate(void)
 
 int convertVoltageToGrams(int voltage)
 {
-
-    int grams = voltage*c.coeff0 + c.coeff1;
+    int grams = (int)((long)voltage*c.coeff0/100 + (long)c.coeff1/100);
     
     grams -= tare_offset;
     return grams;

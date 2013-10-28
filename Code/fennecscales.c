@@ -127,6 +127,8 @@ void powerDown(void)
     saveState();
     // Other shut down stuff.
 
+    while(PORTBbits.RB2);
+
     // Turn off power circuit.
     PORTCbits.RC2 = 0;
 }
@@ -142,6 +144,9 @@ void setupPower(void)
     INTCON3bits.INT2IP = 1;
     INTCON3bits.INT2IE = 1;
     INTCON3bits.INT2IF = 0;
+
+    TRISBbits.RB2 = 0;
+
 }
 
 void setupTMR1(void)
