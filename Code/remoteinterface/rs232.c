@@ -51,6 +51,11 @@ char RS232sendData(char code)
                 packet_loss += 1;
                 if (packet_loss == 3)
                 {
+                    disp_type &= ~DISP_RS232;
+                    if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
+                    {
+                        req_state = ST_WEIGH;
+                    }
                     return 0;
                 }
                 break;
@@ -82,6 +87,11 @@ char RS232sendData_b(char code, char data)
                 packet_loss += 1;
                 if (packet_loss == 3)
                 {
+                    disp_type &= ~DISP_RS232;
+                    if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
+                    {
+                        req_state = ST_WEIGH;
+                    }
                     return 0;
                 }
                 break;
@@ -116,6 +126,11 @@ char RS232sendData_i(char data, int number)
                 packet_loss += 1;
                 if (packet_loss == 3)
                 {
+                    disp_type &= ~DISP_RS232;
+                    if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
+                    {
+                        req_state = ST_WEIGH;
+                    }
                     return 0;
                 }
                 break;
