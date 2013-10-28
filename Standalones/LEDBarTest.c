@@ -48,7 +48,7 @@ void main(void)
 void TMR1isr(void)
 {
     PIR1bits.TMR1IF = 0;
-    writeLEDbar(weight++, maxWeight);
+    writeLEDbar(weight, maxWeight);
     if (weight >= maxWeight)
     {
         weight = 0;

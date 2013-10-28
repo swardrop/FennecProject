@@ -97,7 +97,7 @@ void main(void)
  */
 void setup()
 {
-    setupPower();
+    //setupPower();
 
     retrieveState();
     initialiseRS232();

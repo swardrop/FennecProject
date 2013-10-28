@@ -4,22 +4,22 @@
 #include "../../../GUI/commscodes.h"
 #include "../../remoteinterface/rs232.h"
 
-#define BUTTON_1        0b00000000      /*FIX THESE FIRST IF WRONG CHARS DISPLAYED!*/
-#define BUTTON_2        0b10000000
-#define BUTTON_3        0b01000000
-#define BUTTON_4        0b00100000
-#define BUTTON_5        0b10100000
-#define BUTTON_6        0b01100000
-#define BUTTON_7        0b00010000
-#define BUTTON_8        0b10010000
-#define BUTTON_9        0b01010000
-#define BUTTON_STAR     0b00110000
-#define BUTTON_0        0b10110000
-#define BUTTON_HASH     0b01110000
-#define BUTTON_TARE     0b11000000      /*Labelled A*/
-#define BUTTON_MODE     0b11100000      /*Labelled B*/
-#define BUTTON_UNITS    0b11010000      /*Labelled C*/
-#define BUTTON_MUTE     0b11110000      /*Labelled D*/
+#define BUTTON_1        0xC0      /*FIX THESE FIRST IF WRONG CHARS DISPLAYED!*/
+#define BUTTON_2        0xD0
+#define BUTTON_3        0xE0
+#define BUTTON_4        0x80
+#define BUTTON_5        0x90
+#define BUTTON_6        0xA0
+#define BUTTON_7        0x40
+#define BUTTON_8        0x50
+#define BUTTON_9        0x60
+#define BUTTON_STAR     0x00
+#define BUTTON_0        0x01
+#define BUTTON_HASH     0x02
+#define BUTTON_TARE     0x0F      /*Labelled A*/
+#define BUTTON_MODE     0x0B      /*Labelled B*/
+#define BUTTON_UNITS    0x07      /*Labelled C*/
+#define BUTTON_MUTE     0x03      /*Labelled D*/
 
 char np_buffer[NP_BUFSIZE];
 static char *np_lead_ptr, *np_trail_ptr;
@@ -94,7 +94,7 @@ void numpadISR()
     // Check for Factory Password key combination
     if (0)
     {
-        RS232writeByte(COMM_START_FAC);
+        //RS232writeByte(COMM_START_FAC);
     }
 
     switch (digit) /*If one of the function keys was pressed, alter the appropriate state variables.*/

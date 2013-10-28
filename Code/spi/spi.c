@@ -4,8 +4,8 @@
 #define SPI_BUFSIZE 16
 
 // Chip Select defines
-#define CS_EEPROM PORTBbits.RB2
-#define CS_LED_BAR PORTBbits.RB3
+#define CS_EEPROM PORTCbits.RC0
+#define CS_LED_BAR PORTCbits.RC1
 #define CS_TTS PORTBbits.RB4
 #define CS_LED_STATUS PORTBbits.RB5
 
@@ -28,8 +28,8 @@ void setupSPI()
     IPR1bits.SSPIP = 1;
 
     /* Set data direction for CS pins (Output) */
-    TRISBbits.RB2 = 0;
-    TRISBbits.RB3 = 0;
+    TRISCbits.RC0 = 0;
+    TRISCbits.RC1 = 0;
     TRISBbits.RB4 = 0;
     TRISBbits.RB5 = 0;
 

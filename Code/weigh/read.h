@@ -1,7 +1,7 @@
 #ifndef READ_H
 #define READ_H
 
-#include "./../FennecProject/GUI/commscodes.h"
+#include "./GUI/commscodes.h"
 
 /**
  * Read Module
