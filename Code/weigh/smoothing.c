@@ -1,6 +1,7 @@
 #include "smoothing.h"
 #include "read.h"
 #include "../state.h"
+#include "../../GUI/commscodes.h"
 
 #define AVGS_BUF_SIZE 8
 

@@ -1,7 +1,6 @@
 #ifndef OUTF_H
 #define OUTF_H
 
-#include "./Code/spi/stringtable.h"
 
 /** Formatted Output Module
  * This module provides a method for general-use output of strings to the output

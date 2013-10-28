@@ -1,7 +1,6 @@
 #ifndef READ_H
 #define READ_H
 
-#include "./GUI/commscodes.h"
 
 /**
  * Read Module

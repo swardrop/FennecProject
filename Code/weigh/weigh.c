@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "../remoteinterface/rs232.h"
+#include "./../spi/stringtable.h"
 
 // Global (accessible for statistics module)
 int variance;
@@ -142,7 +143,7 @@ int getWeight(void)
     /* I don't think this should be done here... */
     if (disp_type & DISP_RS232)
         RS232sendData_i(COMM_BEGIN_NUM, weight);
-    writeLEDbar(global_weight, 1050);
+    writeLEDbar(global_weight, 1000);
 //    RS232writeByte(COMM_BEGIN_NUM);
 //    RS232writeByte((weight & 0xFF00) >> 8);
 //    RS232writeByte(weight & 0x00FF);

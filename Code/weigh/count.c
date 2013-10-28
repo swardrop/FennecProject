@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "../../GUI/commscodes.h"
 #include <p18f452.h>
+#include "./../spi/stringtable.h"
 
 #define INPUT_STATE_CHNG    0x01
 #define INPUT_INT           0x02
@@ -14,7 +15,7 @@
 int waitForInput(int* input);
 
 
-long weight_per_1000_items;
+long weight_per_1024_items;
 
 void count(void)
 {
@@ -37,8 +38,9 @@ void count(void)
         weight =  getWeight();
 
         // Produce conversion factor
-        weight_per_1000_items = ( (long)weight * 1000) / count;
-
+        weight_per_1024_items = ( (long)weight * 1024) / count;
+		//Write Base Count string to LCD
+        //something like, stringToLCD(count_str, LINE_1);
         req_state = ST_COUNT_F;
     }
 
@@ -46,7 +48,7 @@ void count(void)
     // Get new weight value
     weight = getWeight();
     // Calculate new count
-    count = (int) ( (long)weight / weight_per_1000_items) / 1000;
+    count = (int) ( (long)weight / weight_per_1024_items) / 1024;
     // Produce a string representation of the count
     sprintf(count_str, "%d", count);
 
@@ -67,6 +69,8 @@ void count(void)
         dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_COUNT, "\0");
         dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
                    count_str);
+		/*Update value on LCD*/
+        LCDUpdateVal(count);
     }
     if (disp_type & DISP_TTS)
     {

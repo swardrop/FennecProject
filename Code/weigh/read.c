@@ -1,5 +1,6 @@
 #include "read.h"
 #include <p18f452.h>
+#include "../../GUI/commscodes.h"
 
 #define ADC_PERIOD 0x010FF
 
