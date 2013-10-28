@@ -1,206 +1,190 @@
+#include <delays.h>
 #include "lcd.h"
-#include <p18f452.h>
+#include "../../state.h"
+#include <stdio.h>
 
-void init_lcd()
-{
-//all pins output
-  LCD_DB7_DIR=0;
-  LCD_DB6_DIR=0;
-  LCD_DB5_DIR=0;
-  LCD_DB4_DIR=0;
-  LCD_E_DIR=0;
-  LCD_RS_DIR=0;
-//clr
-  LCD_DB7=0;
- // asm("nop");
-  LCD_DB6=0;
- // asm("nop");
-  LCD_DB5=0;
- // asm("nop");
-  LCD_DB4=0;
- // asm("nop");
-  LCD_RS=0;
- // asm("nop");
+/* DATA_PORT defines the port to which the LCD data lines are connected */
+ #define DATA_PORT      		PORTD
+ #define TRIS_DATA_PORT 		TRISD
 
-  LCD_E=0;
-  //asm("nop");
-//enable
-  write_in() ;
- //delay(0xffff) ;
- //delay(0xffff) ;
-//4bit,2-line.5*8dots
- sendcmd(0x28) ;
- sendcmd(0x0c) ;
- sendcmd(0x0f);
- sendcmd(0x80) ;//L1 starts
- 
+/*Defines the pins where the control lines are connected.*/
+ #define RS_PIN   PORTEbits.RE0   	/* PORT for RS */
+ #define TRIS_RS  TRISEbits.TRISE0    	/* TRIS for RS */
 
+ #define RW_PIN   PORTEbits.RE1   	/* PORT for RW */
+ #define TRIS_RW  TRISEbits.TRISE1    	/* TRIS for RW */
 
-}
-/*********************
-delay
-***********************/
-void delay(unsigned int count)
-{ 
- while(count)
-    count-=1;
-}
-/*************************************
-enable write in
-****************************************/
-void write_in(void)
-{
- 
-    LCD_E=1 ;
-    delay(160);
-    LCD_E=0;
- 
-   
-   }
-/***********************************
-send cmd
-*************************************/
-void sendcmd(char cmdata)
-{
-   LCD_RS=0;                //send cmd mode
-    LCD_RW=0;
-    write(cmdata);           
- delay(255);
-}
-/********************************************
-disp single byte
-********************************************/
-void putclcd(char lcdbyte)
-{
-    LCD_RS=1;//output mode
-    LCD_RW=0;
- write(lcdbyte);
-   delay(255);
-}
-/**************************************
-*disp string
-*************************************/
-void printlcd(char *lcdata)
-{
-    while((*lcdata)!='\0')
-    {
-       putclcd(*lcdata++);      
-    }
-}
-/**********************************************
-*write in single byte
-**********************************************/
-void write(char wdata)
-{
-   char temp=wdata;
-   LCD_DB7=0;
-   LCD_DB6=0;
-   LCD_DB5=0;
-   LCD_DB4=0;
-   if(temp&0X80)  //H
-   {LCD_DB7=1;}
-   if(temp&0X40)
-   {LCD_DB6=1;}
-   if(temp&0X20)
-   {LCD_DB5=1;}
-   if(temp&0X10)
-   {LCD_DB4=1;}
-   write_in() ;
-   temp=wdata<<4; //L
-   LCD_DB7=0;
-   LCD_DB6=0;
-   LCD_DB5=0;
-   LCD_DB4=0;
-   if(temp&0X80)
-   {LCD_DB7=1;}
-   if(temp&0X40)
-   {LCD_DB6=1;}
-   if(temp&0X20)
-   {LCD_DB5=1;}
-   if(temp&0X10)
-   {LCD_DB4=1;}
-   write_in() ;
-   delay(160);
-}
-/*************************************
-*function:display shifting(change the delay var to change the speed of  shifting)
-*flag=0  shift left Ã¯Â¼Âflag=1 shift right ;count :the bit og shift 
-******************************/
-void lcd_shift(unsigned char flag,unsigned char count)
-{
- unsigned char i ;
- if(flag==0)
- {
-  for(i=0;i<count;i++)
-  {
-  //delay(0xfff) ;
-   
-   sendcmd(LCD_DISP_LEFT) ;
-  }
- } 
- else
- {
-  for(i=0;i<count;i++)
-  {
-   //delay(0xfff) ;
-   sendcmd(LCD_DISP_RIGHT) ;
-  } 
- }
-}
+ #define E_PIN    PORTEbits.RE2  	/* PORT for E  */
+ #define TRIS_E   TRISEbits.TRISE2    	/* TRIS for E  */
 
-/*****************************
-*function: curser shifting
-*when flag=0  shift left Ã¯Â¼Âflag=1 shift right ;count :the bits shift 
-**************************/
-void curse_shift(unsigned char flag,unsigned char count)
-{
- unsigned char i ;
- if(flag==0)
- {
-  for(i=0;i<count;i++)
-  {
-  
-   sendcmd(LCD_CURSE_LEFT) ;
-  }
- } 
- else
- {
-  for(i=0;i<count;i++)
-  {
-  
-   sendcmd(LCD_CURSE_RIGHT) ;
-  } 
- }
-}
+void LCDSendNibble(char);
+void LCDWriteCmd(char);
+char LCDBusy(void);
+void intToASCII(char* destStr, int value, char length);
 
-void L1LCD()
-{
-sendcmd(LCD_BEGIN_ADD);
-}
-void L2LCD()
-{
-sendcmd(LCD_SECOND_LINE);
-}
+#define E_Delay() Delay1KTCYx(5)
 
-char stringToLCD(char* str, char line){
+char stringToLCD(char* str, char line)
+{
+    /* Writes a null-terminated string to the specified line.
+     * The symbols LINE_1 and LINE_2 are the address of their respective line.*/
+
+    char numCharsWritten = 0;
+
+    /*Set correct address to start at.*/
     
-    delay(255);
-    init_lcd();
-    while(1){
-    if(str != '\0' && line == 1)
+    LCDSetDDRaddr(line);
+
+    while ((*str != '\0') && (numCharsWritten < 16))
     {
-        
-        L1LCD();/*?Sets cursor to beginning of line 1?*/
-        delay(255);/*?Moves cursor on line 1 5 places to the right?
-        1 means shift right while 5 means 5 bits*/
-        printlcd(str);/*Prints an entire string (until a '\0' is reached)*/
+        LCDWriteData(*str);
+        numCharsWritten++;
+        str++;
     }
-    else if(str != '\0' && line == 2  )
+    return 1;
+}
+
+void LCDUpdateVal(int value)
+{
+    char valueStr[5];
+
+    switch (cur_state)
     {
-        L2LCD();
-       delay(255);
-        printlcd(str);
+        case ST_WEIGH:
+            intToASCII(valueStr, value, 4);
+            /*Need to start writing at address 8*/
+            stringToLCD(valueStr, 8);
+            break;
+        case ST_COUNT_I:
+        case ST_COUNT_F:
+            intToASCII(valueStr, value, 3);
+            /*Start on second line*/
+            stringToLCD(valueStr, 40);
+            break;
+        default:
+            break;
     }
+}
+
+void intToASCII(char* destStr, int value, char length)
+{
+    char* p = destStr + length;
+    *p = 0; /*Insert null terminator*/
+
+    /*Go from least significant to most significant digit.*/
+    for (p = destStr + length - 1; p >= destStr; p--)
+    {
+        *p = (value % 10) + 0x30;
+        value /= 10;
     }
+}
+
+void LCDWriteData(char data)
+{
+    RS_PIN = 1;
+    RW_PIN = 0;
     
+    LCDSendNibble((data >> 4) & 0x0F);
+    LCDSendNibble(data & 0x0F);
+}
+
+void LCDSetDDRaddr(char addr)
+{
+    LCDWriteCmd(0x80 | addr);
+}
+
+void initLCD(void)
+{
+    /*Set all control pins as output*/
+    TRIS_RS = 0;
+    TRIS_RW = 0;
+    TRIS_E = 0;
+
+    RS_PIN = 0;
+    RW_PIN = 0;
+    E_PIN = 0;
+
+    /* ********************************
+     * See Page 46 of Hitachi Datasheet
+     * ********************************/
+
+    /*Not sure if necessary to Wait 15ms - 37500 cycles on MNMLPIC*/
+    Delay1KTCYx(37);
+    Delay100TCYx(5);
+
+    /*Reset by instruction*/
+    LCDSendNibble(0x03);
+    Delay1KTCYx(0x11);
+
+    LCDSendNibble(0x03);
+    Delay1KTCYx(0x05);
+
+    LCDSendNibble(0x03);
+    Delay1KTCYx(0x05);
+
+    LCDSendNibble(0x02);    /*Function set (4 pins)*/
+
+    while(LCDBusy());
+    LCDWriteCmd(0x28);       /*Function set (2 lines)*/
+
+    while(LCDBusy());
+    LCDWriteCmd(0x08);      /*Display off*/
+
+    while(LCDBusy());
+    LCDWriteCmd(0x01);      /*Clear Display*/
+
+    while(LCDBusy());
+    LCDWriteCmd(0x06);      /*Entry Mode set (increment, no shift)*/
+
+    while(LCDBusy());
+    LCDWriteCmd(0x0F);      /*Display on*/
+}
+
+void LCDSendNibble(char data)
+{
+    /* Sends a nibble from the low half of data port to the LCD
+     * Requires pre-sanitised input (upper nibble of char must be 0x0)*/
+
+    TRIS_DATA_PORT &= 0xF0;
+
+    DATA_PORT &= 0xF0;
+    DATA_PORT |= data;
+    E_PIN = 1;
+    E_Delay(); /*This is a #define - it may need to be much longer.*/
+    E_PIN = 0;
+    E_Delay();
+}
+
+void LCDWriteCmd(char cmd)
+{
+    RS_PIN = 0;
+    RW_PIN = 0;
+
+    LCDSendNibble((cmd >> 4) & 0x0F);
+    LCDSendNibble(cmd & 0x0F);
+}
+
+char LCDBusy()
+{
+    char busyness;
+
+    TRIS_DATA_PORT |= 0x0F;
+
+    RW_PIN = 1;
+    RS_PIN = 0;
+
+    E_PIN = 1;
+    E_Delay();
+
+    busyness = DATA_PORT & 0x08; /*Check if busy flag is set*/
+
+    /*Clock in the second nibble - we don't need to do anything with this.*/
+    E_PIN = 0;
+    E_Delay();
+    E_PIN = 1;
+    E_Delay();
+    E_PIN = 0;
+    E_Delay();
+
+    return busyness;
 }
