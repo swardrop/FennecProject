@@ -17,6 +17,7 @@ char readBuf[RS232_BUFSIZE];
 // Read and write indexes
 unsigned char write_lead_idx, write_trail_idx;
 unsigned char read_lead_idx, read_trail_idx;
+unsigned char num_in_buffer;
 
 // Flags
 char writeLock;
@@ -144,23 +145,21 @@ char RS232sendData_i(char data, int number)
 char RS232writeByte(char data)
 {
     // If the buffer is full, don't add any more.
-    if (writeLock)
-    {
-        return -1;
-    }
-
+    while (writeLock);
+	
     // Add data byte to write buffer
     writeBuf[write_lead_idx] = data;
     ++write_lead_idx;
+    ++num_in_buffer;
     if (write_lead_idx == RS232_BUFSIZE)
     {
         write_lead_idx = 0;
     }
 
     // Check for full buffer
-    if (write_lead_idx == write_trail_idx)
+    if (write_lead_idx == write_trail_idx && !num_in_buffer)
     {
-        //writeLock = 1;
+        writeLock = 1;
         //return 0;
     }
     else
@@ -428,6 +427,7 @@ void initialiseRS232()
     writeLock = 0;
     txComplete = 1;
     serial_number_rxd = -1;
+    num_in_buffer = 0;
 }
 
 void tx232isr()
@@ -437,6 +437,7 @@ void tx232isr()
 
     // Clear writeLock
     writeLock = 0;
+    --num_in_buffer;
 
     if (write_trail_idx == write_lead_idx)
     {

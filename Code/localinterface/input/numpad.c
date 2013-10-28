@@ -105,7 +105,7 @@ void numpadISR()
         case BUTTON_TARE:
             /*Tare button was pressed.*/
             /*Set the tare offset to the current weight.*/
-            tare_offset = global_weight;
+            tare_offset += global_weight;
             break;
         case BUTTON_MODE:
             /*Changes mode.*/
