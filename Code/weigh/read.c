@@ -11,7 +11,7 @@ void ADCisr(void)
 {
     PIR1bits.ADIF = 0;
 
-    raw_weight[ADC_lead_idx++] = ((int)ADRESH << 8) | ADRESL;
+    raw_weight[ADC_lead_idx++] = ((unsigned int)ADRESH << 8) | ADRESL;
     if (ADC_lead_idx == ADC_BUFSIZE)
     {
         ADC_lead_idx = 0;
