@@ -16,10 +16,10 @@ public:
 	}
 
 	void sendSerialByte(unsigned char byte);
+	void sendSerialShort(short data);
+	void sendSerialShortArray(array<short> ^data);
 	void sendChange(unsigned char comm_code, unsigned char st_code, unsigned char ack_code);
 	void sendChange(unsigned char comm_code, unsigned char ack_code);
-
-	void timeout(unsigned char ack_code);
 
 	bool waiting;
 private:

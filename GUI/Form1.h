@@ -5,6 +5,7 @@
 #include "states.h"
 #include "commscodes.h"
 
+bool serialBlock = false;
 bool serialChange = false;
 bool weightReady = true;
 short weightData = 0;
@@ -20,6 +21,7 @@ unsigned char numSamples;
 bool newData;
 
 bool startFactory;
+unsigned short rawWeight;
 
 unsigned short refreshCount = REFRESH_COUNT;
 
@@ -84,14 +86,14 @@ namespace FennecScalesGUI {
 
 	private: System::Windows::Forms::Label^  label1;
 	private: System::Windows::Forms::Button^  button1;
-	private: System::Windows::Forms::GroupBox^  State;
 
-	private: System::Windows::Forms::RadioButton^  radioCount;
-	private: System::Windows::Forms::RadioButton^  radioWeigh;
-	private: System::Windows::Forms::CheckBox^  checkFactory;
-	private: System::Windows::Forms::GroupBox^  warningsBox;
-	private: System::Windows::Forms::CheckBox^  overWarningCB;
-	private: System::Windows::Forms::CheckBox^  evWarningCB;
+
+
+
+
+
+
+
 			 
 			 FrmFactoryMode^ factoryForm;
 			 FrmUsrRemote^ usrRemoteForm;
@@ -99,7 +101,7 @@ namespace FennecScalesGUI {
 			 SerialPort^ port;
 			 SerialComms^ comms;
 			 SerialDataReceivedEventHandler^ form1SerialHandler;
-	private: System::Windows::Forms::Button^  facButton;
+
 	private: System::Windows::Forms::Timer^  timer1;
 	private: System::ComponentModel::IContainer^  components;
 
@@ -123,18 +125,8 @@ namespace FennecScalesGUI {
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->button1 = (gcnew System::Windows::Forms::Button());
-			this->State = (gcnew System::Windows::Forms::GroupBox());
-			this->checkFactory = (gcnew System::Windows::Forms::CheckBox());
-			this->radioCount = (gcnew System::Windows::Forms::RadioButton());
-			this->radioWeigh = (gcnew System::Windows::Forms::RadioButton());
-			this->warningsBox = (gcnew System::Windows::Forms::GroupBox());
-			this->overWarningCB = (gcnew System::Windows::Forms::CheckBox());
-			this->evWarningCB = (gcnew System::Windows::Forms::CheckBox());
-			this->facButton = (gcnew System::Windows::Forms::Button());
 			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
-			this->State->SuspendLayout();
-			this->warningsBox->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// pictureBox1
@@ -154,11 +146,11 @@ namespace FennecScalesGUI {
 			this->label1->AutoSize = true;
 			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 20.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
-			this->label1->Location = System::Drawing::Point(99, 9);
+			this->label1->Location = System::Drawing::Point(127, 9);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(267, 31);
+			this->label1->Size = System::Drawing::Size(207, 31);
 			this->label1->TabIndex = 2;
-			this->label1->Text = L"Fennec Scales GUI";
+			this->label1->Text = L"Fennec Scales";
 			// 
 			// button1
 			// 
@@ -169,96 +161,6 @@ namespace FennecScalesGUI {
 			this->button1->Text = L"Proceed to remote scale control";
 			this->button1->UseVisualStyleBackColor = true;
 			this->button1->Click += gcnew System::EventHandler(this, &Form1::button1_Click);
-			// 
-			// State
-			// 
-			this->State->Controls->Add(this->checkFactory);
-			this->State->Controls->Add(this->radioCount);
-			this->State->Controls->Add(this->radioWeigh);
-			this->State->Location = System::Drawing::Point(5, 101);
-			this->State->Name = L"State";
-			this->State->Size = System::Drawing::Size(59, 100);
-			this->State->TabIndex = 6;
-			this->State->TabStop = false;
-			this->State->Text = L"State";
-			// 
-			// checkFactory
-			// 
-			this->checkFactory->AutoSize = true;
-			this->checkFactory->Location = System::Drawing::Point(12, 72);
-			this->checkFactory->Name = L"checkFactory";
-			this->checkFactory->Size = System::Drawing::Size(32, 17);
-			this->checkFactory->TabIndex = 2;
-			this->checkFactory->Text = L"F";
-			this->checkFactory->UseVisualStyleBackColor = true;
-			this->checkFactory->CheckedChanged += gcnew System::EventHandler(this, &Form1::checkFactory_CheckedChanged);
-			// 
-			// radioCount
-			// 
-			this->radioCount->AutoSize = true;
-			this->radioCount->Location = System::Drawing::Point(12, 49);
-			this->radioCount->Name = L"radioCount";
-			this->radioCount->Size = System::Drawing::Size(32, 17);
-			this->radioCount->TabIndex = 1;
-			this->radioCount->Text = L"C";
-			this->radioCount->UseVisualStyleBackColor = true;
-			this->radioCount->CheckedChanged += gcnew System::EventHandler(this, &Form1::radioCount_CheckedChanged);
-			// 
-			// radioWeigh
-			// 
-			this->radioWeigh->AutoSize = true;
-			this->radioWeigh->Checked = true;
-			this->radioWeigh->Location = System::Drawing::Point(12, 26);
-			this->radioWeigh->Name = L"radioWeigh";
-			this->radioWeigh->Size = System::Drawing::Size(36, 17);
-			this->radioWeigh->TabIndex = 0;
-			this->radioWeigh->TabStop = true;
-			this->radioWeigh->Text = L"W";
-			this->radioWeigh->UseVisualStyleBackColor = true;
-			this->radioWeigh->CheckedChanged += gcnew System::EventHandler(this, &Form1::radioWeigh_CheckedChanged);
-			// 
-			// warningsBox
-			// 
-			this->warningsBox->Controls->Add(this->overWarningCB);
-			this->warningsBox->Controls->Add(this->evWarningCB);
-			this->warningsBox->Location = System::Drawing::Point(5, 207);
-			this->warningsBox->Name = L"warningsBox";
-			this->warningsBox->Size = System::Drawing::Size(59, 100);
-			this->warningsBox->TabIndex = 7;
-			this->warningsBox->TabStop = false;
-			this->warningsBox->Text = L"Warnings";
-			// 
-			// overWarningCB
-			// 
-			this->overWarningCB->AutoSize = true;
-			this->overWarningCB->Location = System::Drawing::Point(11, 62);
-			this->overWarningCB->Name = L"overWarningCB";
-			this->overWarningCB->Size = System::Drawing::Size(34, 17);
-			this->overWarningCB->TabIndex = 3;
-			this->overWarningCB->Text = L"O";
-			this->overWarningCB->UseVisualStyleBackColor = true;
-			this->overWarningCB->CheckedChanged += gcnew System::EventHandler(this, &Form1::overWarningCB_CheckedChanged);
-			// 
-			// evWarningCB
-			// 
-			this->evWarningCB->AutoSize = true;
-			this->evWarningCB->Location = System::Drawing::Point(12, 39);
-			this->evWarningCB->Name = L"evWarningCB";
-			this->evWarningCB->Size = System::Drawing::Size(33, 17);
-			this->evWarningCB->TabIndex = 2;
-			this->evWarningCB->Text = L"V";
-			this->evWarningCB->UseVisualStyleBackColor = true;
-			this->evWarningCB->CheckedChanged += gcnew System::EventHandler(this, &Form1::evWarningCB_CheckedChanged);
-			// 
-			// facButton
-			// 
-			this->facButton->Location = System::Drawing::Point(12, 12);
-			this->facButton->Name = L"facButton";
-			this->facButton->Size = System::Drawing::Size(75, 23);
-			this->facButton->TabIndex = 8;
-			this->facButton->Text = L"FACTORY";
-			this->facButton->UseVisualStyleBackColor = true;
-			this->facButton->Click += gcnew System::EventHandler(this, &Form1::facButton_Click);
 			// 
 			// timer1
 			// 
@@ -272,9 +174,6 @@ namespace FennecScalesGUI {
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(453, 319);
-			this->Controls->Add(this->facButton);
-			this->Controls->Add(this->warningsBox);
-			this->Controls->Add(this->State);
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->label1);
@@ -283,10 +182,6 @@ namespace FennecScalesGUI {
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Fennec Scales";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
-			this->State->ResumeLayout(false);
-			this->State->PerformLayout();
-			this->warningsBox->ResumeLayout(false);
-			this->warningsBox->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -304,7 +199,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 			 int dataInt;
 			 unsigned char data;
 
-			 while ((dataInt = port->ReadByte()) != -1)
+			 while ((dataInt = port->ReadByte()) != -1 && !serialBlock)
 			 {
 				 data = (unsigned char) dataInt;
 				 refreshCount = REFRESH_COUNT;
@@ -472,6 +367,23 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					}
 					inProgress = 0;
 				 }
+				 else if (inProgress == INPGRSS_RAWVAL)
+				 {
+					 static bool first = true;
+
+					 if (first)
+					 {
+						 rawWeight = (unsigned short) data << 8;
+						 first = false;
+					 }
+					 else
+					 {
+						 rawWeight |= (unsigned short) data;
+						 first = true;
+						 inProgress = 0;
+						 ack = COMM_CAL_ACK_RAWVAL;
+					 }
+				 }
 
 				 // Check for reception of codes from the PIC
 				 else switch (data)
@@ -517,6 +429,12 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 break;
 				 case COMM_ACK_NUM_SAMPLES:
 					 inProgress = INPGRSS_SAMPLES;
+					 break;
+				 case COMM_CAL_ACK_RAWVAL:
+					 inProgress = INPGRSS_RAWVAL;
+					 break;
+				 case COMM_CAL_ACK_DATA:
+					 ack = COMM_CAL_ACK_DATA;
 					 break;
 				 }
 			 }
@@ -568,48 +486,7 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 			 }
 
 		 }
-private: System::Void radioWeigh_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			 if (radioWeigh->Checked)
-			 {
-				 cur_state.state = WEIGH;
-			 }
-		 }
-private: System::Void radioCount_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			 if (radioCount->Checked)
-			 {
-				 cur_state.state = COUNT;
-			 }
-		 }
-private: System::Void checkFactory_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			 if (checkFactory->Checked)
-			 {
-				 cur_state.isFactory = true;
-			 }
-			 else
-			 {
-				 cur_state.isFactory = false;
-			 }
-		 }
-private: System::Void evWarningCB_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			 if (evWarningCB->Checked)
-			 {
-				 cur_warnings |= EXCESSIVE_VARIANCE;
-			 }
-			 else
-			 {
-				 cur_warnings &= ~EXCESSIVE_VARIANCE;
-			 }
-		 }
-private: System::Void overWarningCB_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
-			 if (overWarningCB->Checked)
-			 {
-				 cur_warnings |= OVERLOAD;
-			 }
-			 else
-			 {
-				 cur_warnings &= ~OVERLOAD;
-			 }
-		 }
+
 private: System::Void sendSerialByte(unsigned char byte)
 		 {
 			 /*array<unsigned char>^ sendArray = gcnew array<unsigned char>(1);
@@ -618,11 +495,7 @@ private: System::Void sendSerialByte(unsigned char byte)
 			 SerialComms ^comms = gcnew SerialComms(port);
 			 comms->sendSerialByte(byte);
 		 }
-private: System::Void facButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			 /*this->Hide();
-			 factoryForm->Open();*/
-			 startFactory = true;
-		 }
+
 private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e) {
 			 if (startFactory)
 			 {

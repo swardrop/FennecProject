@@ -39,8 +39,10 @@ extern bool isRemote;
 #define INPGRSS_READINGS			0xD6
 #define INPGRSS_SAMPLES				0xD7
 #define INPGRSS_STARTFAC			0xD8
+#define INPGRSS_RAWVAL				0xD9
 
 // Communication state variables
+extern bool serialBlock;
 extern bool serialChange;
 extern bool weightReady;
 extern short weightData;
@@ -56,6 +58,8 @@ extern bool newData;
 extern unsigned char receivedCount;
 extern unsigned int weightPer1000Items;
 extern unsigned short count_serial;
+
+extern unsigned short rawWeight;
 
 extern unsigned short mean;
 extern unsigned short variance;

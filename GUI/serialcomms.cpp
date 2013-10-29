@@ -59,7 +59,24 @@ void SerialComms::sendChange(unsigned char comm_code, unsigned char ack_code)
 	sendChange(comm_code, 0xFF, ack_code);
 }
 
-void SerialComms::timeout(unsigned char ack_code)
+void SerialComms::sendSerialShort(short data)
 {
+	unsigned short temp = data & 0xFF00;
+	temp >>= 8;
+	unsigned char ch_temp = (unsigned char) temp;
+	sendSerialByte(ch_temp);
+	//sendSerialByte( (unsigned char) ((data & 0xFF00) >> 8) );
+	sendSerialByte( (unsigned char) (data & 0x00FF) );
+}
 
+void SerialComms::sendSerialShortArray(array<short> ^data)
+{
+	array<unsigned char> ^sendArray = gcnew array<unsigned char>(data->Length * 2);
+	int j = 0;
+	for (int i = 0; i < data->Length; ++i)
+	{
+		sendArray[j++] = (data[i] & 0xFF00) >> 8;
+		sendArray[j++] = (data[i] & 0x00FF);
+	}
+	sp->Write(sendArray, 0, sendArray->Length);
 }

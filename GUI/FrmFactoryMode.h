@@ -27,13 +27,35 @@ namespace FennecScalesGUI {
 			remoteFrm = remFrm;
 			comms = sc;
 			remoteFrm->Hide();
+
+			rawWeights = gcnew array<unsigned short>(5);
+
+			buttons = gcnew array<Button ^>(5);
+			buttons[0] = zeroSetButton;
+			buttons[1] = two50SetButton;
+			buttons[2] = five00SetButton;
+			buttons[3] = seven50SetButton;
+			buttons[4] = oneKiloSetButton;
+			
+			buttonsOn = gcnew array<bool>(5);
+			for (int i = 0; i < 5; ++i)
+			{
+				buttonsOn[i] = false;
+			}
+
+			textBox = gcnew array<TextBox ^>(5);
+			textBox[0] = zeroBox;
+			textBox[1] = two50Box;
+			textBox[2] = five00Box;
+			textBox[3] = seven50Box;
+			textBox[4] = oneKiloBox;
 		}
 
 		void Open()
 		{
 			resetFactoryForm();
-			this->Show();
 			remoteFrm->Show();
+			this->Show();
 			comms->sendSerialByte(COMM_ACK_FAC);
 		}
 
@@ -52,6 +74,11 @@ namespace FennecScalesGUI {
 	protected: 
 		FrmUsrRemote ^remoteFrm;
 		SerialComms ^comms;
+		array<unsigned short> ^rawWeights;
+		array<Button ^> ^buttons;
+		array<TextBox ^> ^textBox;
+		array<bool> ^buttonsOn;
+
 	private: System::Windows::Forms::Panel^  sidePanel;
 	protected: 
 
@@ -104,6 +131,26 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Label^  label9;
 	private: System::Windows::Forms::Label^  label8;
 	private: System::Windows::Forms::Label^  confirmLabel;
+	private: System::Windows::Forms::ProgressBar^  progressBar;
+	private: System::Windows::Forms::Button^  oneKiloSetButton;
+	private: System::Windows::Forms::TextBox^  oneKiloBox;
+	private: System::Windows::Forms::Label^  label15;
+	private: System::Windows::Forms::Button^  seven50SetButton;
+	private: System::Windows::Forms::TextBox^  seven50Box;
+	private: System::Windows::Forms::Label^  label14;
+	private: System::Windows::Forms::Button^  five00SetButton;
+	private: System::Windows::Forms::TextBox^  five00Box;
+	private: System::Windows::Forms::Label^  label13;
+	private: System::Windows::Forms::Button^  two50SetButton;
+	private: System::Windows::Forms::TextBox^  two50Box;
+	private: System::Windows::Forms::Label^  label12;
+	private: System::Windows::Forms::Button^  zeroSetButton;
+	private: System::Windows::Forms::TextBox^  zeroBox;
+	private: System::Windows::Forms::Label^  label11;
+	private: System::Windows::Forms::Label^  label10;
+	private: System::Windows::Forms::Button^  sendCalibButton;
+private: System::Windows::Forms::Button^  resetCalibButton;
+private: System::Windows::Forms::Label^  calibConfLabel;
 
 
 
@@ -144,7 +191,28 @@ namespace FennecScalesGUI {
 			this->richTextBox1 = (gcnew System::Windows::Forms::RichTextBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->calibratePanel = (gcnew System::Windows::Forms::Panel());
+			this->resetCalibButton = (gcnew System::Windows::Forms::Button());
+			this->calibConfLabel = (gcnew System::Windows::Forms::Label());
+			this->progressBar = (gcnew System::Windows::Forms::ProgressBar());
+			this->oneKiloSetButton = (gcnew System::Windows::Forms::Button());
+			this->oneKiloBox = (gcnew System::Windows::Forms::TextBox());
+			this->label15 = (gcnew System::Windows::Forms::Label());
+			this->seven50SetButton = (gcnew System::Windows::Forms::Button());
+			this->seven50Box = (gcnew System::Windows::Forms::TextBox());
+			this->label14 = (gcnew System::Windows::Forms::Label());
+			this->five00SetButton = (gcnew System::Windows::Forms::Button());
+			this->five00Box = (gcnew System::Windows::Forms::TextBox());
+			this->label13 = (gcnew System::Windows::Forms::Label());
+			this->two50SetButton = (gcnew System::Windows::Forms::Button());
+			this->two50Box = (gcnew System::Windows::Forms::TextBox());
+			this->label12 = (gcnew System::Windows::Forms::Label());
+			this->zeroSetButton = (gcnew System::Windows::Forms::Button());
+			this->zeroBox = (gcnew System::Windows::Forms::TextBox());
+			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->label10 = (gcnew System::Windows::Forms::Label());
+			this->sendCalibButton = (gcnew System::Windows::Forms::Button());
 			this->samplesPanel = (gcnew System::Windows::Forms::Panel());
+			this->confirmLabel = (gcnew System::Windows::Forms::Label());
 			this->sendNumSamplesButton = (gcnew System::Windows::Forms::Button());
 			this->numSamplesBox = (gcnew System::Windows::Forms::NumericUpDown());
 			this->label5 = (gcnew System::Windows::Forms::Label());
@@ -162,7 +230,6 @@ namespace FennecScalesGUI {
 			this->updateReadingsButton = (gcnew System::Windows::Forms::Button());
 			this->readingsBox = (gcnew System::Windows::Forms::RichTextBox());
 			this->label2 = (gcnew System::Windows::Forms::Label());
-			this->confirmLabel = (gcnew System::Windows::Forms::Label());
 			this->sidePanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->groupBox2->SuspendLayout();
@@ -170,6 +237,7 @@ namespace FennecScalesGUI {
 			this->bottomPanel->SuspendLayout();
 			this->defaultPanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox2))->BeginInit();
+			this->calibratePanel->SuspendLayout();
 			this->samplesPanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numSamplesBox))->BeginInit();
 			this->statsPanel->SuspendLayout();
@@ -185,7 +253,7 @@ namespace FennecScalesGUI {
 			this->sidePanel->Dock = System::Windows::Forms::DockStyle::Left;
 			this->sidePanel->Location = System::Drawing::Point(0, 0);
 			this->sidePanel->Name = L"sidePanel";
-			this->sidePanel->Size = System::Drawing::Size(113, 556);
+			this->sidePanel->Size = System::Drawing::Size(113, 319);
 			this->sidePanel->TabIndex = 2;
 			// 
 			// pictureBox1
@@ -339,9 +407,9 @@ namespace FennecScalesGUI {
 			this->bottomPanel->BackColor = System::Drawing::SystemColors::ControlLight;
 			this->bottomPanel->Controls->Add(this->closeButton);
 			this->bottomPanel->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->bottomPanel->Location = System::Drawing::Point(113, 516);
+			this->bottomPanel->Location = System::Drawing::Point(113, 279);
 			this->bottomPanel->Name = L"bottomPanel";
-			this->bottomPanel->Size = System::Drawing::Size(738, 40);
+			this->bottomPanel->Size = System::Drawing::Size(342, 40);
 			this->bottomPanel->TabIndex = 5;
 			// 
 			// closeButton
@@ -403,10 +471,216 @@ namespace FennecScalesGUI {
 			// 
 			// calibratePanel
 			// 
-			this->calibratePanel->Location = System::Drawing::Point(446, 209);
+			this->calibratePanel->Controls->Add(this->resetCalibButton);
+			this->calibratePanel->Controls->Add(this->calibConfLabel);
+			this->calibratePanel->Controls->Add(this->progressBar);
+			this->calibratePanel->Controls->Add(this->oneKiloSetButton);
+			this->calibratePanel->Controls->Add(this->oneKiloBox);
+			this->calibratePanel->Controls->Add(this->label15);
+			this->calibratePanel->Controls->Add(this->seven50SetButton);
+			this->calibratePanel->Controls->Add(this->seven50Box);
+			this->calibratePanel->Controls->Add(this->label14);
+			this->calibratePanel->Controls->Add(this->five00SetButton);
+			this->calibratePanel->Controls->Add(this->five00Box);
+			this->calibratePanel->Controls->Add(this->label13);
+			this->calibratePanel->Controls->Add(this->two50SetButton);
+			this->calibratePanel->Controls->Add(this->two50Box);
+			this->calibratePanel->Controls->Add(this->label12);
+			this->calibratePanel->Controls->Add(this->zeroSetButton);
+			this->calibratePanel->Controls->Add(this->zeroBox);
+			this->calibratePanel->Controls->Add(this->label11);
+			this->calibratePanel->Controls->Add(this->label10);
+			this->calibratePanel->Controls->Add(this->sendCalibButton);
+			this->calibratePanel->Location = System::Drawing::Point(114, 0);
 			this->calibratePanel->Name = L"calibratePanel";
-			this->calibratePanel->Size = System::Drawing::Size(8, 16);
+			this->calibratePanel->Size = System::Drawing::Size(339, 273);
 			this->calibratePanel->TabIndex = 7;
+			// 
+			// resetCalibButton
+			// 
+			this->resetCalibButton->Location = System::Drawing::Point(221, 213);
+			this->resetCalibButton->Name = L"resetCalibButton";
+			this->resetCalibButton->Size = System::Drawing::Size(75, 23);
+			this->resetCalibButton->TabIndex = 29;
+			this->resetCalibButton->Text = L"Reset";
+			this->resetCalibButton->UseVisualStyleBackColor = true;
+			this->resetCalibButton->Visible = false;
+			this->resetCalibButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::resetCalibButton_Click);
+			// 
+			// calibConfLabel
+			// 
+			this->calibConfLabel->AutoSize = true;
+			this->calibConfLabel->Location = System::Drawing::Point(63, 242);
+			this->calibConfLabel->Name = L"calibConfLabel";
+			this->calibConfLabel->Size = System::Drawing::Size(106, 13);
+			this->calibConfLabel->TabIndex = 28;
+			this->calibConfLabel->Text = L"Calibration data sent.";
+			this->calibConfLabel->Visible = false;
+			// 
+			// progressBar
+			// 
+			this->progressBar->Location = System::Drawing::Point(46, 212);
+			this->progressBar->Name = L"progressBar";
+			this->progressBar->Size = System::Drawing::Size(250, 23);
+			this->progressBar->Step = 1;
+			this->progressBar->TabIndex = 26;
+			// 
+			// oneKiloSetButton
+			// 
+			this->oneKiloSetButton->Location = System::Drawing::Point(221, 173);
+			this->oneKiloSetButton->Name = L"oneKiloSetButton";
+			this->oneKiloSetButton->Size = System::Drawing::Size(75, 23);
+			this->oneKiloSetButton->TabIndex = 25;
+			this->oneKiloSetButton->Text = L"Set";
+			this->oneKiloSetButton->UseVisualStyleBackColor = true;
+			this->oneKiloSetButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::oneKiloSetButton_Click);
+			// 
+			// oneKiloBox
+			// 
+			this->oneKiloBox->BackColor = System::Drawing::SystemColors::Control;
+			this->oneKiloBox->Location = System::Drawing::Point(113, 175);
+			this->oneKiloBox->Name = L"oneKiloBox";
+			this->oneKiloBox->Size = System::Drawing::Size(99, 20);
+			this->oneKiloBox->TabIndex = 24;
+			// 
+			// label15
+			// 
+			this->label15->AutoSize = true;
+			this->label15->Location = System::Drawing::Point(63, 178);
+			this->label15->Name = L"label15";
+			this->label15->Size = System::Drawing::Size(43, 13);
+			this->label15->TabIndex = 23;
+			this->label15->Text = L"1000 g:";
+			// 
+			// seven50SetButton
+			// 
+			this->seven50SetButton->Location = System::Drawing::Point(221, 147);
+			this->seven50SetButton->Name = L"seven50SetButton";
+			this->seven50SetButton->Size = System::Drawing::Size(75, 23);
+			this->seven50SetButton->TabIndex = 22;
+			this->seven50SetButton->Text = L"Set";
+			this->seven50SetButton->UseVisualStyleBackColor = true;
+			this->seven50SetButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::seven50SetButton_Click);
+			// 
+			// seven50Box
+			// 
+			this->seven50Box->BackColor = System::Drawing::SystemColors::Control;
+			this->seven50Box->Location = System::Drawing::Point(113, 149);
+			this->seven50Box->Name = L"seven50Box";
+			this->seven50Box->Size = System::Drawing::Size(99, 20);
+			this->seven50Box->TabIndex = 21;
+			// 
+			// label14
+			// 
+			this->label14->AutoSize = true;
+			this->label14->Location = System::Drawing::Point(69, 152);
+			this->label14->Name = L"label14";
+			this->label14->Size = System::Drawing::Size(37, 13);
+			this->label14->TabIndex = 20;
+			this->label14->Text = L"750 g:";
+			// 
+			// five00SetButton
+			// 
+			this->five00SetButton->Location = System::Drawing::Point(221, 121);
+			this->five00SetButton->Name = L"five00SetButton";
+			this->five00SetButton->Size = System::Drawing::Size(75, 23);
+			this->five00SetButton->TabIndex = 19;
+			this->five00SetButton->Text = L"Set";
+			this->five00SetButton->UseVisualStyleBackColor = true;
+			this->five00SetButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::five00SetButton_Click);
+			// 
+			// five00Box
+			// 
+			this->five00Box->BackColor = System::Drawing::SystemColors::Control;
+			this->five00Box->Location = System::Drawing::Point(113, 123);
+			this->five00Box->Name = L"five00Box";
+			this->five00Box->Size = System::Drawing::Size(99, 20);
+			this->five00Box->TabIndex = 18;
+			// 
+			// label13
+			// 
+			this->label13->AutoSize = true;
+			this->label13->Location = System::Drawing::Point(69, 126);
+			this->label13->Name = L"label13";
+			this->label13->Size = System::Drawing::Size(37, 13);
+			this->label13->TabIndex = 17;
+			this->label13->Text = L"500 g:";
+			// 
+			// two50SetButton
+			// 
+			this->two50SetButton->Location = System::Drawing::Point(221, 95);
+			this->two50SetButton->Name = L"two50SetButton";
+			this->two50SetButton->Size = System::Drawing::Size(75, 23);
+			this->two50SetButton->TabIndex = 16;
+			this->two50SetButton->Text = L"Set";
+			this->two50SetButton->UseVisualStyleBackColor = true;
+			this->two50SetButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::two50SetButton_Click);
+			// 
+			// two50Box
+			// 
+			this->two50Box->BackColor = System::Drawing::SystemColors::Control;
+			this->two50Box->Location = System::Drawing::Point(113, 97);
+			this->two50Box->Name = L"two50Box";
+			this->two50Box->Size = System::Drawing::Size(99, 20);
+			this->two50Box->TabIndex = 15;
+			// 
+			// label12
+			// 
+			this->label12->AutoSize = true;
+			this->label12->Location = System::Drawing::Point(69, 100);
+			this->label12->Name = L"label12";
+			this->label12->Size = System::Drawing::Size(37, 13);
+			this->label12->TabIndex = 14;
+			this->label12->Text = L"250 g:";
+			// 
+			// zeroSetButton
+			// 
+			this->zeroSetButton->Location = System::Drawing::Point(221, 69);
+			this->zeroSetButton->Name = L"zeroSetButton";
+			this->zeroSetButton->Size = System::Drawing::Size(75, 23);
+			this->zeroSetButton->TabIndex = 13;
+			this->zeroSetButton->Text = L"Set";
+			this->zeroSetButton->UseVisualStyleBackColor = true;
+			this->zeroSetButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::zeroSetButton_Click);
+			// 
+			// zeroBox
+			// 
+			this->zeroBox->BackColor = System::Drawing::SystemColors::Control;
+			this->zeroBox->Location = System::Drawing::Point(113, 71);
+			this->zeroBox->Name = L"zeroBox";
+			this->zeroBox->Size = System::Drawing::Size(99, 20);
+			this->zeroBox->TabIndex = 12;
+			// 
+			// label11
+			// 
+			this->label11->AutoSize = true;
+			this->label11->Location = System::Drawing::Point(43, 74);
+			this->label11->Name = L"label11";
+			this->label11->Size = System::Drawing::Size(63, 13);
+			this->label11->TabIndex = 11;
+			this->label11->Text = L"Empty (0 g):";
+			// 
+			// label10
+			// 
+			this->label10->AutoSize = true;
+			this->label10->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->label10->Location = System::Drawing::Point(85, 23);
+			this->label10->Name = L"label10";
+			this->label10->Size = System::Drawing::Size(160, 24);
+			this->label10->TabIndex = 10;
+			this->label10->Text = L"Calibrate Scales";
+			// 
+			// sendCalibButton
+			// 
+			this->sendCalibButton->Location = System::Drawing::Point(46, 211);
+			this->sendCalibButton->Name = L"sendCalibButton";
+			this->sendCalibButton->Size = System::Drawing::Size(250, 23);
+			this->sendCalibButton->TabIndex = 27;
+			this->sendCalibButton->Text = L"Finalise Scale Calibration";
+			this->sendCalibButton->UseVisualStyleBackColor = true;
+			this->sendCalibButton->Visible = false;
+			this->sendCalibButton->Click += gcnew System::EventHandler(this, &FrmFactoryMode::sendCalibButton_Click);
 			// 
 			// samplesPanel
 			// 
@@ -419,6 +693,16 @@ namespace FennecScalesGUI {
 			this->samplesPanel->Name = L"samplesPanel";
 			this->samplesPanel->Size = System::Drawing::Size(339, 273);
 			this->samplesPanel->TabIndex = 8;
+			// 
+			// confirmLabel
+			// 
+			this->confirmLabel->AutoSize = true;
+			this->confirmLabel->Location = System::Drawing::Point(104, 200);
+			this->confirmLabel->Name = L"confirmLabel";
+			this->confirmLabel->Size = System::Drawing::Size(142, 13);
+			this->confirmLabel->TabIndex = 15;
+			this->confirmLabel->Text = L"Number of Samples set to (x)";
+			this->confirmLabel->Visible = false;
 			// 
 			// sendNumSamplesButton
 			// 
@@ -470,7 +754,7 @@ namespace FennecScalesGUI {
 			this->statsPanel->Controls->Add(this->label6);
 			this->statsPanel->Controls->Add(this->updateStatsButton);
 			this->statsPanel->Controls->Add(this->label3);
-			this->statsPanel->Location = System::Drawing::Point(119, 279);
+			this->statsPanel->Location = System::Drawing::Point(114, 0);
 			this->statsPanel->Name = L"statsPanel";
 			this->statsPanel->Size = System::Drawing::Size(339, 273);
 			this->statsPanel->TabIndex = 9;
@@ -567,7 +851,7 @@ namespace FennecScalesGUI {
 			this->readingsPanel->Controls->Add(this->updateReadingsButton);
 			this->readingsPanel->Controls->Add(this->readingsBox);
 			this->readingsPanel->Controls->Add(this->label2);
-			this->readingsPanel->Location = System::Drawing::Point(477, 0);
+			this->readingsPanel->Location = System::Drawing::Point(114, 0);
 			this->readingsPanel->Name = L"readingsPanel";
 			this->readingsPanel->Size = System::Drawing::Size(339, 273);
 			this->readingsPanel->TabIndex = 10;
@@ -603,21 +887,11 @@ namespace FennecScalesGUI {
 			this->label2->TabIndex = 0;
 			this->label2->Text = L"Weight Readings";
 			// 
-			// confirmLabel
-			// 
-			this->confirmLabel->AutoSize = true;
-			this->confirmLabel->Location = System::Drawing::Point(104, 200);
-			this->confirmLabel->Name = L"confirmLabel";
-			this->confirmLabel->Size = System::Drawing::Size(142, 13);
-			this->confirmLabel->TabIndex = 15;
-			this->confirmLabel->Text = L"Number of Samples set to (x)";
-			this->confirmLabel->Visible = false;
-			// 
 			// FrmFactoryMode
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(851, 556);
+			this->ClientSize = System::Drawing::Size(455, 319);
 			this->Controls->Add(this->readingsPanel);
 			this->Controls->Add(this->statsPanel);
 			this->Controls->Add(this->samplesPanel);
@@ -643,6 +917,8 @@ namespace FennecScalesGUI {
 			this->defaultPanel->ResumeLayout(false);
 			this->defaultPanel->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox2))->EndInit();
+			this->calibratePanel->ResumeLayout(false);
+			this->calibratePanel->PerformLayout();
 			this->samplesPanel->ResumeLayout(false);
 			this->samplesPanel->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->numSamplesBox))->EndInit();
@@ -671,6 +947,67 @@ namespace FennecScalesGUI {
 				resetFactoryForm();
 				defaultPanel->Hide();
 				panel->Show();
+			}
+
+			unsigned short getRawWeight()
+			{
+				comms->sendChange(COMM_CAL_RAWVAL, COMM_CAL_ACK_RAWVAL);
+				return rawWeight;
+			}
+
+			void setButtonPress(int id)
+			{
+				if (buttonsOn[id])
+				{
+					if (progressBar->Value == progressBar->Maximum)
+					{
+						progressBar->Show();
+						sendCalibButton->Hide();
+					}
+					buttons[id]->Text = "Set";
+					textBox[id]->Text = "";
+					progressBar->Increment(-20);
+					buttonsOn[id] = false;
+				}
+				else
+				{
+					rawWeights[id] = getRawWeight();
+
+					buttons[id]->Text = "Reset";
+					textBox[id]->Text = String::Format("{0}", rawWeights[id]);
+
+					progressBar->Increment(20);
+					if (progressBar->Value == progressBar->Maximum)
+					{
+						progressBar->Hide();
+						sendCalibButton->Show();
+					}
+					buttonsOn[id] = true;
+				}
+			}
+
+			void calcCalibrate(array<short> ^gradients, array<short> ^intercepts)
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					gradients[i] = (short) ( (double) 250*CAL_GRADIENT_FACTOR / double (rawWeights[i + 1] - rawWeights[i]));
+					intercepts[i] =  250*i - rawWeights[i] * (int) gradients[i] / CAL_GRADIENT_FACTOR;
+				}
+			}
+
+			void resetCalibrateFrame()
+			{
+				for (int i = 0; i < 5; ++i)
+				{
+					buttons[i]->Text = "Set";
+					textBox[i]->Text = "";
+					progressBar->Increment(-20);
+					buttonsOn[i] = false;
+				}
+
+				progressBar->Show();
+				resetCalibButton->Hide();
+				calibConfLabel->Hide();
 			}
 
 			void getStats()
@@ -729,6 +1066,7 @@ private: System::Void FrmFactoryMode_FormClosing(System::Object^  sender, System
 				 {
 					 this->Hide();
 					 remoteFrm->Show();
+					 closeFactory = false;
 				 }
 			 }
 			 
@@ -748,6 +1086,7 @@ private: System::Void rbCalibrate_CheckedChanged(System::Object^  sender, System
 
 			 if (rbCalibrate->Checked)
 			 {
+				 resetCalibrateFrame();
 				 showPanel(calibratePanel);
 			 }
 		 }
@@ -787,6 +1126,94 @@ private: System::Void sendNumSamplesButton_Click(System::Object^  sender, System
 
 			 confirmLabel->Text = String::Format("Number of samples set to {0}.", numSamplesBox->Value);
 			 confirmLabel->Visible = true;
+		 }
+private: System::Void zeroSetButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 setButtonPress(0);
+		 }
+private: System::Void two50SetButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 setButtonPress(1);
+		 }
+private: System::Void five00SetButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 setButtonPress(2);
+		 }
+private: System::Void seven50SetButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 setButtonPress(3);
+		 }
+private: System::Void oneKiloSetButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 setButtonPress(4);
+		 }
+private: System::Void sendCalibButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 array<short> ^gradients = gcnew array<short>(4);
+			 array<short> ^intercepts = gcnew array<short>(4);
+			 array<short> ^combined = gcnew array<short>(12);
+			 bool fail = false;
+
+			// Disable serial handling of anything else
+			serialBlock = true;
+
+			// First, produce the calibration matrix
+			calcCalibrate(gradients, intercepts);
+
+			// Send code to initiate data exchange
+			//comms->sendSerialByte(COMM_CAL_DATA);
+			int j = 0;
+			combined[j++] = COMM_CAL_DATA;
+
+			// Then send the three middle corner points
+			for (int i = 1; i < 4; ++i)
+			{
+				//comms->sendSerialShort(rawWeights[i]);
+				combined[j++] = rawWeights[i];
+			}
+
+			// Then send the four gradients
+			for (int i = 0; i < 4; ++i)
+			{
+				//comms->sendSerialShort(gradients[i]);
+				combined[j++] = gradients[i];
+			}
+
+			// Then send the four y-intercepts
+			for (int i = 0; i < 4; ++i)
+			{
+				//comms->sendSerialShort(intercepts[i]);
+				combined[j++] = intercepts[i];
+			}
+
+			comms->sendSerialShortArray(combined);
+
+			// Re-enable serial handling
+			serialBlock = false;
+
+			calibConfLabel->Text = "Calibration data sent.\nWaiting for acknowledge...";
+			calibConfLabel->Show();
+			this->Update();
+
+			int time = SERIAL_TIMEOUT_GUI;
+
+			while (ack != COMM_CAL_ACK_DATA)
+			{
+				if (!(--time))
+				{
+					fail = true;
+				}
+			}
+			ack = 0;
+
+			if (fail)
+			{
+				calibConfLabel->Text = "Acknowledge from scales not received.\nCalibration may not be successful.";
+			}
+			else
+			{
+				calibConfLabel->Text = "Calibration data sent.\nAcknowledge from scales received.";
+			}
+			sendCalibButton->Hide();
+			 resetCalibButton->Show();
+
+		 }
+private: System::Void resetCalibButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 resetCalibrateFrame();
 		 }
 };
 }

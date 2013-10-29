@@ -71,4 +71,6 @@
 
 #define ADC_BUFSIZE 32
 
+#define CAL_GRADIENT_FACTOR		16384
+
 #endif // COMMSCODES_H
