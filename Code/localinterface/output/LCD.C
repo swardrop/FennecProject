@@ -105,7 +105,7 @@ char stringToLCD(char* str, char line)
     return 1;
 }
 
-void LCDUpdateVal(int value)
+void LCDUpdateVal(int value, char line)
 {
     char valueStr[5];
 
@@ -114,11 +114,11 @@ void LCDUpdateVal(int value)
         case ST_WEIGH:      /*Weigh mode*/
             intToASCII(valueStr, value, 4); /*Max length is 4 digits*/
             
-            stringToLCD(valueStr, 8);   /*Need to start writing at address 8*/
+            stringToLCD(valueStr, line+8);   /*Need to start writing at address 8*/
             break;
         case ST_COUNT_I:    /*Count mode*/
         case ST_COUNT_F:
-            intToASCII(valueStr, value, 3); /*Max length is 3 digits*/
+            intToASCII(valueStr, value, line+13); /*Max length is 3 digits*/
             
             stringToLCD(valueStr, 40);  /*Start on second line*/
             break;

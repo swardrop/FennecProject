@@ -29,9 +29,14 @@ char stringToLCD(char* str, char line);
  * NOTE: This will only change the number. When changing state, the base string
  *       must also be updated.
  *
+ * Assumed string format:
+ *      For weight: "Weight: xxxx g"
+ *      For count: "No of Items: xxx"
+ *
  * @param value     The value (weight in g/oz or number of items) to be written.
+ * @param line      The line to display it on (LCD_LINE_1 or LCD_LINE_2)
  */
-void LCDUpdateVal(int value);
+void LCDUpdateVal(int value, char line);
 
 /**
  * initLCD
