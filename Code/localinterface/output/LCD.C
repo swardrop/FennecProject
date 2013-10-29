@@ -118,9 +118,9 @@ void LCDUpdateVal(int value, char line)
             break;
         case ST_COUNT_I:    /*Count mode*/
         case ST_COUNT_F:
-            intToASCII(valueStr, value, line+13); /*Max length is 3 digits*/
+            intToASCII(valueStr, value, 3); /*Max length is 3 digits*/
             
-            stringToLCD(valueStr, 40);  /*Start on second line*/
+            stringToLCD(valueStr, line+13);  /*Start on second line*/
             break;
         default:
             stringToLCD("Calibrating...", LCD_LINE_1);
