@@ -24,18 +24,18 @@ char getNextNum(void);
 /**
  * Interrupt subroutine for capturing numpad press
  * 
- * Gets Data nibble from IOpins, converts to appropriate value, stores in next 
- * available spot in circular buffer. 
+ * Gets Data nibble from IOpins, converts to appropriate value.
+ * If a number, stores in next available spot in circular buffer.
+ * If a function key pressed, updates the appropriate state variable.
  * 
  * Inputs:  None
  * 
  * Outputs: Value in circular buffer (global)
+ *          Updated state variable (global)
  */
-void numpadISR();
+void numpadISR(void);
 
 void initialiseNumPad(void);
-
-void numpadISR(void);
 
 extern char np_buffer[NP_BUFSIZE];
 

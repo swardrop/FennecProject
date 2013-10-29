@@ -28,6 +28,8 @@ char* np_incPtr(char*);
 
 char getNextNum()
 {
+    /*Takes next number from buffer and returns it*/
+
     char num = *np_trail_ptr;
 
     if(np_trail_ptr == np_lead_ptr)
@@ -84,11 +86,11 @@ char getNextNum()
 void numpadISR()
 {
     char digit; //Current number being converted
-    INTCON1bits.INT0IF = 0;
+    INTCON1bits.INT0IF = 0;     /*Clear flag*/
     
     shut_off_timer_count = TWO_MINUTES;
 
-    // update number from IO pins
+    // update number from IO pins - ignore lower nibble
     digit = (PORTD & 0b11110000);
 
     // Check for Factory Password key combination
@@ -178,11 +180,11 @@ char* np_incPtr(char* p){
 
 void initialiseNumPad(void)
 {
-    INTCONbits.INT0IF = 0;
+    INTCONbits.INT0IF = 0;  /*Clear flag*/
     INTCONbits.INT0IE = 1;  /*Enable INT0 which will trigger on keypress*/
     TRISD |= 0xF0;          /*Set the high nibble of PORTD as input.*/
-    TRISBbits.RB0 = 1;
+    TRISBbits.RB0 = 1;      /*Set pin for Data Available interrupt as input.*/
 
-    np_lead_ptr = np_buffer;
+    np_lead_ptr = np_buffer;    /*Initialise pointers.*/
     np_trail_ptr = np_buffer;
 }

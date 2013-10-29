@@ -2,27 +2,30 @@
 #include "ledbar.h"
 #include <p18f452.h>
 
-int weightFrac2lightPattern(unsigned char weightFraction);
+unsigned int weightFrac2lightPattern(unsigned char weightFraction);
 
 char writeLEDbar(int weight, int max_weight)
 {
     unsigned char weightFraction;
     static unsigned int outVal;
 
-    weightFraction = ((short long int)weight*0x0000FF)/(max_weight);
-    /*This gives weightFraction as a value from 0 to 0xFF, which can easily be converted.*/
-
-    outVal = weightFrac2lightPattern(weightFraction);
-    /*Converts the weight fraction to a light-bar pattern for the LEDs*/
     if (weight < 0)
     {
         outVal = 0;
     }
+    else
+    {
+        /*This gives weightFraction as a value from 0 to 0xFF, which can easily be converted.*/
+        weightFraction = ((short long int)weight*0x0000FF)/(max_weight);
+
+        /*Converts the weight fraction to a light-bar pattern for the LEDs*/
+        outVal = weightFrac2lightPattern(weightFraction);
+    }
+
+    /*Send the value one byte at a time over SPI*/
     exchangeDataSPI(SPI_LED_BAR, (char*)&outVal, TX_PART);
     exchangeDataSPI(SPI_LED_BAR, (char*)&outVal+1, TX_END);
     
-    /* Theoretically, should only return 1 if the SPI write succeeds, and 0 
-     * otherwise, but I don't know how to check this.*/
     /*Return an error if the measured weight is higher than the max.*/
     if (weight > max_weight){
         return -1;
@@ -30,10 +33,9 @@ char writeLEDbar(int weight, int max_weight)
     return 1;
 }
 
-int weightFrac2lightPattern(unsigned char weightFraction)
+unsigned int weightFrac2lightPattern(unsigned char weightFraction)
 {
-    /*This is basically an ugly lookup table, converting the fraction to a pattern.
-     I didn't want it in the main part of the function.*/
+    /*This is basically an ugly lookup table, converting the fraction to a pattern.*/
     unsigned int outVal;
 
     if (weightFraction >= 0xF0) {

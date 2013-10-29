@@ -19,14 +19,8 @@
  * to SPI to turn on x LEDs
  * @param weight        Current weight to display on LEDbar
  * @param max_weight    Weight that is represented by 16 LEDs on.
- * @return              Success(1), SPI fail(0), weight>max(-1)
+ * @return              Success(1), weight>max(-1)
  *
- * Issues (James, 4/10/13):
- * 1. I don't know how to check if SPI succeeded or failed, so my return value
- *    is always 1 if weight < max_weight.
- * 2. If ChipSelect is removed in between writes, then it will latch the wrong
- *    byte - this is an SPI issue. It needs to be possible to write more than
- *    one byte to SPI at a time. 
  */
 char writeLEDbar(int weight, int max_weight);
 

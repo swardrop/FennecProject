@@ -32,16 +32,22 @@ int smoothWeight(void)
     }
     mean = total/num_samples;
 
+    /*Store calculated mean in the buffer of averages.*/
     past_avgs[avgs_idx] = mean;
 
+    /** Average the entire buffer of averages. This will give a moving average algorithm. **/
+
+    /*Reset index when it reaches the end.*/
     if (++avgs_idx == AVGS_BUF_SIZE)
     {
-        avg_buf_full = 1;
+        avg_buf_full = 1;   /*Flag to signify that buffer is full.*/
         avgs_idx = 0;
     }
 
-    if (avg_buf_full)
-    {
+    /* Take an average of the averages currently in the buffer. This will only
+     * be meaningful when the buffer is full, and so is not allowed to execute
+     * before it fills.*/
+    if (avg_buf_full)   {
         total = 0;
         for (temp_idx = 0; temp_idx < AVGS_BUF_SIZE; temp_idx++)
         {

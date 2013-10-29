@@ -9,7 +9,7 @@
  * and smooths it using the selected algorithm to get a stable, usable value 
  * for the strain in the beam.
  *
- * The basic algorithm takes a certain number (eg 8) of raw measurements and 
+ * The basic algorithm takes a certain number of raw measurements and 
  * simply averages them. 
  * Note: the circular buffer length will need to be a multiple of this in 
  * order to prevent overflow.
