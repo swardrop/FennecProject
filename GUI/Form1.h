@@ -312,9 +312,10 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 				 //// Check for ongoing reception
 				 if (statsInProgress)
 				 {
+					 unsigned char tempsip = statsInProgress;
 					 statsBuffer[4 - statsInProgress] = data;
 					 
-					 if (!(statsInProgress--))
+					 if (!(--statsInProgress))
 					 {
 						 mean = ((unsigned short) statsBuffer[0] << 8) + (unsigned short) statsBuffer[1];
 						 variance = ((unsigned short) statsBuffer[2] << 8) + (unsigned short) statsBuffer[3];
@@ -368,7 +369,7 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 case ST_COUNT_I: cur_state.state = COUNT; break;
 					 case ST_COUNT_F: 
 						 cur_state.state = COUNT_FINAL;
-						 if (inProgress = INPGRSS_STATUS0)
+						 if (inProgress == INPGRSS_STATUS0)
 							countInProgress = 6;
 						 else countInProgress = 2;
 						 break;
@@ -435,29 +436,33 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 {
 						 numReadings = data;
 						 numRemaining = numReadings * 2;
+						 return;
 					 }
 
 					 // If num remaining is even, then this is the MSB
 					 if (numRemaining % 2 == 0)
 					 {
-						weightReadings[numReadings - numRemaining/2] = data << 8;
+						weightReadings[numReadings - numRemaining/2] = (unsigned short) data << 8;
 					 }
 					 // Else this is the LSB.
 					 else 
 					 {
 						 // Note integer truncation.
-						 weightReadings[numReadings - numRemaining/2 - 1] += data;
+						 weightReadings[numReadings - numRemaining/2 - 1] |= data;
 					 }
 
 					 if (!(--numRemaining))
 					 {
 						 ack = COMM_ACK_WEIGHT_READINGS;
+						 numRemaining = -1;
+						 inProgress = 0;
 					 }
 				 }
 				 else if (inProgress == INPGRSS_SAMPLES)
 				 {
 					 numSamples = data;
 					 ack = COMM_ACK_NUM_SAMPLES;
+					 inProgress = 0;
 				 }
 				 else if (inProgress == INPGRSS_STARTFAC)
 				 {
@@ -614,8 +619,9 @@ private: System::Void sendSerialByte(unsigned char byte)
 			 comms->sendSerialByte(byte);
 		 }
 private: System::Void facButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			 this->Hide();
-			 factoryForm->Open();
+			 /*this->Hide();
+			 factoryForm->Open();*/
+			 startFactory = true;
 		 }
 private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e) {
 			 if (startFactory)

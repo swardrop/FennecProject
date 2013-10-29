@@ -1,6 +1,7 @@
 #include "../weigh.h"
 #include "../localinterface/output/warnings.h"
 #include "../localinterface/output/ledbar.h"
+#include "../localinterface/output/lcd.h"
 #include "../remoteinterface/calibrate.h"
 #include "../state.h"
 #include "../../GUI/commscodes.h"
@@ -20,8 +21,9 @@ int mean;
 
 void convertGramsToOz(int grams, char *output);
 int convertVoltageToGrams(int voltage);
-int mod(int a, int b);
-int square(int a);
+
+char str1[] = "Weight: 1234 g";
+char str2[] = "This is line 2..";
 
 void weigh(void)
 /*Gets the weight, converts it to g/oz, writes to LCD/serial*/
@@ -30,9 +32,6 @@ void weigh(void)
     char weight_str[6];
 
     weight = getWeight(); // Get smoothed voltage in strain Gauges.
-
-
-
 
     // If user has selected Ounces, convert to ounces and display.
     if (disp_type & OZ)
@@ -103,7 +102,7 @@ int getWeight(void)
     char temp_idx;
     char temp_lead_idx = ADC_lead_idx;
     long total;
-    int temp_variance;
+    long temp_variance;
     int weight;
 
     // Calculate temp_mean and variance from raw data buffer
@@ -128,9 +127,9 @@ int getWeight(void)
         char index = temp_lead_idx - temp_idx;
         if (index < 0)
             index += ADC_BUFSIZE;
-        temp_variance += square((raw_weight[index] - temp_mean));
+        temp_variance += square((raw_weight[index] - mean));
     }
-    variance = temp_variance;
+    variance = (int) (temp_variance * 10 / (long) num_samples);
 
     if (variance > MAX_VARIANCE)
     {
@@ -143,7 +142,7 @@ int getWeight(void)
     /* I don't think this should be done here... */
     if (disp_type & DISP_RS232)
         RS232sendData_i(COMM_BEGIN_NUM, weight);
-    writeLEDbar(global_weight, 1000);
+    writeLEDbar(global_weight, 1024);
 //    RS232writeByte(COMM_BEGIN_NUM);
 //    RS232writeByte((weight & 0xFF00) >> 8);
 //    RS232writeByte(weight & 0x00FF);

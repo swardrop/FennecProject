@@ -9,7 +9,7 @@ int mod (int a, int b)
     return ret;
 }
 
-int square (int a)
+long square (int a)
 {
     long ret = a * a;
     return ret;

@@ -29,6 +29,8 @@ void count(void)
         // Print Welcome to Count.
         // Ask for user to place items on scale and enter number of items.
 
+        while(getNextNum() != -1);
+
         // Wait for user input of number items
         if (waitForInput(&number_items) != INPUT_INT)
         {
@@ -48,9 +50,9 @@ void count(void)
     // Get new weight value
     weight = getWeight();
     // Calculate new count
-    number_items = (int) ( (long)weight / weight_per_1024_items) / 1024;
+    number_items = (int) ( (long)weight * 1024 / weight_per_1024_items);
     // Produce a string representation of the count
-    sprintf(count_str, "%d", number_items);
+    //sprintf(count_str, "%d", number_items);
 
     // Display over serial and(or) LCD and(or) TTS
     if (disp_type & DISP_RS232)
@@ -110,13 +112,15 @@ int waitForInput(int* input)
                      * to GUI as well. */
                     break;
                 case '#':
-                    *input = numpad_return_value;
-                    if(!RS232sendData_i(COMM_CHANGE_STATE, *input))
-                    {
-                        // Things are broken!
-                    }
+                    if (numpad_return_value > 0){
+                        *input = numpad_return_value;
+                        if(!RS232sendData_i(COMM_CHANGE_STATE, *input))
+                        {
+                            // Things are broken!
+                        }
 
-                    return INPUT_INT;
+                        return INPUT_INT;
+                    }
                     break;
                 default:
                     numpad_return_value = numpad_return_value*10 + byte - 0x30;

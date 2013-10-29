@@ -664,6 +664,7 @@ private: System::Void rbWeigh_CheckedChanged(System::Object^  sender, System::Ev
 		{
 			if (state == WEIGH)
 			{
+				resetWeighPanel();
 				this->countPanel->Hide();
 				this->weighPanel->Show();
 				this->weighPanel->BringToFront();
@@ -959,12 +960,12 @@ private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArg
 				 if (rbGrams->Checked)
 					weightBox->Text = String::Format("{0}", weightData);
 				 else
-					 weightBox->Text = String::Format("{0}", (double) weightData * GRAMS_TO_OUNCES);
+					 weightBox->Text = String::Format("{0:f2}", (double) weightData * GRAMS_TO_OUNCES);
 			 }
 
 			 if (cur_state.state == COUNT_FINAL && weightReady)
 			 {
-				 countBox->Text = String::Format("{0}", weightData / ((double) weightPer1000Items / 1000));
+				 countBox->Text = String::Format("{0:f1}", weightData / ((double) weightPer1000Items / 1000));
 			 }
 			 setButtons(cur_state);
 			 showPanel(cur_state.state);

@@ -139,7 +139,7 @@ char RS232writeByte(char data)
     }
 
     // Check for full buffer
-    if (write_lead_idx == write_trail_idx && !num_in_buffer)
+    if (write_lead_idx == write_trail_idx && num_in_buffer)
     {
         writeLock = 1;
         //return 0;
@@ -200,6 +200,7 @@ int parseSerial(void)
                             {
                                 num_samples = byte;
                                 RS232writeByte(COMM_NUM_RXD);
+                                break;
                             }
                         }
                 break;
@@ -375,10 +376,12 @@ void sendRawWeight(void)
     char i = 0;
     char temp_lead_idx = ADC_lead_idx;
     RS232writeByte(COMM_ACK_WEIGHT_READINGS);
-    RS232writeByte((char) (((num_samples) & 0xFF00) >> 8));
+    RS232writeByte(num_samples);
     for (i=0; i < num_samples; i++)
     {
         char index = temp_lead_idx - i;
+        if (index < 0)
+            index += ADC_BUFSIZE;
         RS232writeByte((char) (((raw_weight[index]) & 0xFF00) >> 8));
         RS232writeByte((char) ((raw_weight[index]) & 0x00FF));
     }
@@ -421,7 +424,7 @@ void tx232isr()
     writeLock = 0;
     --num_in_buffer;
 
-    if (write_trail_idx == write_lead_idx)
+    if (write_trail_idx == write_lead_idx/* && !num_in_buffer*/)
     {
         // Disable interrupt
         PIE1bits.TXIE = 0;

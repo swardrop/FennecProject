@@ -103,6 +103,7 @@ namespace FennecScalesGUI {
 	private: System::Windows::Forms::Label^  label6;
 	private: System::Windows::Forms::Label^  label9;
 	private: System::Windows::Forms::Label^  label8;
+	private: System::Windows::Forms::Label^  confirmLabel;
 
 
 
@@ -161,6 +162,7 @@ namespace FennecScalesGUI {
 			this->updateReadingsButton = (gcnew System::Windows::Forms::Button());
 			this->readingsBox = (gcnew System::Windows::Forms::RichTextBox());
 			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->confirmLabel = (gcnew System::Windows::Forms::Label());
 			this->sidePanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->groupBox2->SuspendLayout();
@@ -183,7 +185,7 @@ namespace FennecScalesGUI {
 			this->sidePanel->Dock = System::Windows::Forms::DockStyle::Left;
 			this->sidePanel->Location = System::Drawing::Point(0, 0);
 			this->sidePanel->Name = L"sidePanel";
-			this->sidePanel->Size = System::Drawing::Size(113, 319);
+			this->sidePanel->Size = System::Drawing::Size(113, 556);
 			this->sidePanel->TabIndex = 2;
 			// 
 			// pictureBox1
@@ -337,9 +339,9 @@ namespace FennecScalesGUI {
 			this->bottomPanel->BackColor = System::Drawing::SystemColors::ControlLight;
 			this->bottomPanel->Controls->Add(this->closeButton);
 			this->bottomPanel->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->bottomPanel->Location = System::Drawing::Point(113, 279);
+			this->bottomPanel->Location = System::Drawing::Point(113, 516);
 			this->bottomPanel->Name = L"bottomPanel";
-			this->bottomPanel->Size = System::Drawing::Size(342, 40);
+			this->bottomPanel->Size = System::Drawing::Size(738, 40);
 			this->bottomPanel->TabIndex = 5;
 			// 
 			// closeButton
@@ -408,6 +410,7 @@ namespace FennecScalesGUI {
 			// 
 			// samplesPanel
 			// 
+			this->samplesPanel->Controls->Add(this->confirmLabel);
 			this->samplesPanel->Controls->Add(this->sendNumSamplesButton);
 			this->samplesPanel->Controls->Add(this->numSamplesBox);
 			this->samplesPanel->Controls->Add(this->label5);
@@ -419,7 +422,7 @@ namespace FennecScalesGUI {
 			// 
 			// sendNumSamplesButton
 			// 
-			this->sendNumSamplesButton->Location = System::Drawing::Point(126, 161);
+			this->sendNumSamplesButton->Location = System::Drawing::Point(134, 152);
 			this->sendNumSamplesButton->Name = L"sendNumSamplesButton";
 			this->sendNumSamplesButton->Size = System::Drawing::Size(75, 23);
 			this->sendNumSamplesButton->TabIndex = 14;
@@ -467,7 +470,7 @@ namespace FennecScalesGUI {
 			this->statsPanel->Controls->Add(this->label6);
 			this->statsPanel->Controls->Add(this->updateStatsButton);
 			this->statsPanel->Controls->Add(this->label3);
-			this->statsPanel->Location = System::Drawing::Point(114, 0);
+			this->statsPanel->Location = System::Drawing::Point(119, 279);
 			this->statsPanel->Name = L"statsPanel";
 			this->statsPanel->Size = System::Drawing::Size(339, 273);
 			this->statsPanel->TabIndex = 9;
@@ -540,7 +543,7 @@ namespace FennecScalesGUI {
 			// 
 			// updateStatsButton
 			// 
-			this->updateStatsButton->Location = System::Drawing::Point(124, 240);
+			this->updateStatsButton->Location = System::Drawing::Point(130, 237);
 			this->updateStatsButton->Name = L"updateStatsButton";
 			this->updateStatsButton->Size = System::Drawing::Size(75, 23);
 			this->updateStatsButton->TabIndex = 3;
@@ -564,7 +567,7 @@ namespace FennecScalesGUI {
 			this->readingsPanel->Controls->Add(this->updateReadingsButton);
 			this->readingsPanel->Controls->Add(this->readingsBox);
 			this->readingsPanel->Controls->Add(this->label2);
-			this->readingsPanel->Location = System::Drawing::Point(114, 0);
+			this->readingsPanel->Location = System::Drawing::Point(477, 0);
 			this->readingsPanel->Name = L"readingsPanel";
 			this->readingsPanel->Size = System::Drawing::Size(339, 273);
 			this->readingsPanel->TabIndex = 10;
@@ -600,11 +603,21 @@ namespace FennecScalesGUI {
 			this->label2->TabIndex = 0;
 			this->label2->Text = L"Weight Readings";
 			// 
+			// confirmLabel
+			// 
+			this->confirmLabel->AutoSize = true;
+			this->confirmLabel->Location = System::Drawing::Point(104, 200);
+			this->confirmLabel->Name = L"confirmLabel";
+			this->confirmLabel->Size = System::Drawing::Size(142, 13);
+			this->confirmLabel->TabIndex = 15;
+			this->confirmLabel->Text = L"Number of Samples set to (x)";
+			this->confirmLabel->Visible = false;
+			// 
 			// FrmFactoryMode
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(455, 319);
+			this->ClientSize = System::Drawing::Size(851, 556);
 			this->Controls->Add(this->readingsPanel);
 			this->Controls->Add(this->statsPanel);
 			this->Controls->Add(this->samplesPanel);
@@ -664,7 +677,8 @@ namespace FennecScalesGUI {
 			{
 				comms->sendChange(COMM_GET_STATS, COMM_ACK_STATS);
 				meanBox->Text = String::Format("{0}", mean);
-				varianceBox->Text = String::Format("{0}", variance);
+				double _variance = (double) variance / 10;
+				varianceBox->Text = String::Format("{0:f1}", _variance);
 			}
 
 			void getReadings()
@@ -675,9 +689,8 @@ namespace FennecScalesGUI {
 
 				for (int i = 0; i < numReadings; ++i)
 				{
-					readingsBox->AppendText(String::Format("{0}", i));
-					readingsBox->AppendText(": ");
-					readingsBox->AppendText(String::Format("{0}", weightReadings[i]));
+					readingsBox->AppendText(String::Format("{0}:\t", i));
+					readingsBox->AppendText(String::Format("{0}\n", weightReadings[i]));
 				}
 			}
 
@@ -743,6 +756,7 @@ private: System::Void rbSamples_CheckedChanged(System::Object^  sender, System::
 			 if (rbSamples->Checked)
 			 {
 				 getNumSamples();
+				 confirmLabel->Visible = false;
 				 showPanel(samplesPanel);
 			 }
 		 }
@@ -770,6 +784,9 @@ private: System::Void updateStatsButton_Click(System::Object^  sender, System::E
 		 }
 private: System::Void sendNumSamplesButton_Click(System::Object^  sender, System::EventArgs^  e) {
 			 sendNumSamples((unsigned char) numSamplesBox->Value);
+
+			 confirmLabel->Text = String::Format("Number of samples set to {0}.", numSamplesBox->Value);
+			 confirmLabel->Visible = true;
 		 }
 };
 }

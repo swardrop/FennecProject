@@ -14,6 +14,7 @@
 #include "./localinterface/output/tts.h"
 #include "./localinterface/output/ledbar.h"
 #include "./localinterface/input/numpad.h"
+#include <delays.h>
 
 
 
@@ -71,6 +72,7 @@ void main(void)
             RS232writeByte(COMM_DEBUG);
             RS232writeByte(cur_state);
             RS232writeByte(disp_type);
+            //RS232writeByte(serial_data);
         }
 
         if (req_state != ST_NONE)
@@ -81,7 +83,7 @@ void main(void)
             // Send Change to GUI.
             if (!st_chng_rs232_flag)
             {
-                if (cur_state = ST_COUNT_F)
+                if (cur_state == ST_COUNT_F)
                 {
                     RS232sendData_b_i(COMM_CHANGE_STATE, cur_state, number_items);
                 }
@@ -105,7 +107,8 @@ void main(void)
  */
 void setup()
 {
-    //setupPower();
+    int timer = 0;
+    setupPower();
 
     retrieveState();
     initialiseRS232();
@@ -114,7 +117,7 @@ void setup()
     setupSPI();
     //initialiseEEPROM();
     //initiateTTS();
-    //init_lcd();
+    initLCD();
     initialiseNumPad();
     //initialisePushBtn();
 
@@ -122,6 +125,12 @@ void setup()
     INTCONbits.GIE = 1; // Enable global interrupts and priority
     INTCONbits.PEIE = 1;
     RCONbits.IPEN = 1;
+
+    for (timer = 0; timer <= 0xFF; ++timer)
+    {
+        writeLEDbar(timer, 0xFF);
+        
+    }
 
 }
 
@@ -132,13 +141,18 @@ void setup()
  */
 void powerDown(void)
 {
+    INTCON3bits.INT2IF = 0;
     saveState();
+    
+    writeLEDbar(1000, 1001);
+
     // Other shut down stuff.
 
     while(PORTBbits.RB2);
 
     // Turn off power circuit.
     PORTCbits.RC2 = 0;
+    //Delay10KTCYx(250);
 }
 
 void setupPower(void)
@@ -147,13 +161,15 @@ void setupPower(void)
     TRISCbits.RC2 = 0;
     PORTCbits.RC2 = 1;
 
+    TRISBbits.RB2 = 1;
+    while(PORTBbits.RB2);
+
     // Set up power down Interrupt
-    INTCON2bits.INTEDG2 = 1; // Iterrupt on rising edge
+    TRISBbits.RB2 = 1;
+    INTCON2bits.INTEDG2 = 1; // Interrupt on falling edge
     INTCON3bits.INT2IP = 1;
     INTCON3bits.INT2IE = 1;
     INTCON3bits.INT2IF = 0;
-
-    TRISBbits.RB2 = 0;
 
 }
 

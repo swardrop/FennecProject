@@ -3,6 +3,6 @@
 
 int absval(int value);
 int mod (int a, int b);
-int square (int a);
+long square (int a);
 
 #endif // FMATH_H

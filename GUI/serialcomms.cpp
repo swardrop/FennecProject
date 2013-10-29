@@ -23,7 +23,8 @@ void SerialComms::sendChange(unsigned char comm_code, unsigned char st_code, uns
 	{
 		unsigned int timeout = SERIAL_TIMEOUT_GUI;
 		sendSerialByte(comm_code);
-		if (st_code != 0xFF) sendSerialByte(st_code);
+		if (st_code != 0xFF)
+			sendSerialByte(st_code);
 
 		// Wait for ack
 		while (--timeout)
@@ -38,7 +39,7 @@ void SerialComms::sendChange(unsigned char comm_code, unsigned char st_code, uns
 
 		waiting = true;
 		// If this code is reached, the ack was not received.
-		if (MessageBox::Show("The scales did not respond to the request."
+		if (MessageBox::Show("Lost connection to scales."
 			+ " Press Retry to try again or Cancel to close the program",
 			"Lost connection to scales",
 			MessageBoxButtons::RetryCancel, MessageBoxIcon::Error)
