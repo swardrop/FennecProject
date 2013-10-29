@@ -77,6 +77,14 @@ void intToASCII(char* destStr, int value, char length)
         *p = (value % 10) + 0x30;
         value /= 10;
     }
+    
+    /*Replace leading zeros with spaces.*/
+    p = destStr;
+    while (*p == '0')
+    {
+        *p = ' ';
+        p++;
+    }
 }
 
 void LCDWriteData(char data)
