@@ -7,6 +7,7 @@
 #include "../weigh.h"
 #include "../weigh/read.h"
 #include "calibrate.h"
+#include "../FennecProject/Code/localinterface/output/lcd.h"
 
 #define RS232_BUFSIZE       64
 #define SERIAL_TIMEOUT      0x00FF
@@ -341,8 +342,8 @@ int parseSerial(void)
                 RS232writeByte(num_samples);
                 break;
 
-            case COMM_REQ_CAL:
-                RS232sendData_i(COMM_ACK_REQ_CAL, smoothWeight());
+            case COMM_CAL_RAWVAL:
+                RS232sendData_i(COMM_CAL_ACK_RAWVAL, smoothWeight());
                 break;
 
             case COMM_CAL_DATA:

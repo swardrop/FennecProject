@@ -33,6 +33,10 @@
 // CODE FOR DATA APPEND
 #define OUTF_APPEND         0x8000
 
+
+
+extern char LCD_disp_second_page;
+
 /**
  * dispString
  * This function provides the capability for a general-use formatted string
@@ -41,6 +45,9 @@
  * @param data              Optional data to append to the string
  * @return                  Success (0) or error (-1)
  */
-char dispString(int code, const char* data);
+//char dispString(int code, const char* data);
+
+
+char outputF(int data);
 
 #endif // OUTF_H

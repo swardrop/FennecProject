@@ -28,6 +28,7 @@ void count(void)
     {
         // Print Welcome to Count.
         // Ask for user to place items on scale and enter number of items.
+        outputF(0);
 
         while(getNextNum() != -1);
 
@@ -54,31 +55,7 @@ void count(void)
     // Produce a string representation of the count
     //sprintf(count_str, "%d", number_items);
 
-    // Display over serial and(or) LCD and(or) TTS
-    if (disp_type & DISP_RS232)
-    {
-        //output to serial
-            // Get string from EEPROM
-            // Substitute count value
-            // Send over serial
-    }
-    if (disp_type & DISP_LCD)
-    {
-        //output to LCD
-            // Get string from EEPROM
-            // Substitute count value
-            // Print to LCD
-        dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_COUNT, "\0");
-        dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
-                   count_str);
-		/*Update value on LCD*/
-        LCDUpdateVal(number_items);
-    }
-    if (disp_type & DISP_TTS)
-    {
-        // Speak over TTS
-
-    }
+    outputF(number_items);
 }
 
 int waitForInput(int* input)

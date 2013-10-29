@@ -22,9 +22,6 @@ int mean;
 void convertGramsToOz(int grams, char *output);
 int convertVoltageToGrams(int voltage);
 
-char str1[] = "Weight: 1234 g";
-char str2[] = "This is line 2..";
-
 void weigh(void)
 /*Gets the weight, converts it to g/oz, writes to LCD/serial*/
 {
@@ -36,62 +33,11 @@ void weigh(void)
     // If user has selected Ounces, convert to ounces and display.
     if (disp_type & OZ)
     {
-        convertGramsToOz(weight, weight_str);
-
-        // Display over serial and(or) LCD and(or) TTS
-        if (disp_type & DISP_RS232)
-        {
-            //output to serial
-            // Get string from EEPROM
-            // Substitute count value
-            // Send over serial
-            
-        }
-        if (disp_type & DISP_LCD)
-        {
-            //output to LCD
-            // Get string from EEPROM
-            // Substitute count value
-            // Print to LCD
-            dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_WEIGH, "\0");
-            dispString(OUTF_LCD_L2 | OUTF_OZ | STR_EMPTY | OUTF_APPEND,
-                    weight_str);
-        }
-        if (disp_type & DISP_TTS)
-        {
-            // Speak over TTS
-            dispString(OUTF_TTS | OUTF_OZ | STR_WEIGH | OUTF_APPEND, weight_str);
-
-        }
+        outputF(weight);
     }
     else
     {
-        sprintf(weight_str, "%d", weight);
-
-        // Display over serial and(or) LCD and(or) TTS
-        if (disp_type & DISP_RS232)
-        {
-            //output to serial
-            // Get string from EEPROM
-            // Substitute count value
-            // Send over serial
-        }
-        if (disp_type & DISP_LCD)
-        {
-            //output to LCD
-            // Get string from EEPROM
-            // Substitute count value
-            // Print to LCD
-            dispString(OUTF_LCD_L1 | OUTF_NO_UNITS | STR_WEIGH, "\0");
-            dispString(OUTF_LCD_L2 | OUTF_ITEMS | STR_EMPTY | OUTF_APPEND,
-                    weight_str);
-        }
-        if (disp_type & DISP_TTS)
-        {
-            // Speak over TTS
-            dispString(OUTF_TTS | OUTF_GRAMS | STR_WEIGH | OUTF_APPEND, weight_str);
-
-        }
+        outputF(weight);
     }
 }
 
