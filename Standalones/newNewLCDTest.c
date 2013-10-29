@@ -26,23 +26,21 @@ void main(void)
 
     initLCD();
 
-    stringToLCD(welcomeStr1, LINE_1);
-    stringToLCD(welcomeStr2, LINE_2);
+    stringToLCD(welcomeStr1, LCD_LINE_1);
+    stringToLCD(welcomeStr2, LCD_LINE_2);
 
     
 
-    stringToLCD(str1, LINE_1);
-    stringToLCD(str2, LINE_2);
+    stringToLCD(str1, LCD_LINE_1);
+    stringToLCD(str2, LCD_LINE_2);
 
     while (x)
     {
         x--;
     }
 
-    LCDSetDDRaddr(8);
-    LCDWriteData('5');
 
-    LCDUpdateVal(567);
+    LCDUpdateVal(-1, LCD_LINE_1, LCD_WEIGH);
     
     while(1);
 }

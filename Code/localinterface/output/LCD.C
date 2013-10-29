@@ -17,8 +17,14 @@
  #define E_PIN    PORTEbits.RE2  	/* PORT for E  */
  #define TRIS_E   TRISEbits.TRISE2    	/* TRIS for E  */
 
+#define WEIGH_NUM_ADDR 8
+#define COUNT_NUM_ADDR 13
 
-void intToASCII(char* destStr, int value, char length);
+#define WEIGH_MAX_DIGITS 4
+#define COUNT_MAX_DIGITS 3
+
+
+char intToASCII(char* destStr, int value, char length);
 void LCDSetDDRaddr(char);
 void LCDWriteData(char);
 void LCDWriteCmd(char);
@@ -105,22 +111,45 @@ char stringToLCD(char* str, char line)
     return 1;
 }
 
-void LCDUpdateVal(int value, char line)
+void LCDUpdateVal(int value, char line, char type)
 {
-    char valueStr[5];
+    char valueStr[6];
+    char neg;
 
-    switch (cur_state)      /*Check the state to determine where to write to*/
+    switch (type)      /*Check the type of value to determine where to write to*/
     {
-        case ST_WEIGH:      /*Weigh mode*/
-            intToASCII(valueStr, value, 4); /*Max length is 4 digits*/
+        case LCD_WEIGH:      /*Weigh mode*/
+            neg = intToASCII(valueStr, value, WEIGH_MAX_DIGITS);   /*Max length is 4*/
+
+            if (neg)
+            {
+                /*If negative, display negative sign.*/
+                LCDSetDDRaddr(line+WEIGH_NUM_ADDR-1);
+                LCDWriteData('-');
+            }
+
+            if ((disp_type & 0x0F) == OZ)
+            {               
+                /*Insert decimal point in the middle*/
+                valueStr[5] = valueStr[4];      /*The null terminator*/
+                valueStr[4] = valueStr[3];      /*Second decimal place*/
+                valueStr[3] = valueStr[2];      /*First decimal place*/
+                valueStr[2] = '.';              /*Decimal point*/
+            }            
+            stringToLCD(valueStr, line+WEIGH_NUM_ADDR);   /*Need to start writing at address 8*/
             
-            stringToLCD(valueStr, line+8);   /*Need to start writing at address 8*/
             break;
-        case ST_COUNT_I:    /*Count mode*/
-        case ST_COUNT_F:
-            intToASCII(valueStr, value, 3); /*Max length is 3 digits*/
+        case LCD_COUNT:
+            neg = intToASCII(valueStr, value, COUNT_MAX_DIGITS); /*Max length is 3 digits*/
+
+            if(neg)
+            {
+                /*If negative, display negative sign.*/
+                LCDSetDDRaddr(line+COUNT_NUM_ADDR-1);
+                LCDWriteData('-');
+            }
             
-            stringToLCD(valueStr, line+13);  /*Start on second line*/
+            stringToLCD(valueStr, line+COUNT_NUM_ADDR);  /*Start at address 13*/
             break;
         default:
             stringToLCD("Calibrating...", LCD_LINE_1);
@@ -128,10 +157,17 @@ void LCDUpdateVal(int value, char line)
     }
 }
 
-void intToASCII(char* destStr, int value, char length)
+char intToASCII(char* destStr, int value, char length)
 {
+    char neg = 0;
     char* p = destStr + length;
     *p = 0; /*Insert null terminator*/
+
+    if (value < 0)
+    {
+        value *= -1;
+        neg = 1;
+    }
 
     /*Go from least significant to most significant digit.*/
     for (p = destStr + length - 1; p >= destStr; p--)
@@ -139,7 +175,7 @@ void intToASCII(char* destStr, int value, char length)
         *p = (value % 10) + 0x30;
         value /= 10;
     }
-    
+
     /*Replace leading zeros with spaces.*/
     p = destStr;
     while (*p == '0')
@@ -147,6 +183,7 @@ void intToASCII(char* destStr, int value, char length)
         *p = ' ';
         p++;
     }
+    return neg; /*Returns whether the number is negative.*/
 }
 
 void LCDSetDDRaddr(char addr)
