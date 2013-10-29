@@ -16,11 +16,11 @@
  * Takes a pointer to a string and prints it on the specified line.
  *
  * @param str       Beginning of string to be written
- * @param line      Line to write string (LINE_1 or LINE_2)
+ * @param line      Line to write string (LCD_LINE_1 or LCD_LINE_2)
  * @return          Success(1), fail (0)
  */
-#define LINE_1 0
-#define LINE_2 40
+#define LCD_LINE_1 0
+#define LCD_LINE_2 40
 char stringToLCD(char* str, char line);
 
 /**
@@ -40,8 +40,11 @@ void LCDUpdateVal(int value);
  */
 void initLCD(void) ;
 
-/*For debugging - these shouldn't be public in the final version.*/
-void LCDWriteData(char);
-void LCDSetDDRaddr(char);
+/**
+ * clearLCD
+ * Makes the LCD go blank.
+ */
+void clearLCD(void);
+
 
 #endif /*LCD_H*/
