@@ -104,9 +104,9 @@ void initLCD(void)
     RW_PIN = 0;
     E_PIN = 0;
 
-    /* ********************************
-     * See Page 46 of Hitachi Datasheet
-     * ********************************/
+    /* ****************************************
+     * See Pages 46 and 24 of Hitachi Datasheet
+     * ****************************************/
 
     /*Not sure if necessary to Wait 15ms - 37500 cycles on MNMLPIC*/
     Delay1KTCYx(37);
@@ -137,7 +137,7 @@ void initLCD(void)
     LCDWriteCmd(0x06);      /*Entry Mode set (increment, no shift)*/
 
     while(LCDBusy());
-    LCDWriteCmd(0x0F);      /*Display on*/
+    LCDWriteCmd(0x0C);      /*Display on*/
 }
 
 void LCDSendNibble(char data)
