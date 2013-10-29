@@ -174,7 +174,7 @@ void SPIisr()
             break;
     }
 
-    if (TTS_stage < 5 && SPI_buffer[trail_idx].CScode == SPI_TTS)
+    if (TTS_stage < 6 && SPI_buffer[trail_idx].CScode == SPI_TTS)
     {
         TTS_input_string[TTS_stage] = SSPBUF;
         TTS_stage++;
@@ -199,7 +199,8 @@ void SPIisr()
         {
             // increment SPI buffer pointer.
             incTrailIdx();
-            TTS_stage = 0;
+            TTS_input_string[0] = 1;
+            TTS_stage = 1;
         }
         else
         {
@@ -209,7 +210,8 @@ void SPIisr()
             {
                 // May need to also reset TTS.
                 incTrailIdx();
-                TTS_stage = 0;
+                TTS_input_string[0] = 1;
+                TTS_stage = 1;
                 return;
             }
             // increment pointer inside string.
