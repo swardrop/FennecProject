@@ -6,6 +6,7 @@
 #include "../weigh/count.h"
 #include "../weigh.h"
 #include "../weigh/read.h"
+#include "calibrate.h"
 
 #define RS232_BUFSIZE       64
 #define SERIAL_TIMEOUT      0x00FF
@@ -32,6 +33,8 @@ char RS232readString(char* dest);
 void sendRawWeight(void);
 char waitAck(void);
 
+void readCalData(void);
+int readCalInt(void);
 char RS232sendData(char code)
 {
     char ack = 0;
@@ -337,6 +340,15 @@ int parseSerial(void)
                 RS232writeByte(COMM_ACK_NUM_SAMPLES);
                 RS232writeByte(num_samples);
                 break;
+
+            case COMM_REQ_CAL:
+                RS232sendData_i(COMM_ACK_REQ_CAL, smoothWeight());
+                break;
+
+            case COMM_CAL_DATA:
+                /*Read the next 20 bytes from the buffer. If they're there.*/
+                readCalData();
+                break;
                 
             default:
                 return RS232_UNKNOWN_CODE;
@@ -346,6 +358,51 @@ int parseSerial(void)
     return RS232_NO_DATA;
 }
 
+void readCalData(void)
+{
+    char i;
+    /*The GUI will send cal_count_ref, then cal_m, then cal_b*/
+    for (i=0;i<3;i++)
+    {
+        cal_count_ref[i] = readCalInt();
+    }
+    for (i=0;i<4;i++)
+    {
+        cal_m[i] = readCalInt();
+    }
+    for (i=0;i<4;i++)
+    {
+        cal_b[i] = readCalInt();
+    }
+}
+
+int readCalInt(void)
+{
+    int wait_time = 0xFFFF;
+    char byte;
+    int ret;
+
+    while (wait_time--)
+    {
+        /*Wait for high byte*/
+        if ((byte = RS232readByte()) != -1)
+        {
+            ret = (int)byte << 8;
+
+            wait_time = 0xFFFF;
+            while(wait_time--)
+            {
+                /*Wait for low byte*/
+                if ((byte = RS232readByte()) != -1)
+                {
+                    ret |= (int)byte;
+
+                    return ret;
+                }
+            }
+        }
+    }
+}
 int readNum(void)
 {
     char byte;

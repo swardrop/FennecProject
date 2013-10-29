@@ -1,0 +1,35 @@
+//Calibration
+
+#define GRAM_INTERVAL 250
+
+
+print("Put nothing on the scale")
+
+c[0] = smoothWeight();
+
+print("Put 250g on the scale")
+
+c[1] = smoothWeight();
+
+print("Put 500g on the scale")
+
+c[2] = smoothWeight();
+
+print("Put 750g on the scale")
+
+c[3] = smoothWeight();
+
+print("Put 1kg on the scale")
+
+c[4] = smoothWeight();
+
+
+sum_c = 0;
+for (i = 0; i < 5; i++)
+{
+	m[i] = GRAM_INTERVAL/(c[i+1]-c[i]);
+	sum_c += c[i];
+	b[i] = -sum_c*m[i] + GRAM_INTERVAL*i;
+}
+
+//send m[] and b[] back to PIC to use in algorithm.

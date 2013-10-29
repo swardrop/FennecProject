@@ -1,36 +1,31 @@
 #include "calibrate.h"
 #include "../state.h"
 
+int cal_count_ref[3];   /*no of counts at 250, 500 and 750 grams*/
+int cal_m[4];           /*Gradients of line sections*/
+int cal_b[4];           /*y-intercepts of line sections*/
 
-typedef struct poly_coeff
-{
-	int coeff0;
-	int coeff1;
-        int coeff2;//... Initially assumed linear, 2 coeff
-} Coefficients ;
-
-
-Coefficients c = {100, 0, 0};
 
 void calibrate(void)
 {
-    int coeff0 = 100;
-    int coeff1 = 0;
-    int coeff2 = 0;
-
     
-
-    c.coeff0 = coeff0;
-    c.coeff1 = coeff1;
-    c.coeff2 = coeff2;
-    req_state = ST_WEIGH;
-    return;
 }
 
 int convertVoltageToGrams(int voltage)
 {
-    int grams = (int)((long)voltage*c.coeff0/100 + (long)c.coeff1/100);
-    
+    int grams;
+    char i = 0;
+
+    /*Find the correct section and hence correct m and b*/
+    while ((voltage > cal_count_ref[i]) && (i < 4))
+    {
+        i++;
+    }
+
+    /*Convert*/
+    grams = cal_m[i]*voltage + cal_b[i];
+
+    /*Incorportate tare offset*/
     grams -= tare_offset;
     return grams;
 }

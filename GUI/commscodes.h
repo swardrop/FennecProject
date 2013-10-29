@@ -28,29 +28,35 @@
 #define COMM_ACK_DISP				0xA6
 
 // Commands
-#define COMM_TARE					0x07
+#define COMM_TARE				0x07
 #define COMM_ACK_TARE				0xA7
 // Factory commands
 #define COMM_ACK_FAC_COM			0xA8
 #define COMM_SET_NUM_SAMPLES                    0x0A
 #define COMM_GET_NUM_SAMPLES                    0x0B
 #define COMM_ACK_NUM_SAMPLES                    0xAB
-#define COMM_WEIGHT_READINGS                        0x0C
-#define COMM_ACK_WEIGHT_READINGS                    0xAC
+#define COMM_WEIGHT_READINGS                    0x0C
+#define COMM_ACK_WEIGHT_READINGS                0xAC
 #define COMM_GET_STATS                          0x0D
 #define COMM_ACK_STATS                          0xAD
+
+//Calibration
+#define COMM_CAL_RAWVAL                         0x0E
+#define COMM_CAL_ACK_RAWVAL                     0xAE
+#define COMM_CAL_DATA                           0x0F
+#define COMM_CAL_ACK_DATA                       0xAF
 
 
 
 // Debug
-#define COMM_DEBUG					0xFF
+#define COMM_DEBUG				0xFF
 
 //// PIC State Codes
 #ifndef STATE_H
 // System state (includes power state as MSB)
 #define ST_WEIGH                                0x81
-#define ST_COUNT_I					0x82
-#define ST_COUNT_F					0x83
+#define ST_COUNT_I                              0x82
+#define ST_COUNT_F				0x83
 #define ST_CALIBRATE				0x84
 
 // Units type

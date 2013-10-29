@@ -13,7 +13,7 @@ int shut_off_timer_count;
 
 void retrieveState()
 {
-    cur_state = ST_COUNT_I; // Note when get from EEPROM, if it is a Factory, default to weigh.
+    cur_state = ST_COUNT_I;     // Note when get from EEPROM, if it is a Factory, default to weigh.
     req_state = ST_NONE;
     disp_type = GRAMS | DISP_LCD;
     tare_offset = 0;
