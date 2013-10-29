@@ -56,5 +56,8 @@ void initLCD(void) ;
  */
 void clearLCD(void);
 
+void LCDSetDDRaddr(char);
+void LCDWriteData(char);
+
 
 #endif /*LCD_H*/

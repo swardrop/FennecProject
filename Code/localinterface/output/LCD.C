@@ -2,6 +2,7 @@
 #include "lcd.h"
 #include "../../state.h"
 #include "HD44780.h"
+#include "rs232.h"
 
 /* DATA_PORT defines the port to which the LCD data lines are connected */
  #define DATA_PORT      		PORTD
@@ -23,16 +24,34 @@
 #define WEIGH_MAX_DIGITS 4
 #define COUNT_MAX_DIGITS 3
 
+static char LCD_setup_done;
 
 char intToASCII(char* destStr, int value, char length);
-void LCDSetDDRaddr(char);
-void LCDWriteData(char);
+
 void LCDWriteCmd(char);
 void LCDWriteByte(char);
 void LCDSendNibble(char);
 char LCDBusy(void);
 
-#define E_Delay() Delay1KTCYx(5)
+char E_Delay(void)
+{
+    if (LCD_setup_done)
+    {
+        /*Do something useful rather than wasting time.*/
+        parseSerial();
+
+        if (req_state != ST_NONE)
+        {
+            return -1;
+        }
+    }
+    else
+    {
+        Delay1KTCYx(5);
+    }
+    
+    return 1;
+}
 
 void initLCD(void)
 {
@@ -97,6 +116,11 @@ char stringToLCD(char* str, char line)
 
     char numCharsWritten = 0;
 
+    if (req_state != ST_NONE)
+    {
+
+    }
+
     /*Set correct address to start at.*/    
     LCDSetDDRaddr(line);
 
@@ -114,18 +138,30 @@ char stringToLCD(char* str, char line)
 void LCDUpdateVal(int value, char line, char type)
 {
     char valueStr[6];
-    char neg;
+    char neg, zeros_replaced;
+
+    if (value < 0)
+    {
+        value *= -1;
+        neg = 1;
+    }
 
     switch (type)      /*Check the type of value to determine where to write to*/
     {
         case LCD_WEIGH:      /*Weigh mode*/
-            neg = intToASCII(valueStr, value, WEIGH_MAX_DIGITS);   /*Max length is 4*/
+            zeros_replaced = intToASCII(valueStr, value, WEIGH_MAX_DIGITS);   /*Max length is 4*/
 
             if (neg)
             {
                 /*If negative, display negative sign.*/
-                LCDSetDDRaddr(line+WEIGH_NUM_ADDR-1);
+                LCDSetDDRaddr(line+WEIGH_NUM_ADDR+zeros_replaced-1);
                 LCDWriteData('-');
+            }
+            else
+            {
+                /*Clear the box with the negatvie sign.*/
+                LCDSetDDRaddr(line+WEIGH_NUM_ADDR+zeros_replaced-1);
+                LCDWriteData(' ');
             }
 
             if ((disp_type & 0x0F) == OZ)
@@ -140,34 +176,33 @@ void LCDUpdateVal(int value, char line, char type)
             
             break;
         case LCD_COUNT:
-            neg = intToASCII(valueStr, value, COUNT_MAX_DIGITS); /*Max length is 3 digits*/
+            zeros_replaced = intToASCII(valueStr, value, COUNT_MAX_DIGITS); /*Max length is 3 digits*/
 
             if(neg)
             {
                 /*If negative, display negative sign.*/
-                LCDSetDDRaddr(line+COUNT_NUM_ADDR-1);
+                LCDSetDDRaddr(line+COUNT_NUM_ADDR+zeros_replaced-1);
                 LCDWriteData('-');
+            }
+            else
+            {
+                LCDSetDDRaddr(line+COUNT_NUM_ADDR+zeros_replaced-1);
+                LCDWriteData(' ');
             }
             
             stringToLCD(valueStr, line+COUNT_NUM_ADDR);  /*Start at address 13*/
             break;
         default:
-            stringToLCD("Calibrating...", LCD_LINE_1);
             break;
     }
 }
 
 char intToASCII(char* destStr, int value, char length)
 {
-    char neg = 0;
+    /*Note: length MUST be >= 1*/
+    
     char* p = destStr + length;
-    *p = 0; /*Insert null terminator*/
-
-    if (value < 0)
-    {
-        value *= -1;
-        neg = 1;
-    }
+    *p = 0; /*Insert null terminator*/    
 
     /*Go from least significant to most significant digit.*/
     for (p = destStr + length - 1; p >= destStr; p--)
@@ -176,14 +211,15 @@ char intToASCII(char* destStr, int value, char length)
         value /= 10;
     }
 
-    /*Replace leading zeros with spaces.*/
+    /*Replace leading zeros with spaces, but leave the last zero if the weight is 0.*/
     p = destStr;
-    while (*p == '0')
+    while ((*p == '0') && (p < destStr+length-1) )
     {
         *p = ' ';
         p++;
     }
-    return neg; /*Returns whether the number is negative.*/
+
+    return (p - destStr); /*This is the number of zeros that were replaced by spaces.*/
 }
 
 void LCDSetDDRaddr(char addr)
@@ -224,9 +260,12 @@ void LCDSendNibble(char data)
     DATA_PORT &= 0xF0;      /*Clear lower nibble*/
     DATA_PORT |= data;      /*Write data to lower nibble*/
     E_PIN = 1;              /*Raise E*/
-    E_Delay();              /*Delay (This is #defined as a Delay function)*/
+    if (E_Delay() == -1)    /*Delay. This checks for a required state change.*/
+        return;
+
     E_PIN = 0;              /*Latch in data*/
-    E_Delay();              /*Delay*/
+    if (E_Delay() == -1)    /*Delay. This checks for a required state change.*/
+        return;             
 }
 
 char LCDBusy()
@@ -239,19 +278,23 @@ char LCDBusy()
     RS_PIN = 0;             /*Select Instruction register*/
 
     E_PIN = 1;
-    E_Delay();
+    if (E_Delay() == -1)    /*Delay. This checks for a required state change.*/
+        return;
 
     /*Check if busy flag is set. */
     busyness = DATA_PORT & (LCD_BUSY_FLAG >> 4);
 
     E_PIN = 0;              /*Latch in*/
-    E_Delay();
+    if (E_Delay() == -1)    /*Delay. This checks for a required state change.*/
+        return;
 
     /*Clock in the second nibble - we don't need to do anything with this.*/
     E_PIN = 1;
-    E_Delay();
+    if (E_Delay() == -1)    /*Delay. This checks for a required state change.*/
+        return;
     E_PIN = 0;
-    E_Delay();
+    if (E_Delay() == -1)    /*Delay. This checks for a required state change.*/
+        return;
 
     return busyness;
 }

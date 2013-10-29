@@ -16,6 +16,8 @@ char welcomeStr2[] = "   FennecScales!";
 char str1[] = "Weight: 1234 g";
 char str2[] = "This is line 2..";
 
+char str3[] = "another";
+
 void main(void)
 {    
     int x = 0xFFFF;
@@ -33,6 +35,15 @@ void main(void)
 
     stringToLCD(str1, LCD_LINE_1);
     stringToLCD(str2, LCD_LINE_2);
+
+    LCDSetDDRaddr(43);
+    LCDWriteData('Y');
+    LCDWriteData('e');
+    LCDWriteData('s');
+
+
+    stringToLCD(str3, 47);
+    
 
     while (x)
     {
