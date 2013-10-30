@@ -74,3 +74,6 @@ extern bool closeAll;
 
 #define REFRESH_COUNT			50
 extern unsigned short refreshCount;
+
+#define WARNING_TIME			100
+extern unsigned int warningTimer;

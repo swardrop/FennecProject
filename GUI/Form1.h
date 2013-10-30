@@ -25,6 +25,8 @@ unsigned short rawWeight;
 
 unsigned short refreshCount = REFRESH_COUNT;
 
+unsigned int warningTimer = WARNING_TIME;
+
 sys_state cur_state(WEIGH, GRAMS, LCD_TTS, false);
 bool isRemote;
 
@@ -435,6 +437,14 @@ private: System::Void port_DataReceived(Object ^ sender, SerialDataReceivedEvent
 					 break;
 				 case COMM_CAL_ACK_DATA:
 					 ack = COMM_CAL_ACK_DATA;
+					 break;
+				 case COMM_WARN_VARIANCE:
+					 cur_warnings |= EXCESSIVE_VARIANCE;
+					 warningTimer = WARNING_TIME;
+					 break;
+				 case COMM_WARN_OVERLOAD:
+					 cur_warnings |= OVERLOAD;
+					 warningTimer = WARNING_TIME;
 					 break;
 				 }
 			 }

@@ -551,21 +551,27 @@ namespace FennecScalesGUI {
 			// overloadLabel
 			// 
 			this->overloadLabel->AutoSize = true;
-			this->overloadLabel->Location = System::Drawing::Point(6, 192);
+			this->overloadLabel->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->overloadLabel->Location = System::Drawing::Point(12, 214);
 			this->overloadLabel->Name = L"overloadLabel";
-			this->overloadLabel->Size = System::Drawing::Size(92, 13);
+			this->overloadLabel->Size = System::Drawing::Size(90, 40);
 			this->overloadLabel->TabIndex = 3;
-			this->overloadLabel->Text = L"Beam Overloaded";
+			this->overloadLabel->Text = L"Beam\r\nOverloaded";
+			this->overloadLabel->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			this->overloadLabel->Visible = false;
 			// 
 			// excessiveVarianceLabel
 			// 
 			this->excessiveVarianceLabel->AutoSize = true;
-			this->excessiveVarianceLabel->Location = System::Drawing::Point(6, 167);
+			this->excessiveVarianceLabel->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->excessiveVarianceLabel->Location = System::Drawing::Point(16, 162);
 			this->excessiveVarianceLabel->Name = L"excessiveVarianceLabel";
-			this->excessiveVarianceLabel->Size = System::Drawing::Size(100, 13);
+			this->excessiveVarianceLabel->Size = System::Drawing::Size(79, 40);
 			this->excessiveVarianceLabel->TabIndex = 2;
-			this->excessiveVarianceLabel->Text = L"Excessive Variance";
+			this->excessiveVarianceLabel->Text = L"Excessive\r\nVariance";
+			this->excessiveVarianceLabel->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			this->excessiveVarianceLabel->Visible = false;
 			// 
 			// pictureBox2
@@ -582,11 +588,11 @@ namespace FennecScalesGUI {
 			// label1
 			// 
 			this->label1->AutoSize = true;
-			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 11.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
-			this->label1->Location = System::Drawing::Point(21, 59);
+			this->label1->Location = System::Drawing::Point(8, 55);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(74, 18);
+			this->label1->Size = System::Drawing::Size(94, 24);
 			this->label1->TabIndex = 0;
 			this->label1->Text = L"Warning!";
 			// 
@@ -981,6 +987,12 @@ private: System::Void updateTimer_Tick(System::Object^  sender, System::EventArg
 					 comms->sendChange(COMM_START_REM, COMM_ACK_REM);
 				 }
 				 refreshCount = REFRESH_COUNT;
+			 }
+
+			 if (!(--warningTimer))
+			 {
+				 cur_warnings = 0;
+				 warningTimer = WARNING_TIME;
 			 }
 		 }
 private: System::Void sendSerialByte(unsigned char byte)

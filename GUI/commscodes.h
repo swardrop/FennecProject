@@ -47,7 +47,9 @@
 #define COMM_CAL_ENDDATA						0x1F
 #define COMM_CAL_ACK_DATA                       0xAF
 
-
+// Warnings
+#define COMM_WARN_VARIANCE						0x40
+#define COMM_WARN_OVERLOAD						0x41
 
 // Debug
 #define COMM_DEBUG				0xFF
