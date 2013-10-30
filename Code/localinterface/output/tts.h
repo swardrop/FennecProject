@@ -1,6 +1,6 @@
 #ifndef TTS_H
 #define TTS_H
-#define TTS_INPUT_LENGTH 8
+#define TTS_INPUT_LENGTH 5
 
 /* TTS Module.
  *
@@ -24,26 +24,28 @@ extern char TTS_input_string[TTS_INPUT_LENGTH];
  */
 void strToTTS(char* str);
 
-/**
- * TTS_ISR
- * TTS finished saying string interrupt. Set complete flag, indicate ready to
- * move on or be sent another string.
- */
-void TTS_ISR(void);
 
+
+/**
+ * RESET_TTS
+ * send the reset signal to portB 3.This makes sure the TTS starts in a POWER DOWN state.
+ */
+void RESET_TTS(void);
+/**
+ * powerupTTS
+ * set the clock to ~24 MHz before sending the power up signal to TTS.
+ */
+void powerupTTS(void);
 /**
  * initiateTTS
  * Wakes up TTS, and sends required bytes over SPI to put TTS in a ready state.
  */
-void RESET_TTS(void);
-void powerupTTS(void);
 void initiateTTS(void);
 
 /**
  * initiateExchange
- * A sub-funcion purely for initiateTTS to pass in the string for each 
- * initialisation command. It assumes each command word is 2 bytes and is used 
- * to prevent repetitive code. 
+ * A funcion to pass in a byte in the form of a string for each
+ * command or data byte.Always succeeded by a null byte.
  * @param cmd       Pointer to the first byte of data to be written
  * @param nulls     The number of additional nulls required to send in the string
  */
