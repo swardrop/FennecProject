@@ -1,29 +1,3 @@
-LCD_count1	put known no. of
-LCD_count2	items in tray
-LCD_count3	enter number of
-LCD_count4	items & press #
-LCD_grams	g
-LCD_ounces	oz
-LCD_display_weight	Weight: 
-LCD_display_count1	No. of items in
-LCD_display_count2	tray: 
-LCD_error_variance1	Warning!
-LCD_error_variance2	Large variance
-LCD_error_overload1	Warning!
-LCD_error_overload2	overloading tray
-LCD_shutdown	Goodnight!
-welcome1	Welcome to 
-welcome2	Fennec scales!
-setGrams	Setting unit to grams
-setOunces	Setting unit to ounces
-setWeigh	Changing to weigh mode
-setCount	Changing to count mode. 
-setCount2	Place a known number of items in the tray. Enter the amount of items into the keypad and press hash
-outputWeight	The current weight is 
-outputCount1	The bowl contains
-outputCount2	items
-error_variance	Warning. Excessive oscillations detected. Please steady the tray before continuing.
-error_overload	Warning. Overload detected in the tray. Please reduce the amount of weight in the tray.
-grams	grams
-ounces	ounces
-shutdown	Goodnight
+testString	This is a test string
+Another	Here is another string to test with
+Third	A third test
