@@ -44,6 +44,7 @@
 #define COMM_CAL_RAWVAL                         0x0E
 #define COMM_CAL_ACK_RAWVAL                     0xAE
 #define COMM_CAL_DATA                           0x0F
+#define COMM_CAL_ENDDATA						0x1F
 #define COMM_CAL_ACK_DATA                       0xAF
 
 

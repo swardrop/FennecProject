@@ -986,11 +986,11 @@ private: System::Windows::Forms::Label^  calibConfLabel;
 				}
 			}
 
-			void calcCalibrate(array<short> ^gradients, array<short> ^intercepts)
+			void calcCalibrate(array<unsigned short> ^gradients, array<short> ^intercepts)
 			{
 				for (int i = 0; i < 4; ++i)
 				{
-					gradients[i] = (short) ( (double) 250*CAL_GRADIENT_FACTOR / double (rawWeights[i + 1] - rawWeights[i]));
+					gradients[i] = (unsigned short) ( (double) 250*CAL_GRADIENT_FACTOR / double (rawWeights[i + 1] - rawWeights[i]));
 					intercepts[i] =  250*i - rawWeights[i] * (int) gradients[i] / CAL_GRADIENT_FACTOR;
 				}
 			}
@@ -1143,9 +1143,9 @@ private: System::Void oneKiloSetButton_Click(System::Object^  sender, System::Ev
 			 setButtonPress(4);
 		 }
 private: System::Void sendCalibButton_Click(System::Object^  sender, System::EventArgs^  e) {
-			 array<short> ^gradients = gcnew array<short>(4);
+			 array<unsigned short> ^gradients = gcnew array<unsigned short>(4);
 			 array<short> ^intercepts = gcnew array<short>(4);
-			 array<short> ^combined = gcnew array<short>(12);
+			 array<short> ^combined = gcnew array<short>(13);
 			 bool fail = false;
 
 			// Disable serial handling of anything else
@@ -1180,6 +1180,9 @@ private: System::Void sendCalibButton_Click(System::Object^  sender, System::Eve
 				combined[j++] = intercepts[i];
 			}
 
+			// Finally, send end of buffer identifier
+			combined[j++] = COMM_CAL_ENDDATA;
+
 			comms->sendSerialShortArray(combined);
 
 			// Re-enable serial handling
@@ -1196,6 +1199,7 @@ private: System::Void sendCalibButton_Click(System::Object^  sender, System::Eve
 				if (!(--time))
 				{
 					fail = true;
+					break;
 				}
 			}
 			ack = 0;
