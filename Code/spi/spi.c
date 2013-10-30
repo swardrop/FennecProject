@@ -173,8 +173,8 @@ void SPIisr()
             CS_LED_STATUS = 1;
             break;
     }
-
-    if (TTS_stage < 6 && SPI_buffer[trail_idx].CScode == SPI_TTS)
+    /* Duplex read from TTS from MISO. Increment the pointer if end not reached */
+    if (TTS_stage < (TTS_INPUT_LENGTH - 1) && SPI_buffer[trail_idx].CScode == SPI_TTS)
     {
         TTS_input_string[TTS_stage] = SSPBUF;
         TTS_stage++;
