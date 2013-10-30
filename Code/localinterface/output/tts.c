@@ -1,119 +1,76 @@
 #include "../../spi.h"
+#include "../../spi/outf.h"
 #include "tts.h"
 #include <string.h>
 #include <delays.h>
 
 #define TTS_OUTPUT_LENGTH 128
-#define TTS_RESET_PIN PORTBbits.RB3
-
-
+#define rdst "\x04\x00"
 
 char TTScompleteFlag;
 char TTS_output_string[TTS_OUTPUT_LENGTH];
-char TTS_input_string[TTS_INPUT_LENGTH];
-
-
 
 void strToTTS(char* str)
 {
-    char conv[] = "\x81"; /*command convert*/
-
-
-    initiateExchange(conv); /*send the command word to start the conversion*/
-    Delay10TCYx(5);
-    initiateExchange(str); /*send the remaining string to speak*/
-
-   // TTScompleteFlag = 0;
-
-    return;
-}
-
-void RESET_TTS(void)
-{
-    TRISBbits.RB3 = 0; /*set PortB<3> data direction output*/
-    TTS_RESET_PIN = 1;/*pull the PORTB<3> high.*/
-    Delay100TCYx(100);
-    TTS_RESET_PIN = 0;/*After 10us,pull the PORTB<3> low*/
-
-    return;
-
-}
-
-void powerupTTS(void)
-{
-    char sclc[] = {0x14, 0x00};     /* Command set clock reg for 24.576MHz */
-    char pwup[] = {0x02, 0x00};     /* Command power up */
-    char rdst[] = {0x04, 0x00};
-   /* Set CLC reg */
-    initiateExchange(sclc);
-    /* WAIT TODO as timer */
-    Delay10TCYx(1);
-    /* Power up */
-   
-    initiateExchange(pwup);
-    /* Verify IDLE mode */
-    initiateExchange(rdst);
-    /* if(TTS_input_string[2] is equal IDLE status byte 0) and if (TTS_input_string[3]
-     *is equal to IDLE status byte 1),then continue else go back to powerupTTS.
-     */
-
-
+    strcpy(TTS_output_string, str);
+    TTScompleteFlag = 0;
     
+    return;
+}
+
+void TTS_ISR(void)
+{
+
+    TTScompleteFlag = 1;
     return;
 }
 
 void initiateTTS(void)
 {
-    char scom[] = {0x4E, 0x00};     /* Command set inerrupt control register (COM) for none interrupts */
-    char scod[] = {0x4F, 0x00};     /* Command set codecs reg for codecs disabled  */
-    char saud[] = {0x50, 0x40, 0x00};     /* Command set audio reg for speaker out no attenuation */
-    char svol[] = {0x51, 0x04, 0x00};     /* Command set volume for mid-range attenuation  (max at 0x00) */
-    char sspd[] = {0x52, 0x02, 0x00};     /* Command set speech speed for mid  */
-    char sptc[] = {0x77, 0x03, 0x00};     /* Command set speech pitch for mid ( min 0x00, max 0x06 )*/
-    //char rint[] = {0x06, 0x00, 0x00, 0x00}; /* Command read interrupt */
+    int error = 0;
+    char status_reg[2];
+
+    char sclc[] = {0x14, 0x00};     /* Command set clock reg for 24.576MHz */
+    char pwup[] = {0x02, 0x00};     /* Command power up */
+    char scom[] = {0x4E, 0x00};     /* Command set inerrupt control register (COM) for none TODO TODO TODO */
+    char scod[] = {0x4F, 0x00};     /* Command set codecs reg for codecs disabled TODO */
+    char saud[] = {0x50, 0x40};     /* Command set audio reg for speaker out only */
+    char svol[] = {0x51, 0x03};     /* Command set volume for mid-range attenuation TEST ONLY, max at 0x00 */
+    char sspd[] = {0x52, 0x02};     /* Command set speech speed for mid TEST ONLY */
+    char sptc[] = {0x77, 0x03};     /* Command set speech pitch for mid TEST ONLY, min 0x00, max 0x06 */
+
+    /* Set CLC reg */
+    error = initiateExchange(sclc);
+    /* WAIT TODO as timer */
+    Delay10TCYx(1);
+    /* Power up */
+    error = initiateExchange(pwup);
+    /* Verify IDLE mode */
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!status_reg = readTTS(rdst);
+    
+    /* READ FROM TTS SOMEHOW TODO TODO */
+    /*  */
 
     /* Set COM reg */
-    initiateExchange(scom );
-    Delay100TCYx(40);
-
+    error = initiateExchange(scom);
     /* Set COD reg */
-    initiateExchange(scod );
-    Delay100TCYx(40);
-    
-     /* Set AUD reg */
-    initiateExchange(saud );
-    Delay100TCYx(40);
-   
+    error = initiateExchange(scod);
+    /* Set AUD reg */
+    error = initiateExchange(saud);
     /* Set volume */
-    initiateExchange(svol );
-    Delay100TCYx(40);
-
+    error = initiateExchange(svol);
     /* Set speech speed */
-    initiateExchange(sspd );
-    Delay100TCYx(40);
-
+    error = initiateExchange(sspd);
     /* Set speech pitch*/
-    initiateExchange(sptc );
-    Delay100TCYx(40);
-
-    /* Read Interrupt reg to clear it */
-   // initiateExchange(rint );
-    return;
+    error = initiateExchange(sptc);
 }
 
-void initiateExchange(char* cmd)
+int initiateExchange(char* cmd)
 {
-    TTS_input_string[0]= 0;  /*set zero in input buffer to allow reading from bus*/
-    exchangeDataSPI(SPI_TTS , cmd, TX_END); /*send string to write */
-    Delay10TCYx(2);
+    int error = 0;
 
-    /*loop until the TTS_input_string becomes 1 which shows the string is ready to use*/
-    while(TTS_input_string[0] != 1)
-    {
+    //error = exchangeDataSPI(SPI_TTS , cmd[0], TX_PART);
+    //error = exchangeDataSPI(SPI_TTS , cmd[1], TX_END);
 
-    }
-
-    
-
-    return;
+    return error;
 }

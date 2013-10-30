@@ -7,10 +7,12 @@
 #include "../weigh.h"
 #include "../weigh/read.h"
 #include "calibrate.h"
-#include "../FennecProject/Code/localinterface/output/lcd.h"
+#include "../localinterface/output/lcd.h"
 
 #define RS232_BUFSIZE       64
 #define SERIAL_TIMEOUT      0x00FF
+
+#define CALDATA_SIZE        24
 
 // Buffers
 char writeBuf[RS232_BUFSIZE];
@@ -29,13 +31,16 @@ char packet_loss;
 int serial_number_rxd;
 
 int readNum(void);
-char RS232readByte(void);
+int RS232readByte(void);
 char RS232readString(char* dest);
 void sendRawWeight(void);
 char waitAck(void);
 
 void readCalData(void);
 int readCalInt(void);
+
+void parseCalData(unsigned char *buffer);
+
 char RS232sendData(char code)
 {
     char ack = 0;
@@ -163,9 +168,9 @@ char RS232writeByte(char data)
 }
 
 
-char RS232readByte()
+int RS232readByte()
 {
-    char data;
+    unsigned char data;
 
     // Check for data in buffer
     if (read_trail_idx == read_lead_idx)
@@ -184,11 +189,13 @@ char RS232readByte()
 
 int parseSerial(void)
 {
+    unsigned int byte_i;
     char byte;
     long wait_time;
 
-    while ((byte = RS232readByte()) != RS232_NO_DATA)
+    while ((byte_i = RS232readByte()) != RS232_NO_DATA)
     {
+        byte = (unsigned char) (byte_i & 0x00FF);
 
         switch (byte)
         {
@@ -215,21 +222,21 @@ int parseSerial(void)
                 RS232writeByte(cur_state);
                 if (cur_state == ST_COUNT_F)
                 {
-                    long weight_per_1000_items = 5000;
-
-                    RS232writeByte((char)((weight_per_1000_items
+                    // Send weight per 1024 items (4 bytes)
+                    RS232writeByte((char)((weight_per_1024_items
                             & 0xFF000000) >> 24));
-                    RS232writeByte((char)((weight_per_1000_items
+                    RS232writeByte((char)((weight_per_1024_items
                             & 0x00FF0000) >> 16));
-                    RS232writeByte((char)((weight_per_1000_items
+                    RS232writeByte((char)((weight_per_1024_items
                             & 0x0000FF00) >> 8));
-                    RS232writeByte((char)((weight_per_1000_items
+                    RS232writeByte((char)((weight_per_1024_items
                             & 0x000000FF)));
                 }
                 RS232writeByte(disp_type);
                 wait_time = 0xFFFF;
                 while (wait_time--)
                 {
+                    // Wait for ack
                     byte = RS232readByte();
                     if (byte == -1)
                         continue;
@@ -239,6 +246,7 @@ int parseSerial(void)
                     }
                     break;
                 }
+                // If timeout, try to re-establish connection
                 if (!wait_time)// !wait_time means wait_time reached 0 and timed out
                 {
                     RS232writeByte(COMM_DEBUG);
@@ -247,6 +255,8 @@ int parseSerial(void)
                 }
                 break;
 
+                // Deal with stopping remote: if in a factory mode,
+                // go back to weigh.
             case COMM_STOP_REM:
                 disp_type &= ~DISP_RS232;
                 if (cur_state & 0x04 && !(req_state & 0x04)) // Any of the Factory modes
@@ -259,6 +269,7 @@ int parseSerial(void)
                 wait_time = 0xFFFF;
                 while (wait_time--)
                 {
+                    // Wait for new state, and use for next state.
                     byte = RS232readByte();
                     if (byte == -1)
                         continue;
@@ -278,6 +289,7 @@ int parseSerial(void)
                 wait_time = 0xFFFF;
                 while (wait_time--)
                 {
+                    // Similarily, wait for new units byte, and update state var
                     byte = RS232readByte();
                     if (byte == -1)
                         continue;
@@ -297,6 +309,7 @@ int parseSerial(void)
                 wait_time = 0xFFFF;
                 while (wait_time--)
                 {
+                    // Wait for and use new display places info from GUI
                     byte = RS232readByte();
                     if (byte == -1)
                         continue;
@@ -317,11 +330,12 @@ int parseSerial(void)
                 RS232writeByte(COMM_ACK_TARE);
                 break;
 
+                // If an Ack was recieved let calling function know.
             case COMM_NUM_RXD:
             case COMM_ACK_STATE:
             case COMM_ACK_UNITS:
             case COMM_ACK_DISP:
-            case COMM_ACK_FAC:                
+            case COMM_ACK_FAC:
                 return RS232_ACK_RXD;
                 break;
 
@@ -331,8 +345,10 @@ int parseSerial(void)
 
             case COMM_GET_STATS:
                 RS232writeByte(COMM_ACK_STATS);
+                // Send Mean first.
                 RS232writeByte((char) (((mean) & 0xFF00) >> 8));
                 RS232writeByte((char) ((mean) & 0x00FF));
+                //Send variance
                 RS232writeByte((char) (((variance) & 0xFF00) >> 8));
                 RS232writeByte((char) ((variance) & 0x00FF));
                 break;
@@ -348,9 +364,12 @@ int parseSerial(void)
 
             case COMM_CAL_DATA:
                 /*Read the next 20 bytes from the buffer. If they're there.*/
+                //cal_data_left = CALDATA_SIZE;
                 readCalData();
+                RS232writeByte(COMM_CAL_ACK_DATA);
+                Nop();
                 break;
-                
+
             default:
                 return RS232_UNKNOWN_CODE;
                 break;
@@ -380,15 +399,17 @@ void readCalData(void)
 int readCalInt(void)
 {
     int wait_time = 0xFFFF;
-    char byte;
+    int byte_i;
+    unsigned char byte;
     int ret;
 
     while (wait_time--)
     {
         /*Wait for high byte*/
-        if ((byte = RS232readByte()) != -1)
+        if ((byte_i = RS232readByte()) != -1)
         {
-            ret = (int)byte << 8;
+            byte = (unsigned char) byte_i & 0x00FF;
+            ret = (unsigned int)byte << 8;
 
             wait_time = 0xFFFF;
             while(wait_time--)
@@ -396,7 +417,7 @@ int readCalInt(void)
                 /*Wait for low byte*/
                 if ((byte = RS232readByte()) != -1)
                 {
-                    ret |= (int)byte;
+                    ret |= (unsigned int)(byte & 0x00FF);
 
                     return ret;
                 }
@@ -404,6 +425,12 @@ int readCalInt(void)
         }
     }
 }
+
+void parseCalData(unsigned char* buffer)
+{
+
+}
+
 int readNum(void)
 {
     char byte;
@@ -411,15 +438,17 @@ int readNum(void)
     long wait_time = 0xFFFF;
     while (wait_time--)
     {
+        // Wait for high byte
         if ((byte = RS232readByte()) != -1)
         {
-            return_num = ((int) byte << 8);
+            return_num = ((unsigned int) byte << 8);
             wait_time = 0xFFFF;
             while (wait_time--)
             {
+                // Wait for low byte
                 if ((byte = RS232readByte()) != -1)
                 {
-                    return_num |= byte;
+                    return_num |= (unsigned int)byte;
 
                     RS232writeByte(COMM_NUM_RXD);
                     return return_num;
@@ -437,6 +466,7 @@ void sendRawWeight(void)
     RS232writeByte(num_samples);
     for (i=0; i < num_samples; i++)
     {
+        // Send latest num_samples of raw weight data.
         char index = temp_lead_idx - i;
         if (index < 0)
             index += ADC_BUFSIZE;

@@ -107,6 +107,9 @@ void main(void)
  */
 void setup()
 {
+    char welcomeStr1[] = "Welcome to ";
+    char welcomeStr2[] = "   FennecScales!";
+
     int timer = 0;
     setupPower();
 
@@ -121,14 +124,18 @@ void setup()
     initialiseNumPad();
     //initialisePushBtn();
 
+    clearLCD();
+    stringToLCD(welcomeStr1, LCD_LINE_1);
+    stringToLCD(welcomeStr2, LCD_LINE_2);
+
                 /* Configure interrupts */
     INTCONbits.GIE = 1; // Enable global interrupts and priority
     INTCONbits.PEIE = 1;
     RCONbits.IPEN = 1;
 
-    for (timer = 0; timer <= 0xFF; ++timer)
+    for (timer = 0; timer <= 0x3FF; ++timer)
     {
-        writeLEDbar(timer, 0xFF);
+        writeLEDbar(timer, 0x3FF);
         
     }
 
@@ -141,10 +148,12 @@ void setup()
  */
 void powerDown(void)
 {
+
+    char LCD_shutdown[] = "Goodnight!";
     INTCON3bits.INT2IF = 0;
     saveState();
-    
-    writeLEDbar(1000, 1001);
+    clearLCD();
+    stringToLCD(LCD_shutdown, LCD_LINE_1);
 
     // Other shut down stuff.
 

@@ -1,9 +1,9 @@
 #ifndef RS232_H
 #define RS232_H
 
-#define RS232_NO_DATA       -1
-#define RS232_UNKNOWN_CODE  -2
-#define RS232_ACK_RXD       -3
+#define RS232_NO_DATA       0xFFFF
+#define RS232_UNKNOWN_CODE  0xFFFE
+#define RS232_ACK_RXD       0xFFFD
 
 /**
  * RS232 (driver) module

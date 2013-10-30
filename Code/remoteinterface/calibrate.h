@@ -22,6 +22,6 @@ int convertVoltageToGrams(int voltage);
 
 extern int cal_count_ref[3];
 extern int cal_b[4];
-extern int cal_m[4];
+extern unsigned int cal_m[4];
 
 #endif //CALIBRATE_H

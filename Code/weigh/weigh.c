@@ -19,7 +19,7 @@
 int variance;
 int mean;
 
-void convertGramsToOz(int grams, char *output);
+int convertGramsToOz(int grams);
 int convertVoltageToGrams(int voltage);
 
 void weigh(void)
@@ -33,6 +33,7 @@ void weigh(void)
     // If user has selected Ounces, convert to ounces and display.
     if (disp_type & OZ)
     {
+        weight = convertGramsToOz(weight);
         outputF(weight);
     }
     else
@@ -44,6 +45,7 @@ void weigh(void)
 int getWeight(void)
 /*Returns a 10-bit number representing the smoothed weight*/
 {
+    static char sustenance = 0;
     int temp_mean;
     char temp_idx;
     char temp_lead_idx = ADC_lead_idx;
@@ -79,16 +81,28 @@ int getWeight(void)
 
     if (variance > MAX_VARIANCE)
     {
-        showWarning(WARNING_VARIANCE);
+        if ((sustenance++) == 15)
+        {
+            showWarning(WARNING_VARIANCE);
+        }
+    }
+    else
+    {
+        sustenance = 0;
     }
 
     weight = convertVoltageToGrams(weight);
     global_weight = weight;
 
+    if (weight > 1010)
+    {
+        showWarning(WARNING_OVERLOAD);
+    }
+
     /* I don't think this should be done here... */
     if (disp_type & DISP_RS232)
         RS232sendData_i(COMM_BEGIN_NUM, weight);
-    writeLEDbar(global_weight, 1024);
+    writeLEDbar(global_weight, convertVoltageToGrams(1023) + 1);
 //    RS232writeByte(COMM_BEGIN_NUM);
 //    RS232writeByte((weight & 0xFF00) >> 8);
 //    RS232writeByte(weight & 0x00FF);
@@ -96,12 +110,12 @@ int getWeight(void)
     return weight;
 }
 
-void convertGramsToOz(int grams, char* output)
+int convertGramsToOz(int grams)
 {
     short long ouncesX100 = ((((short long) grams) * 352) / 100);
 
     char whole = ouncesX100 / 100;
     char decimal = ouncesX100 - ((short long) whole * 100);
 
-    sprintf(output, "%d.%d", whole, decimal);
+    return ouncesX100;
 }

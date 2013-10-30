@@ -1,6 +1,5 @@
 #include "../spi.h"
 #include <p18f452.h>
-#include "../localinterface/output/tts.h"
 
 #define SPI_BUFSIZE 16
 
@@ -19,8 +18,6 @@ typedef struct spiData
 static SPIdata SPI_buffer[SPI_BUFSIZE];
 static unsigned char lead_idx, trail_idx, temp_lead_idx;
 char readStatus;
-
-char TTS_stage;
 
 void incTrailIdx(void);
 
@@ -173,12 +170,7 @@ void SPIisr()
             CS_LED_STATUS = 1;
             break;
     }
-    /* Duplex read from TTS from MISO. Increment the pointer if end not reached */
-    if (TTS_stage < (TTS_INPUT_LENGTH - 1) && SPI_buffer[trail_idx].CScode == SPI_TTS)
-    {
-        TTS_input_string[TTS_stage] = SSPBUF;
-        TTS_stage++;
-    }
+
     /* Single byte read from EEPROM, then set read complete flag */
     if (SPI_buffer[trail_idx].CScode == SPI_EEPROM_READ_BYTE)
     {
@@ -199,8 +191,6 @@ void SPIisr()
         {
             // increment SPI buffer pointer.
             incTrailIdx();
-            TTS_input_string[0] = 1;
-            TTS_stage = 1;
         }
         else
         {
@@ -210,8 +200,6 @@ void SPIisr()
             {
                 // May need to also reset TTS.
                 incTrailIdx();
-                TTS_input_string[0] = 1;
-                TTS_stage = 1;
                 return;
             }
             // increment pointer inside string.

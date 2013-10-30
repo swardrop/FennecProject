@@ -1,8 +1,9 @@
 #include "calibrate.h"
 #include "../state.h"
+#include "../../GUI/commscodes.h"
 
 int cal_count_ref[3];   /*no of counts at 250, 500 and 750 grams*/
-int cal_m[4];           /*Gradients of line sections*/
+unsigned int cal_m[4];           /*Gradients of line sections*/
 int cal_b[4];           /*y-intercepts of line sections*/
 
 
@@ -23,7 +24,7 @@ int convertVoltageToGrams(int voltage)
     }
 
     /*Convert*/
-    grams = cal_m[i]*voltage + cal_b[i];
+    grams = (long) cal_m[i]*(long)voltage/CAL_GRADIENT_FACTOR + cal_b[i];
 
     /*Incorportate tare offset*/
     grams -= tare_offset;

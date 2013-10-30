@@ -14,7 +14,7 @@
 #define WARNING_VARIANCE    1
 #define WARNING_LARGEERROR  2
 
-#define MAX_VARIANCE        100
+#define MAX_VARIANCE        70
 
 /** showWarning
  *  @args warning code

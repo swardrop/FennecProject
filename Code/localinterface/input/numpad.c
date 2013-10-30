@@ -24,6 +24,10 @@
 char np_buffer[NP_BUFSIZE];
 static char *np_lead_ptr, *np_trail_ptr;
 
+//char facPass[] = {BUTTON_STAR, BUTTON_HASH, BUTTON_1, BUTTON_HASH, BUTTON_STAR, 0xFF};
+
+char facPass[] = {BUTTON_2, BUTTON_1, BUTTON_HASH, 0xFF};
+
 char* np_incPtr(char*);
 
 char getNextNum()
@@ -86,6 +90,7 @@ char getNextNum()
 void numpadISR()
 {
     char digit; //Current number being converted
+    static char facPassIdx = 0;
     INTCON1bits.INT0IF = 0;     /*Clear flag*/
     
     shut_off_timer_count = TWO_MINUTES;
@@ -94,10 +99,19 @@ void numpadISR()
     digit = (PORTD & 0b11110000);
 
     // Check for Factory Password key combination
-    if (0)
+    if (digit == facPass[facPassIdx])
     {
-        RS232writeByte(COMM_START_FAC);
-        RS232writeByte(COMM_START_FAC);
+        facPassIdx++;
+        if (facPass[facPassIdx] == 0xFF)
+        {
+            RS232writeByte(COMM_START_FAC);
+            RS232writeByte(COMM_START_FAC);
+            facPassIdx = 0;
+        }
+    }
+    else
+    {
+        facPassIdx = 0;
     }
 
     switch (digit) /*If one of the function keys was pressed, alter the appropriate state variables.*/

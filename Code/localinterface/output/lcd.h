@@ -2,7 +2,7 @@
 #define LCD_H
 
 #define LCD_LINE_1 0
-#define LCD_LINE_2 40
+#define LCD_LINE_2 ((unsigned char) 0x40)
 
 #define LCD_WEIGH 0
 #define LCD_COUNT 1
@@ -56,8 +56,9 @@ void initLCD(void) ;
  */
 void clearLCD(void);
 
-void LCDSetDDRaddr(char);
-void LCDWriteData(char);
+
+void LCDSetDDRaddr(unsigned char);
+void LCDWriteData(unsigned char);
 
 
 #endif /*LCD_H*/
