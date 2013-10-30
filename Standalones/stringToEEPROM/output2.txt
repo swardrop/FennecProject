@@ -1,0 +1,8 @@
+Data to be entered into eeprom at location 0x64: 
+This is a test string
+Here is another string to test with
+A third test
+#define testString "This is a test string"
+#define Another "Here is another string to test with"
+#define Third "A third test"
+#define 
