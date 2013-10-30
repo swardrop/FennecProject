@@ -5,7 +5,7 @@
  * EEPROM module
  * This module provides the interface to the EEPROM chip - sending and receiving
  * data over the SPI bus.
- * 
+ *
  */
 void initialiseEEPROM(void);
 /**
@@ -35,10 +35,17 @@ void getEEPROMbyte(int address, char* str_buf);
 char sendEEPROMbyte(int address, char *data);
 
 /**
- * incPtr
+ * splitAddress
  * @param address       Memory address in EEPROM
- * 
- * This function increments pointers and converts address into 2 bytes for transmitting*/
-void incPtr(int address);
+ *
+ * This function splits a 16bit addresss into two 8 bit addresses.*/
+void splitAddress(int address);
+
+/**
+* checkRDSR
+* @param temp       A char representing what bit is being tested. (only WIP and WEL is used)
+*
+* This function is used to poll the EEPROM RDSR and wait until either WIP and WEL is cleared and set respectively*/
+void checkRDSR(char temp);
 
 #endif // EEPROM_H
