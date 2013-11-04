@@ -99,13 +99,10 @@ int getWeight(void)
         showWarning(WARNING_OVERLOAD);
     }
 
-    /* I don't think this should be done here... */
+    // Update the GUI and the LEDbar.
     if (disp_type & DISP_RS232)
         RS232sendData_i(COMM_BEGIN_NUM, weight);
     writeLEDbar(global_weight, convertVoltageToGrams(1023) + 1);
-//    RS232writeByte(COMM_BEGIN_NUM);
-//    RS232writeByte((weight & 0xFF00) >> 8);
-//    RS232writeByte(weight & 0x00FF);
 
     return weight;
 }
